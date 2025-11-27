@@ -2,9 +2,17 @@ import { useState } from 'react';
 import Select from '../components/ui/Select';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import Modal from '../components/ui/Modal';
+import * as api from '../utils/api';
+import { useSnackbar } from '../utils/useSnackbar';
+import Snackbar from '../components/ui/Snackbar';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
+  const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [settings, setSettings] = useState({
     // Notification Settings
     emailNotifications: true,
@@ -20,6 +28,7 @@ const Settings = () => {
   });
 
   const [saved, setSaved] = useState(false);
+  const { snackbar, showSuccess, showError, hideSnackbar } = useSnackbar();
 
   const handleToggle = (field) => {
     setSettings({ ...settings, [field]: !settings[field] });
@@ -34,6 +43,23 @@ const Settings = () => {
     console.log('Settings saved:', settings);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await api.deleteAccount();
+      if (response.success) {
+        showSuccess('Account deleted successfully! Redirecting to home...');
+        setTimeout(() => {
+          localStorage.removeItem('token');
+          navigate('/');
+        }, 1500);
+      }
+    } catch (error) {
+      showError(error.message || 'Failed to delete account');
+      setIsDeleting(false);
+    }
   };
 
   const toggleDarkMode = () => {
@@ -257,6 +283,30 @@ const Settings = () => {
           </Card>
         </div>
 
+        {/* Delete Account Section */}
+        <div className="animate-fadeIn" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+          <Card>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+              <div className="flex-1">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+                  <i className="fas fa-trash-alt text-red-500"></i>
+                  Delete Account
+                </h2>
+                <p className="text-gray-600 text-sm md:text-base">
+                  Permanently delete your account and all associated data
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsDeleteConfirmOpen(true)}
+                className="bg-red-600 hover:bg-red-700 text-white border-0 w-full md:w-auto"
+              >
+                <i className="fas fa-trash-alt mr-2"></i>
+                Delete Account
+              </Button>
+            </div>
+          </Card>
+        </div>
+
         {/* Save Button */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 md:gap-4">
           <Button variant="outline" onClick={() => window.location.reload()} className="text-sm md:text-base">
@@ -269,6 +319,65 @@ const Settings = () => {
           </Button>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => !isDeleting && setIsDeleteConfirmOpen(false)}
+        title="Delete Account"
+      >
+        <div className="space-y-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+            <i className="fas fa-exclamation-circle text-red-600 text-xl mt-0.5 shrink-0"></i>
+            <div>
+              <p className="text-sm font-semibold text-red-800">Are you sure you want to delete your account?</p>
+              <p className="text-xs text-red-700 mt-1">This action cannot be undone. All your data will be permanently deleted.</p>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+            <i className="fas fa-info-circle text-blue-600 text-lg mt-0.5 shrink-0"></i>
+            <p className="text-xs text-blue-800">You will receive a confirmation email after account deletion.</p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteConfirmOpen(false)}
+              disabled={isDeleting}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white border-0"
+            >
+              {isDeleting ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-trash-alt mr-2"></i>
+                  Yes, Delete
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Snackbar for messages */}
+      <Snackbar
+        message={snackbar.message}
+        type={snackbar.type}
+        open={snackbar.open}
+        onClose={hideSnackbar}
+        position="top-right"
+      />
     </div>
   );
 };

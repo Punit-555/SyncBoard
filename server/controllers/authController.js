@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../prisma.config.js';
-import { sendSignupEmail, sendPasswordResetEmail } from '../services/emailService.js';
+import { sendSignupEmail, sendPasswordResetEmail, sendAccountDeletedEmail } from '../services/emailService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
@@ -362,6 +362,108 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error during password reset',
+      error: error.message,
+    });
+  }
+};
+
+
+// Update User Profile
+export const updateUserProfile = async (req, res) => {
+  console.log("RES", req);
+  try {
+    const userId = req.user.userId; 
+    const { firstName, lastName, email } = req.body;
+
+    if (!firstName?.trim() || !lastName?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name and last name are required',
+      });
+    }
+
+    if (email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email cannot be changed via this endpoint',
+      });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while updating profile',
+      error: error.message,
+    });
+  }
+};
+
+// Delete User Account
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // Get user data before deletion
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Send account deletion email before deleting the account
+    try {
+      await sendAccountDeletedEmail(user.email, user.firstName || 'User');
+    } catch (emailError) {
+      console.error('Error sending account deletion email:', emailError);
+      // Don't fail the deletion if email fails
+    }
+
+    // Delete the user account
+    await prisma.user.delete({
+      where: { id: parseInt(userId) },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Account deleted successfully. We have sent a confirmation email to your email address.',
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while deleting account',
       error: error.message,
     });
   }

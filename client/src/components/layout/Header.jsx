@@ -60,17 +60,11 @@ const Header = ({ onCreateTask }) => {
         </div>
       </header>
 
-      {/* Mobile Drawer */}
       <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
-      {/* Profile Edit Modal */}
       <ProfileEditModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
-        onProfileUpdated={() => {
-          // Refresh page or update user data
-          window.location.reload();
-        }}
       />
     </>
   );

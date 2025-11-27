@@ -399,3 +399,213 @@ function generatePasswordResetHTML(firstName, resetLink) {
     </html>
   `;
 }
+
+export const sendAccountDeletedEmail = async (email, firstName) => {
+  try {
+    const mailOptions = {
+      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Your TaskFlow Account Has Been Deleted 👋',
+      html: generateAccountDeletedHTML(firstName),
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Account deletion email sent to ${email}. Message ID: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending account deletion email:', error.message);
+    throw error;
+  }
+};
+
+function generateAccountDeletedHTML(firstName) {
+  const currentYear = new Date().getFullYear();
+  
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+          padding: 40px 20px;
+          text-align: center;
+          color: white;
+        }
+        .header h1 {
+          font-size: 32px;
+          margin-bottom: 10px;
+          font-weight: 700;
+        }
+        .content {
+          padding: 40px 30px;
+        }
+        .greeting {
+          font-size: 18px;
+          color: #333;
+          margin-bottom: 20px;
+          font-weight: 600;
+        }
+        .message {
+          color: #555;
+          font-size: 15px;
+          line-height: 1.8;
+          margin-bottom: 20px;
+        }
+        .info-box {
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          padding: 20px;
+          border-radius: 6px;
+          margin: 20px 0;
+          font-size: 14px;
+          color: #856404;
+        }
+        .reason-box {
+          background: #f8f9fa;
+          border: 1px solid #dee2e6;
+          padding: 20px;
+          border-radius: 6px;
+          margin: 20px 0;
+        }
+        .reason-box h3 {
+          color: #333;
+          font-size: 16px;
+          margin-bottom: 15px;
+        }
+        .reason-item {
+          display: flex;
+          align-items: start;
+          margin-bottom: 10px;
+          font-size: 14px;
+          color: #555;
+        }
+        .reason-icon {
+          width: 24px;
+          height: 24px;
+          background: #667eea;
+          color: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 12px;
+          flex-shrink: 0;
+          font-size: 12px;
+          font-weight: bold;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          border-top: 1px solid #eee;
+        }
+        .footer a {
+          color: #667eea;
+          text-decoration: none;
+        }
+        .footer a:hover {
+          text-decoration: underline;
+        }
+        .support-link {
+          text-align: center;
+          margin: 20px 0;
+        }
+        .support-link a {
+          display: inline-block;
+          color: #667eea;
+          text-decoration: none;
+          font-weight: 600;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <!-- Header -->
+        <div class="header">
+          <h1>Account Deleted</h1>
+        </div>
+
+        <div class="content">
+          <p class="greeting">Hi ${firstName},</p>
+          
+          <p class="message">
+            This email confirms that your TaskFlow account has been permanently deleted. All your data, tasks, and settings have been removed from our servers.
+          </p>
+
+          <!-- Info Box -->
+          <div class="info-box">
+            <strong>⏰ Timing:</strong><br>
+            Your account and all associated data will be fully removed from our systems within 24 hours.
+          </div>
+
+          <!-- What happens next -->
+          <div class="reason-box">
+            <h3>📋 What Happens Next</h3>
+            <div class="reason-item">
+              <div class="reason-icon">✓</div>
+              <div>Your account is immediately deactivated</div>
+            </div>
+            <div class="reason-item">
+              <div class="reason-icon">✓</div>
+              <div>All tasks, projects, and related data are deleted</div>
+            </div>
+            <div class="reason-item">
+              <div class="reason-icon">✓</div>
+              <div>You can no longer sign in with this email</div>
+            </div>
+            <div class="reason-item">
+              <div class="reason-icon">✓</div>
+              <div>Complete data removal within 24 hours</div>
+            </div>
+          </div>
+
+          <p class="message" style="font-size: 14px;">
+            <strong>Miss TaskFlow?</strong> You can always create a new account with the same email address anytime. We'll be glad to have you back!
+          </p>
+
+          <!-- Support -->
+          <div class="support-link">
+            <p style="font-size: 13px; color: #555; margin-bottom: 10px;">Have questions or need help?</p>
+            <a href="http://localhost:5173/help">Contact Support</a>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <p style="margin-bottom: 10px;">
+            © ${currentYear} TaskFlow. All rights reserved.<br>
+            <a href="http://localhost:5173">Visit TaskFlow</a> | 
+            <a href="http://localhost:5173/help">Help Center</a>
+          </p>
+          <p style="margin-top: 15px; font-size: 11px;">
+            You're receiving this email because you deleted your TaskFlow account.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}

@@ -25,5 +25,8 @@ export const forgotPassword = (payload) => request('/api/auth/forgot-password', 
 export const validateResetToken = (token) => request('/api/auth/validate-reset-token', { token }, 'POST');
 export const resetPassword = (payload) => request('/api/auth/reset-password', payload, 'POST');
 export const getCurrentUser = () => request('/api/auth/me', null, 'GET');
+export const updateUserProfile = (payload) => request('/api/auth/user-update', payload, 'PUT');
+export const deleteAccount = () => request('/api/auth/delete-account', null, 'DELETE');
 
-export default {signup, login, forgotPassword, validateResetToken, resetPassword, getCurrentUser};
+
+export default {signup, login, forgotPassword, validateResetToken, resetPassword, getCurrentUser, updateUserProfile, deleteAccount};
