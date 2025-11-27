@@ -1,37 +1,61 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
+import Snackbar from '../components/ui/Snackbar';
+import LoadingPopup from '../components/ui/LoadingPopup';
+import { useSnackbar } from '../utils/useSnackbar';
+import api from '../utils/api';
 
 const Login = () => {
-  const navigate = useNavigate();
+  const { snackbar, showSuccess, showError, showWarning, showInfo, hideSnackbar } = useSnackbar();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     remember: false,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/dashboard');
-  };
+    setIsLoading(true);
 
-  const handleGoogleSignIn = () => {
-    navigate('/dashboard');
+    const payload = { 
+      email: formData.email, 
+      password: formData.password,
+      rememberMe: formData.remember,
+    };
+
+    try {
+      const res = await api.login(payload);
+      if (res && res.token) {
+        localStorage.setItem('token', res.token);
+        showSuccess('Login successful! Redirecting...');
+        setIsLoggingIn(true);
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
+      }
+    } catch (err) {
+      console.error('Login error', err);
+      showError(err.message || 'Login failed. Please check your credentials.');
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#4361ee] to-[#3f37c9] p-5">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-8">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2.5 mb-4 text-3xl font-bold text-[#4361ee]">
-            <div className="bg-gradient-to-br from-[#4361ee] to-[#3f37c9] w-9 h-9 rounded-lg flex items-center justify-center text-white">
-              <i className="fas fa-tasks"></i>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#4361ee] to-[#3f37c9] p-4 sm:p-5 md:p-8">
+      <div className="bg-white rounded-2xl sm:rounded-lg md:rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-7 md:p-8">
+        <div className="text-center mb-6 sm:mb-7 md:mb-8">
+          <div className="flex items-center justify-center gap-2.5 mb-3 sm:mb-4 text-2xl sm:text-3xl font-bold text-[#4361ee]">
+            <div className="bg-gradient-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white">
+              <i className="fas fa-tasks text-sm sm:text-base"></i>
             </div>
-            <span>TaskFlow</span>
+            <span className="text-xl sm:text-2xl md:text-3xl">TaskFlow</span>
           </div>
-          <h2 className="text-2xl font-semibold mb-2 text-gray-800">Welcome Back</h2>
-          <p className="text-gray-600 text-sm">Sign in to your account to continue</p>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2 text-gray-800">Welcome Back</h2>
+          <p className="text-gray-600 text-xs sm:text-sm">Sign in to your account to continue</p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -53,7 +77,7 @@ const Login = () => {
             required
           />
 
-          <div className="flex justify-between items-center mb-5 text-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-2 sm:gap-0 text-xs sm:text-sm">
             <div className="flex items-center gap-1.5">
               <input
                 type="checkbox"
@@ -68,26 +92,28 @@ const Login = () => {
             </Link>
           </div>
 
-          <Button type="submit" className="w-full mb-5">
-            Sign In
+          <Button type="submit" className="w-full mb-4 sm:mb-5" disabled={isLoading}>
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
 
-        <div className="text-center relative my-5 text-gray-600 before:content-[''] before:absolute before:top-1/2 before:left-0 before:w-[45%] before:h-px before:bg-gray-200 after:content-[''] after:absolute after:top-1/2 after:right-0 after:w-[45%] after:h-px after:bg-gray-200">
-          or continue with
-        </div>
-
-        <Button onClick={handleGoogleSignIn} variant="google" className="w-full">
-          <i className="fab fa-google"></i> Sign in with Google
-        </Button>
-
-        <div className="text-center mt-5 text-sm text-gray-600">
+        <div className="text-center mt-4 sm:mt-5 text-xs sm:text-sm text-gray-600">
           Don't have an account?{' '}
           <Link to="/register" className="text-[#4361ee] no-underline font-medium hover:underline">
             Sign up
           </Link>
         </div>
       </div>
+
+      <Snackbar
+        message={snackbar.message}
+        type={snackbar.type}
+        open={snackbar.open}
+        onClose={hideSnackbar}
+        position="top-right"
+      />
+
+      <LoadingPopup message="Logging in..." isOpen={isLoggingIn} />
     </div>
   );
 };

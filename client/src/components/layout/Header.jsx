@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 import Drawer from '../ui/Drawer';
+import ProfileDropdown from '../ui/ProfileDropdown';
+import ProfileEditModal from '../ui/ProfileEditModal';
 
 const Header = ({ onCreateTask }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   return (
     <>
@@ -43,9 +46,7 @@ const Header = ({ onCreateTask }) => {
               <Button onClick={onCreateTask} variant="outline" className="lg:hidden">
                 <i className="fas fa-plus"></i>
               </Button>
-              <div className="w-10 h-10 rounded-full bg-[#4895ef] flex items-center justify-center text-white font-semibold cursor-pointer hover:bg-[#4361ee] transition-colors">
-                <span>JD</span>
-              </div>
+              <ProfileDropdown onEditProfile={() => setIsProfileModalOpen(true)} />
             </div>
 
             {/* Mobile Hamburger Menu */}
@@ -61,6 +62,16 @@ const Header = ({ onCreateTask }) => {
 
       {/* Mobile Drawer */}
       <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+
+      {/* Profile Edit Modal */}
+      <ProfileEditModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onProfileUpdated={() => {
+          // Refresh page or update user data
+          window.location.reload();
+        }}
+      />
     </>
   );
 };

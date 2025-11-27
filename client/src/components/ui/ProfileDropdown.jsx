@@ -1,0 +1,157 @@
+import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import * as api from '../../utils/api';
+import LoadingPopup from './LoadingPopup';
+
+const ProfileDropdown = ({ onEditProfile }) => {
+  const { user: authUser, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.getCurrentUser();
+        if (response.success && response.user) {
+          setUser(response.user);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      logout();
+      window.location.href = '/login';
+    }, 1500);
+  };
+
+  const getInitials = () => {
+    if (!user) return 'U';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+    const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    return initials || user.email.charAt(0).toUpperCase();
+  };
+
+  const getFullName = () => {
+    if (!user) return 'User';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+    return `${firstName} ${lastName}`.trim() || user.email;
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      {/* Profile Avatar */}
+      <div
+        onClick={() => !isLoading && setIsOpen(!isOpen)}
+        onMouseEnter={() => !isLoading && setIsOpen(true)}
+        className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#4895ef] flex items-center justify-center text-white font-semibold cursor-pointer hover:shadow-lg transition-all"
+      >
+        {isLoading ? (
+          <i className="fas fa-spinner fa-spin text-sm"></i>
+        ) : (
+          <span>{getInitials()}</span>
+        )}
+      </div>
+
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden animate-scaleIn z-[200]">
+          {/* User Info Section */}
+          <div className="bg-gradient-to-br from-[#4361ee] to-[#4895ef] p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-lg border-2 border-white/30">
+                {getInitials()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-semibold text-sm truncate">{getFullName()}</h3>
+                <p className="text-white/80 text-xs truncate">{user?.email || 'Loading...'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="py-2">
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onEditProfile?.();
+              }}
+              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i className="fas fa-user-edit text-[#4361ee]"></i>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-800">Edit Profile</p>
+                <p className="text-xs text-gray-500">Update your information</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                window.location.href = '/settings';
+              }}
+              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i className="fas fa-cog text-purple-600"></i>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-800">Settings</p>
+                <p className="text-xs text-gray-500">Preferences & notifications</p>
+              </div>
+            </button>
+
+            <div className="h-px bg-gray-100 my-2"></div>
+
+            <button
+              onClick={handleLogout}
+              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-red-50 transition-colors text-left group"
+            >
+              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-100">
+                <i className="fas fa-sign-out-alt text-red-600"></i>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-600">Logout</p>
+                <p className="text-xs text-gray-500">Sign out of your account</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <LoadingPopup message="Logging out..." isOpen={isLoggingOut} />
+    </div>
+  );
+};
+
+export default ProfileDropdown;

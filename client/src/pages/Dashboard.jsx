@@ -101,14 +101,14 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-8 md:flex-row flex-col md:items-center items-start gap-4 animate-slideInLeft">
-        <h1 className="text-3xl font-bold text-gray-800">My Dashboard</h1>
-        <div className="md:w-auto w-full">
-          <Input placeholder="Search tasks..." className="md:w-64 w-full" />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-3 md:gap-4 animate-slideInLeft">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">My Dashboard</h1>
+        <div className="w-full md:w-auto">
+          <Input placeholder="Search tasks..." className="w-full md:w-64" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-6 md:mb-8">
         <div className="animate-fadeIn" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
           <StatCard icon="fas fa-tasks" count={stats.total} label="Total Tasks" color="blue" />
         </div>

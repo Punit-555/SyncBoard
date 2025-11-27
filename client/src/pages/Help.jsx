@@ -100,21 +100,21 @@ const Help = () => {
 
   return (
     <div className="animate-fadeIn">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Help & Support</h1>
-        <p className="text-gray-600">Get assistance, submit feedback, or browse our FAQs</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-1 md:mb-2">Help & Support</h1>
+        <p className="text-gray-600 text-sm md:text-base">Get assistance, submit feedback, or browse our FAQs</p>
       </div>
 
       {/* Support Options Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-6 md:mb-8">
         {supportOptions.map((option, index) => (
           <div
             key={index}
             className="animate-fadeIn"
             style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'both' }}
           >
-            <Card className="text-center hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1">
-              <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl ${
+            <Card className="text-center hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 h-full">
+              <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full mx-auto mb-3 md:mb-4 flex items-center justify-center text-white text-xl md:text-2xl ${
                 option.color === 'blue' ? 'bg-[#4361ee]' :
                 option.color === 'pink' ? 'bg-[#f72585]' :
                 option.color === 'green' ? 'bg-[#4ade80]' :
@@ -122,9 +122,9 @@ const Help = () => {
               }`}>
                 <i className={option.icon}></i>
               </div>
-              <h3 className="font-semibold text-lg mb-2 text-gray-800">{option.title}</h3>
-              <p className="text-sm text-gray-600 mb-4">{option.description}</p>
-              <button className="text-[#4361ee] font-medium hover:underline">
+              <h3 className="font-semibold text-base md:text-lg mb-1 md:mb-2 text-gray-800">{option.title}</h3>
+              <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">{option.description}</p>
+              <button className="text-[#4361ee] font-medium hover:underline text-xs md:text-sm">
                 {option.action} <i className="fas fa-arrow-right ml-1"></i>
               </button>
             </Card>
@@ -132,23 +132,23 @@ const Help = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-6 md:mb-8">
         {/* Feedback Form */}
         <div className="animate-slideInLeft">
           <Card>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 md:mb-4 flex items-center gap-2">
               <i className="fas fa-comment-dots text-[#4361ee]"></i>
               Send Feedback
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
               We'd love to hear from you! Share your thoughts, report bugs, or suggest new features.
             </p>
 
             {submitted ? (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center animate-scaleIn">
-                <i className="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
-                <h3 className="text-xl font-semibold text-green-800 mb-2">Thank You!</h3>
-                <p className="text-green-700">Your feedback has been submitted successfully.</p>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 md:p-6 text-center animate-scaleIn">
+                <i className="fas fa-check-circle text-green-500 text-4xl md:text-5xl mb-3 md:mb-4"></i>
+                <h3 className="text-lg md:text-xl font-semibold text-green-800 mb-1 md:mb-2">Thank You!</h3>
+                <p className="text-green-700 text-sm md:text-base">Your feedback has been submitted successfully.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
