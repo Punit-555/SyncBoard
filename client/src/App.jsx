@@ -12,6 +12,7 @@ import ResetPassword from './pages/ResetPassword';
 import Guide from './pages/Guide';
 import Help from './pages/Help';
 import Settings from './pages/Settings';
+import Users from './pages/Users';
 import UnderDevelopment from './pages/UnderDevelopment';
 import Loader from './components/ui/Loader';
 import TaskModal from './components/tasks/TaskModal';
@@ -73,6 +74,7 @@ function App() {
             <Route path="tasks" element={<UnderDevelopment />} />
             <Route path="projects" element={<UnderDevelopment />} />
             <Route path="teams" element={<UnderDevelopment />} />
+            <Route path="users" element={<Users />} />
             <Route path="calendar" element={<UnderDevelopment />} />
             <Route path="reports" element={<UnderDevelopment />} />
             <Route path="guide" element={<Guide />} />

@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
+import taskRoutes from './routes/taskRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import prisma from './prisma.config.js';
 
 dotenv.config();
 
@@ -24,6 +28,9 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'Server is running' });
@@ -45,8 +52,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => { 
+app.listen(PORT, async () => {
     console.log(`Server running on http://localhost:${PORT}`);
+
+    // Test database connection
+    try {
+        await prisma.$connect();
+        console.log('✅ Database connected successfully!');
+    } catch (error) {
+        console.error('❌ Database connection failed:', error.message);
+        console.error('Please check your DATABASE_URL in .env file');
+    }
 });
 
 export default app;

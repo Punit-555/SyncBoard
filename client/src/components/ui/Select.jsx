@@ -1,4 +1,4 @@
-const Select = ({ label, options, className = '', ...props }) => {
+const Select = ({ label, options, className = '', children, ...props }) => {
   return (
     <div className="mb-4">
       {label && (
@@ -10,11 +10,13 @@ const Select = ({ label, options, className = '', ...props }) => {
         className={`w-full px-3 py-2.5 border border-gray-200 rounded-lg text-base focus:outline-none focus:border-[#4361ee] transition-colors ${className}`}
         {...props}
       >
-        {options?.map((option, index) => (
-          <option key={index} value={option.value || option}>
-            {option.label || option}
-          </option>
-        ))}
+        {options
+          ? options.map((option, index) => (
+              <option key={index} value={option.value || option}>
+                {option.label || option}
+              </option>
+            ))
+          : children}
       </select>
     </div>
   );

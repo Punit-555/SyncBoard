@@ -442,15 +442,12 @@ export const deleteAccount = async (req, res) => {
       });
     }
 
-    // Send account deletion email before deleting the account
     try {
       await sendAccountDeletedEmail(user.email, user.firstName || 'User');
     } catch (emailError) {
       console.error('Error sending account deletion email:', emailError);
-      // Don't fail the deletion if email fails
     }
 
-    // Delete the user account
     await prisma.user.delete({
       where: { id: parseInt(userId) },
     });

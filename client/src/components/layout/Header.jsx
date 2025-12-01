@@ -19,11 +19,11 @@ const Header = ({ onCreateTask }) => {
               <div className="bg-gradient-to-br from-[#4361ee] to-[#3f37c9] w-9 h-9 rounded-lg flex items-center justify-center text-white">
                 <i className="fas fa-tasks"></i>
               </div>
-              <span className="hidden sm:inline">TaskFlow</span>
+              <span className="hidden sm:inline">SynBoard</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex gap-5">
+            {/* <nav className="hidden md:flex gap-5">
               <Link to="/dashboard" className="no-underline text-gray-600 font-medium hover:text-[#4361ee] transition-colors">
                 Dashboard
               </Link>
@@ -36,7 +36,7 @@ const Header = ({ onCreateTask }) => {
               <Link to="/calendar" className="no-underline text-gray-600 font-medium hover:text-[#4361ee] transition-colors">
                 Calendar
               </Link>
-            </nav>
+            </nav> */}
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-4">

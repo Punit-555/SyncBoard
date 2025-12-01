@@ -52,7 +52,7 @@ const Login = () => {
             <div className="bg-gradient-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white">
               <i className="fas fa-tasks text-sm sm:text-base"></i>
             </div>
-            <span className="text-xl sm:text-2xl md:text-3xl">TaskFlow</span>
+            <span className="text-xl sm:text-2xl md:text-3xl">SyncBoard</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2 text-gray-800">Welcome Back</h2>
           <p className="text-gray-600 text-xs sm:text-sm">Sign in to your account to continue</p>
@@ -92,7 +92,7 @@ const Login = () => {
             </Link>
           </div>
 
-          <Button type="submit" className="w-full mb-4 sm:mb-5" disabled={isLoading}>
+          <Button type="submit" className="w-full mb-4 text-center sm:mb-5 d-flex justify-center" disabled={isLoading}>
             {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
