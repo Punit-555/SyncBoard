@@ -1,23 +1,52 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Tooltip from '../ui/Tooltip';
 import LoadingPopup from '../ui/LoadingPopup';
+import { useAuth } from '../../hooks/useAuth';
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
   const location = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { user } = useAuth();
 
-  const menuItems = [
-    { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
-    { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
-    { path: '/tasks', icon: 'fas fa-tasks', label: 'My Tasks' },
-    { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
-    { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
-    { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
-    { path: '/guide', icon: 'fas fa-book', label: 'Guide' },
-    { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
-    { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
-  ];
+  const allMenuItems = {
+    USER: [
+      { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+      { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
+      { path: '/tasks', icon: 'fas fa-tasks', label: 'My Tasks' },
+      { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
+      { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
+      { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
+      { path: '/guide', icon: 'fas fa-book', label: 'Guide' },
+      { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
+      { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
+    ],
+    ADMIN: [
+      { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+      { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
+      { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
+      { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
+      { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
+      { path: '/guide', icon: 'fas fa-book', label: 'Guide' },
+      { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
+    ],
+    SUPERADMIN: [
+      { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
+      { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
+      { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
+      { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
+      { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
+      { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
+      { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
+    ],
+  };
+
+  const menuItems = useMemo(() => {
+    if (!user || !user.role) {
+      return allMenuItems.USER;
+    }
+    return allMenuItems[user.role] || allMenuItems.USER;
+  }, [user]);
 
   const handleLogout = () => {
     setIsLoggingOut(true);
@@ -29,7 +58,6 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
 
   return (
     <section className="relative ">
-      {/* Toggle Button - Outside sidebar */}
       <button
         onClick={onToggle}
         className={`fixed top-[100px] w-6 h-6 bg-[#4361ee] text-white rounded-full md:flex hidden items-center justify-center hover:bg-[#3f37c9] transition-all duration-300 shadow-lg z-101 ${
@@ -78,7 +106,6 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
         ))}
       </ul>
 
-      {/* Logout Button at Bottom */}
       <div className="mt-auto pt-4 border-t border-gray-200">
         {isCollapsed ? (
           <Tooltip text="Logout" position="right">

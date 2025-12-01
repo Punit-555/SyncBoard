@@ -19,6 +19,13 @@ async function request(path, body, method = 'POST') {
   return data;
 }
 
+// Generic HTTP methods
+export const get = (path) => request(path, null, 'GET');
+export const post = (path, payload) => request(path, payload, 'POST');
+export const put = (path, payload) => request(path, payload, 'PUT');
+export const del = (path) => request(path, null, 'DELETE');
+
+// Auth endpoints
 export const signup = (payload) => request('/api/auth/signup', payload, 'POST');
 export const login = (payload) => request('/api/auth/login', payload, 'POST');
 export const forgotPassword = (payload) => request('/api/auth/forgot-password', payload, 'POST');
@@ -28,5 +35,17 @@ export const getCurrentUser = () => request('/api/auth/me', null, 'GET');
 export const updateUserProfile = (payload) => request('/api/auth/user-update', payload, 'PUT');
 export const deleteAccount = () => request('/api/auth/delete-account', null, 'DELETE');
 
-
-export default {signup, login, forgotPassword, validateResetToken, resetPassword, getCurrentUser, updateUserProfile, deleteAccount};
+export default {
+  get,
+  post,
+  put,
+  delete: del,
+  signup,
+  login,
+  forgotPassword,
+  validateResetToken,
+  resetPassword,
+  getCurrentUser,
+  updateUserProfile,
+  deleteAccount,
+};

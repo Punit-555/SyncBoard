@@ -400,6 +400,218 @@ function generatePasswordResetHTML(firstName, resetLink) {
   `;
 }
 
+export const sendWelcomeEmailWithPassword = async (email, firstName, password) => {
+  try {
+    const mailOptions = {
+      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Welcome to TaskFlow! 🚀 Your Account is Ready',
+      html: generateWelcomeWithPasswordHTML(firstName, email, password),
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Welcome email with password sent to ${email}. Message ID: ${info.messageId}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending welcome email with password:', error.message);
+    throw error;
+  }
+};
+
+function generateWelcomeWithPasswordHTML(firstName, email, password) {
+  const currentYear = new Date().getFullYear();
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 10px 20px;
+          text-align: center;
+          color: white;
+        }
+        .header h1 {
+          font-size: 32px;
+          margin-bottom: 10px;
+          font-weight: 700;
+        }
+        .content {
+          padding: 10px 30px;
+        }
+        .greeting {
+          font-size: 18px;
+          color: #333;
+          margin-bottom: 20px;
+          font-weight: 600;
+        }
+        .message {
+          color: #555;
+          font-size: 15px;
+          line-height: 1.8;
+          margin-bottom: 30px;
+        }
+        .credentials-box {
+          background: #f8f9ff;
+          border: 2px solid #667eea;
+          border-radius: 8px;
+          padding: 25px;
+          margin: 30px 0;
+        }
+        .credentials-box h3 {
+          color: #667eea;
+          font-size: 16px;
+          margin-bottom: 15px;
+          font-weight: 600;
+        }
+        .credential-item {
+          background: white;
+          padding: 12px 15px;
+          border-radius: 6px;
+          margin-bottom: 10px;
+          border: 1px solid #e0e0e0;
+        }
+        .credential-label {
+          font-size: 12px;
+          color: #999;
+          text-transform: uppercase;
+          margin-bottom: 5px;
+        }
+        .credential-value {
+          font-size: 16px;
+          color: #333;
+          font-weight: 600;
+          font-family: 'Courier New', monospace;
+        }
+        .password-value {
+          background: #fff3cd;
+          padding: 8px 12px;
+          border-radius: 4px;
+          display: inline-block;
+          border: 1px dashed #ffc107;
+        }
+        .warning-box {
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          padding: 15px;
+          border-radius: 4px;
+          margin: 20px 0;
+          font-size: 13px;
+          color: #856404;
+        }
+        .cta-button {
+          text-align: center;
+          margin: 30px 0;
+        }
+        .cta-button a {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 14px 40px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 16px;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          border-top: 1px solid #eee;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>TaskFlow</h1>
+          <p>Your Intelligent Task Management Companion</p>
+        </div>
+
+        <div class="content">
+          <p class="greeting">Hi ${firstName}! 👋</p>
+
+          <p class="message">
+            Welcome to TaskFlow! Your account has been created by your administrator.
+            We're excited to have you on board and help you manage your tasks efficiently.
+          </p>
+
+          <!-- Login Credentials -->
+          <div class="credentials-box">
+            <h3>🔐 Your Login Credentials</h3>
+            <div class="credential-item">
+              <div class="credential-label">Email</div>
+              <div class="credential-value">${email}</div>
+            </div>
+            <div class="credential-item">
+              <div class="credential-label">Temporary Password</div>
+              <div class="credential-value password-value">${password}</div>
+            </div>
+          </div>
+
+          <!-- Security Notice -->
+          <div class="warning-box">
+            <strong>🔒 Security Recommendation:</strong><br>
+            For your security, please change this temporary password after your first login.
+            Go to Settings → Change Password after logging in.
+          </div>
+
+          <!-- CTA Button -->
+          <div class="cta-button">
+            <a href="http://localhost:5173/login">Login to TaskFlow →</a>
+          </div>
+
+          <p class="message" style="font-size: 14px; margin-top: 30px;">
+            <strong>What You Can Do:</strong>
+          </p>
+          <ul style="color: #555; font-size: 14px; line-height: 1.8; margin-left: 20px;">
+            <li>Create and organize your tasks</li>
+            <li>Set priorities and due dates</li>
+            <li>Track your progress</li>
+            <li>Collaborate with your team</li>
+          </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <p style="margin-bottom: 10px;">
+            © ${currentYear} TaskFlow. All rights reserved.<br>
+            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit TaskFlow</a> |
+            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+          </p>
+          <p style="margin-top: 15px; font-size: 11px;">
+            You're receiving this email because an administrator created a TaskFlow account for you.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 export const sendAccountDeletedEmail = async (email, firstName) => {
   try {
     const mailOptions = {
