@@ -10,23 +10,16 @@ import { authenticateToken, authorizeRole } from '../middleware/authMiddleware.j
 
 const router = express.Router();
 
-// All routes require authentication and admin/superadmin role
+// All routes require authentication
 router.use(authenticateToken);
-router.use(authorizeRole('ADMIN', 'SUPERADMIN'));
 
-// Get all users
+// GET routes - accessible to all authenticated users
 router.get('/', getAllUsers);
-
-// Get a single user by ID
 router.get('/:id', getUserById);
 
-// Create a new user
-router.post('/', createUser);
-
-// Update a user
-router.put('/:id', updateUser);
-
-// Delete a user
-router.delete('/:id', deleteUser);
+// POST, PUT, DELETE routes - require admin/superadmin role
+router.post('/', authorizeRole('ADMIN', 'SUPERADMIN'), createUser);
+router.put('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), updateUser);
+router.delete('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), deleteUser);
 
 export default router;

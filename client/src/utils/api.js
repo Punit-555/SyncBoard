@@ -35,6 +35,23 @@ export const getCurrentUser = () => request('/api/auth/me', null, 'GET');
 export const updateUserProfile = (payload) => request('/api/auth/user-update', payload, 'PUT');
 export const deleteAccount = () => request('/api/auth/delete-account', null, 'DELETE');
 
+// Task endpoints
+export const getTasks = () => request('/api/tasks', null, 'GET');
+export const getTaskById = (id) => request(`/api/tasks/${id}`, null, 'GET');
+export const createTask = (payload) => request('/api/tasks', payload, 'POST');
+export const updateTask = (id, payload) => request(`/api/tasks/${id}`, payload, 'PUT');
+export const deleteTask = (id) => request(`/api/tasks/${id}`, null, 'DELETE');
+
+// User endpoints
+export const getUsers = () => request('/api/users', null, 'GET');
+
+// Project endpoints
+export const getProjects = () => request('/api/projects', null, 'GET');
+export const getProjectById = (id) => request(`/api/projects/${id}`, null, 'GET');
+export const createProject = (payload) => request('/api/projects', payload, 'POST');
+export const updateProject = (id, payload) => request(`/api/projects/${id}`, payload, 'PUT');
+export const deleteProject = (id) => request(`/api/projects/${id}`, null, 'DELETE');
+
 export default {
   get,
   post,
@@ -48,4 +65,10 @@ export default {
   getCurrentUser,
   updateUserProfile,
   deleteAccount,
+  getTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask,
+  getUsers,
 };

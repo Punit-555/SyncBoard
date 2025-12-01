@@ -13,17 +13,12 @@ import Guide from './pages/Guide';
 import Help from './pages/Help';
 import Settings from './pages/Settings';
 import Users from './pages/Users';
+import Tasks from './pages/Tasks';
+import Projects from './pages/Projects';
 import UnderDevelopment from './pages/UnderDevelopment';
 import Loader from './components/ui/Loader';
-import TaskModal from './components/tasks/TaskModal';
 
 function App() {
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-
-  const handleCreateTask = () => {
-    setIsTaskModalOpen(true);
-  };
-
   return (
     <AuthProvider>
       <Router>
@@ -65,14 +60,14 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Layout onCreateTask={handleCreateTask} />
+                <Layout />
               </ProtectedRoute>
             }
           >
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="tasks" element={<UnderDevelopment />} />
-            <Route path="projects" element={<UnderDevelopment />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="projects" element={<Projects />} />
             <Route path="teams" element={<UnderDevelopment />} />
             <Route path="users" element={<Users />} />
             <Route path="calendar" element={<UnderDevelopment />} />
@@ -87,17 +82,6 @@ function App() {
             element={<Navigate to="/login" />}
           />
         </Routes>
-
-        <ProtectedRoute>
-          <TaskModal
-            isOpen={isTaskModalOpen}
-            onClose={() => setIsTaskModalOpen(false)}
-            onSubmit={(data) => {
-              console.log('Task created:', data);
-              setIsTaskModalOpen(false);
-            }}
-          />
-        </ProtectedRoute>
       </Router>
     </AuthProvider>
   );

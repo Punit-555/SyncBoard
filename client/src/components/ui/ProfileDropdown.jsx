@@ -15,8 +15,9 @@ const ProfileDropdown = ({ onEditProfile }) => {
     const fetchUser = async () => {
       try {
         const response = await api.getCurrentUser();
-        if (response.success && response.user) {
-          setUser(response.user);
+        console.log("res", response);
+        if (response.success && response.data) {
+          setUser(response.data);
         }
       } catch (error) {
         console.error('Failed to fetch user:', error);
@@ -52,12 +53,25 @@ const ProfileDropdown = ({ onEditProfile }) => {
   };
 
   const getInitials = () => {
-    if (!user) return 'U';
-    const firstName = user.firstName || '';
-    const lastName = user.lastName || '';
-    const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    return initials || user.email.charAt(0).toUpperCase();
-  };
+  if (!user) return "U";
+
+  const first = user.firstName?.trim() || "";
+  const last = user.lastName?.trim() || "";
+
+  if (first && last) {
+    return `${first[0]}${last[0]}`.toUpperCase();
+  }
+
+  if (first) {
+    return first[0].toUpperCase();
+  }
+
+  if (last) {
+    return last[0].toUpperCase();
+  }
+
+  return user.email?.charAt(0).toUpperCase() || "U";
+};
 
   const getFullName = () => {
     if (!user) return 'User';
@@ -66,26 +80,34 @@ const ProfileDropdown = ({ onEditProfile }) => {
     return `${firstName} ${lastName}`.trim() || user.email;
   };
 
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Profile Avatar */}
       <div
         onClick={() => !isLoading && setIsOpen(!isOpen)}
         onMouseEnter={() => !isLoading && setIsOpen(true)}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#4895ef] flex items-center justify-center text-white font-semibold cursor-pointer hover:shadow-lg transition-all"
-      >
+              className="flex items-center gap-3 px-4 py-2 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
         {isLoading ? (
           <i className="fas fa-spinner fa-spin text-sm"></i>
         ) : (
-          <span>{getInitials()}</span>
+          <>
+            <div className="flex flex-col items-end">
+                  <span className="text-sm font-semibold text-gray-800">
+                    {user?.firstName} {user?.lastName}
+                  </span>
+                  <span className="text-xs text-gray-600">{user?.email}</span>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold shadow-md">
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </div>
+          </>
         )}
       </div>
 
-      {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden animate-scaleIn z-[200]">
           {/* User Info Section */}
-          <div className="bg-gradient-to-br from-[#4361ee] to-[#4895ef] p-4">
+          <div className="bg-linear-to-br from-[#4361ee] to-[#4895ef] p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-lg border-2 border-white/30">
                 {getInitials()}

@@ -12,30 +12,27 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
   const allMenuItems = {
     USER: [
       { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
-      { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
       { path: '/tasks', icon: 'fas fa-tasks', label: 'My Tasks' },
-      { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
+      { path: '/projects', icon: 'fas fa-project-diagram', label: 'My Projects' },
       { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
-      { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
-      { path: '/guide', icon: 'fas fa-book', label: 'Guide' },
       { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
       { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
     ],
     ADMIN: [
       { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
       { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
-      { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
-      { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
+      { path: '/tasks', icon: 'fas fa-tasks', label: 'Tasks' },
       { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
-      { path: '/guide', icon: 'fas fa-book', label: 'Guide' },
+      { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
+      { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
       { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
     ],
     SUPERADMIN: [
-      { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
-      { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
+      { path: '/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
+      { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
       { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
-      { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
       { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
+      { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
       { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
       { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
     ],
@@ -107,11 +104,70 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
       </ul>
 
       <div className="mt-auto pt-4 border-t border-gray-200">
+        {/* User Profile Section */}
+        <div className="px-3 py-3 mb-2">
+          {isCollapsed ? (
+            <Tooltip text={`${user?.firstName || 'User'} - ${user?.role || 'USER'}`} position="right">
+              <div className="flex flex-col items-center">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  {user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}
+                </div>
+                <div className="mt-2">
+                  {user?.role === 'SUPERADMIN' && (
+                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  )}
+                  {user?.role === 'ADMIN' && (
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  )}
+                  {user?.role === 'USER' && (
+                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  )}
+                </div>
+              </div>
+            </Tooltip>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  {user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {user?.firstName || 'User'} {user?.lastName || ''}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                {user?.role === 'SUPERADMIN' && (
+                  <span className="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 flex items-center gap-1">
+                    <i className="fas fa-crown"></i>
+                    Super Admin
+                  </span>
+                )}
+                {user?.role === 'ADMIN' && (
+                  <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 flex items-center gap-1">
+                    <i className="fas fa-user-shield"></i>
+                    Admin
+                  </span>
+                )}
+                {user?.role === 'USER' && (
+                  <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 flex items-center gap-1">
+                    <i className="fas fa-user"></i>
+                    User
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Logout Button */}
         {isCollapsed ? (
           <Tooltip text="Logout" position="right">
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center px-5 py-3 text-red-600 hover:bg-red-50 transition-all w-full"
+              className="flex items-center justify-center px-5 py-3 text-red-600 hover:bg-red-50 transition-all w-full rounded-lg"
             >
               <i className="fas fa-sign-out-alt text-lg"></i>
             </button>
@@ -119,10 +175,10 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
         ) : (
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-5 py-3 text-red-600 hover:bg-red-50 transition-all w-full"
+            className="flex items-center gap-3 px-5 py-3 text-red-600 hover:bg-red-50 transition-all w-full rounded-lg mx-2"
           >
             <i className="fas fa-sign-out-alt w-5 text-center"></i>
-            <span className="whitespace-nowrap">Logout</span>
+            <span className="whitespace-nowrap font-medium">Logout</span>
           </button>
         )}
       </div>

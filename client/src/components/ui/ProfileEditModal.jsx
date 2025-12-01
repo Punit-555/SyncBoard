@@ -84,7 +84,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[300] flex items-center justify-center p-4 animate-fadeIn">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-300 flex items-center justify-center p-4 animate-fadeIn">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-scaleIn">
           {/* Header */}
           <div className="bg-linear-to-br from-[#4361ee] to-[#4895ef] p-6 rounded-t-2xl">

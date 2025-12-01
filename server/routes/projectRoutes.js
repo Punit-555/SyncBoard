@@ -5,15 +5,14 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  removeUserFromProject,
 } from '../controllers/projectController.js';
 import { authenticateToken, authorizeRole } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// All routes require authentication
 router.use(authenticateToken);
 
-// Get all projects (all authenticated users)
 router.get('/', getAllProjects);
 
 // Get a single project by ID (all authenticated users)
@@ -27,5 +26,8 @@ router.put('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), updateProject);
 
 // Delete a project (Admin/SuperAdmin only)
 router.delete('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), deleteProject);
+
+// Remove user from project (Admin/SuperAdmin only)
+router.delete('/:projectId/users/:userId', authorizeRole('ADMIN', 'SUPERADMIN'), removeUserFromProject);
 
 export default router;

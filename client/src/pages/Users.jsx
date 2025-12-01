@@ -16,6 +16,8 @@ const Users = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -64,21 +66,27 @@ const Users = () => {
   const handleCreateUser = async (e) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       const response = await api.post('/api/users', formData);
       if (response.success) {
-        showSnackbar('User created successfully', 'success');
+        showSnackbar('✅ User created successfully! Password sent to email.', 'success');
         setIsCreateModalOpen(false);
-        fetchUsers();
+        await fetchUsers();
         resetForm();
+      } else {
+        showSnackbar(response.message || 'Failed to create user', 'error');
       }
     } catch (error) {
       showSnackbar(error.message || 'Failed to create user', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEditUser = async (e) => {
     e.preventDefault();
     try {
+      setIsSubmitting(true);
       const updateData = {
         email: formData.email,
         firstName: formData.firstName,
@@ -89,29 +97,38 @@ const Users = () => {
       };
       const response = await api.put(`/api/users/${editingUser.id}`, updateData);
       if (response.success) {
-        showSnackbar('User updated successfully', 'success');
+        showSnackbar('✅ User updated successfully! Notification email sent.', 'success');
         setIsEditModalOpen(false);
-        fetchUsers();
+        await fetchUsers();
         resetForm();
+      } else {
+        showSnackbar(response.message || 'Failed to update user', 'error');
       }
     } catch (error) {
       showSnackbar(error.message || 'Failed to update user', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       return;
     }
 
     try {
+      setIsDeleting(true);
       const response = await api.delete(`/api/users/${userId}`);
       if (response.success) {
-        showSnackbar('User deleted successfully', 'success');
-        fetchUsers();
+        showSnackbar('✅ User deleted successfully! Notification email sent.', 'success');
+        await fetchUsers();
+      } else {
+        showSnackbar(response.message || 'Failed to delete user', 'error');
       }
     } catch (error) {
       showSnackbar(error.message || 'Failed to delete user', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -368,10 +385,20 @@ const Users = () => {
                 setIsCreateModalOpen(false);
                 resetForm();
               }}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit">Create User</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Creating...
+                </>
+              ) : (
+                'Create User'
+              )}
+            </Button>
           </div>
         </form>
       </Modal>
@@ -466,10 +493,20 @@ const Users = () => {
                 setIsEditModalOpen(false);
                 resetForm();
               }}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit">Update User</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Updating...
+                </>
+              ) : (
+                'Update User'
+              )}
+            </Button>
           </div>
         </form>
       </Modal>

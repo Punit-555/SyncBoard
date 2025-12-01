@@ -2,10 +2,11 @@ import TaskColumn from './TaskColumn';
 
 const TaskBoard = ({ tasks, onAddTask, onEdit, onDelete, onMove }) => {
   const columns = [
-    { id: 'todo', title: 'To Do', status: 'todo' },
-    { id: 'inProgress', title: 'In Progress', status: 'inProgress' },
-    { id: 'review', title: 'Review', status: 'review' },
+    { id: 'todo', title: 'Todo', status: 'todo' },
+    { id: 'in-progress', title: 'In Progress', status: 'in-progress' },
     { id: 'done', title: 'Done', status: 'done' },
+    { id: 'in-qa', title: 'In QA', status: 'in-qa' },
+    { id: 'on-prod', title: 'On Prod', status: 'on-prod' },
   ];
 
   const getTasksByStatus = (status) => {

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import prisma from '../prisma.config.js';
-import { sendWelcomeEmailWithPassword } from '../services/emailService.js';
+import { sendWelcomeEmailWithPassword, sendAccountDetailsEmail, sendUserUpdateEmail, sendUserDeletedEmail } from '../services/emailService.js';
 
 // Generate a secure random password
 const generateRandomPassword = (length = 12) => {
@@ -24,7 +24,7 @@ const generateRandomPassword = (length = 12) => {
   return password.split('').sort(() => Math.random() - 0.5).join('');
 };
 
-// Get all users (Admin/SuperAdmin only)
+// Get all users (accessible to all authenticated users)
 export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
@@ -217,8 +217,19 @@ export const createUser = async (req, res) => {
     try {
       await sendWelcomeEmailWithPassword(email, firstName || 'User', randomPassword);
       console.log(`✅ Welcome email with credentials sent to ${email}`);
+      
+      // Also send account details email with role and project info
+      const projectNames = projectIds && projectIds.length > 0 
+        ? (await prisma.project.findMany({
+            where: { id: { in: projectIds.map(id => parseInt(id)) } },
+            select: { name: true },
+          })).map(p => p.name)
+        : [];
+      
+      await sendAccountDetailsEmail(email, firstName || 'User', role || 'USER', projectNames);
+      console.log(`✅ Account details email sent to ${email}`);
     } catch (emailError) {
-      console.error('Error sending welcome email:', emailError);
+      console.error('Error sending user emails:', emailError);
       // Don't fail the request if email fails
     }
 
@@ -322,6 +333,29 @@ export const updateUser = async (req, res) => {
       }
     }
 
+    // Send update notification email with changed fields
+    try {
+      const updatedFields = {};
+      if (role) updatedFields['Role'] = role;
+      if (firstName) updatedFields['First Name'] = firstName;
+      if (lastName) updatedFields['Last Name'] = lastName;
+      if (projectIds !== undefined) {
+        const projects = await prisma.project.findMany({
+          where: { id: { in: projectIds.map(id => parseInt(id)) } },
+          select: { name: true },
+        });
+        updatedFields['Assigned Projects'] = projects.length > 0 ? projects.map(p => p.name).join(', ') : 'None';
+      }
+
+      if (Object.keys(updatedFields).length > 0) {
+        await sendUserUpdateEmail(user.email, user.firstName || 'User', updatedFields);
+        console.log(`✅ Update notification email sent to ${user.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending update email:', emailError);
+      // Don't fail the request if email fails
+    }
+
     return res.status(200).json({
       success: true,
       message: 'User updated successfully',
@@ -370,6 +404,15 @@ export const deleteUser = async (req, res) => {
         success: false,
         message: 'Only SuperAdmin can delete Admin or SuperAdmin users',
       });
+    }
+
+    // Send deletion notification email before deleting
+    try {
+      await sendUserDeletedEmail(user.email, user.firstName || 'User');
+      console.log(`✅ Deletion notification email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('Error sending deletion email:', emailError);
+      // Don't fail the deletion if email fails
     }
 
     await prisma.user.delete({
