@@ -5,28 +5,28 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  uploadProfilePicture,
+  deleteProfilePicture,
 } from '../controllers/userController.js';
 import { authenticateToken, authorizeRole } from '../middleware/authMiddleware.js';
+import upload from '../config/multer.config.js';
 
 const router = express.Router();
 
-// All routes require authentication and admin/superadmin role
+// All routes require authentication
 router.use(authenticateToken);
-router.use(authorizeRole('ADMIN', 'SUPERADMIN'));
 
-// Get all users
+// GET routes - accessible to all authenticated users
 router.get('/', getAllUsers);
-
-// Get a single user by ID
 router.get('/:id', getUserById);
 
-// Create a new user
-router.post('/', createUser);
+// POST, PUT, DELETE routes - require admin/superadmin role
+router.post('/', authorizeRole('ADMIN', 'SUPERADMIN'), createUser);
+router.put('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), updateUser);
+router.delete('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), deleteUser);
 
-// Update a user
-router.put('/:id', updateUser);
-
-// Delete a user
-router.delete('/:id', deleteUser);
+// Profile picture routes - accessible to all authenticated users for their own profile
+router.post('/profile-picture', upload.single('profilePicture'), uploadProfilePicture);
+router.delete('/profile-picture', deleteProfilePicture);
 
 export default router;

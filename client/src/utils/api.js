@@ -35,6 +35,78 @@ export const getCurrentUser = () => request('/api/auth/me', null, 'GET');
 export const updateUserProfile = (payload) => request('/api/auth/user-update', payload, 'PUT');
 export const deleteAccount = () => request('/api/auth/delete-account', null, 'DELETE');
 
+// Task endpoints
+export const getTasks = () => request('/api/tasks', null, 'GET');
+export const getTaskById = (id) => request(`/api/tasks/${id}`, null, 'GET');
+export const createTask = (payload) => request('/api/tasks', payload, 'POST');
+export const updateTask = (id, payload) => request(`/api/tasks/${id}`, payload, 'PUT');
+export const deleteTask = (id) => request(`/api/tasks/${id}`, null, 'DELETE');
+
+// User endpoints
+export const getUsers = () => request('/api/users', null, 'GET');
+export const getAllUsers = () => request('/api/users', null, 'GET');
+
+// Profile picture upload (uses FormData, not JSON)
+export const uploadProfilePicture = async (file) => {
+  const token = localStorage.getItem('token');
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+
+  const res = await fetch(`${API_BASE}/api/users/profile-picture`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || 'Upload failed');
+    err.response = data;
+    throw err;
+  }
+  return data;
+};
+
+export const deleteProfilePicture = () => request('/api/users/profile-picture', null, 'DELETE');
+
+// Project endpoints
+export const getProjects = () => request('/api/projects', null, 'GET');
+export const getAllProjects = () => request('/api/projects', null, 'GET');
+export const getProjectById = (id) => request(`/api/projects/${id}`, null, 'GET');
+export const createProject = (payload) => request('/api/projects', payload, 'POST');
+export const updateProject = (id, payload) => request(`/api/projects/${id}`, payload, 'PUT');
+export const deleteProject = (id) => request(`/api/projects/${id}`, null, 'DELETE');
+
+// Message endpoints
+export const getConversations = () => request('/api/messages/conversations', null, 'GET');
+export const getMessages = (otherUserId) => request(`/api/messages/${otherUserId}`, null, 'GET');
+export const getUnreadCount = () => request('/api/messages/unread/count', null, 'GET');
+export const markMessageAsRead = (id) => request(`/api/messages/${id}/read`, null, 'PATCH');
+export const deleteMessage = (id) => request(`/api/messages/${id}`, null, 'DELETE');
+
+// Send message with attachments
+export const sendMessage = async (formData) => {
+  const token = localStorage.getItem('token');
+
+  const res = await fetch(`${API_BASE}/api/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || 'Failed to send message');
+    err.response = data;
+    throw err;
+  }
+  return data;
+};
+
 export default {
   get,
   post,
@@ -48,4 +120,24 @@ export default {
   getCurrentUser,
   updateUserProfile,
   deleteAccount,
+  getTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask,
+  getUsers,
+  getProjects,
+  getAllProjects,
+  getProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
+  getConversations,
+  getMessages,
+  getUnreadCount,
+  markMessageAsRead,
+  deleteMessage,
+  sendMessage,
+  uploadProfilePicture,
+  deleteProfilePicture,
 };

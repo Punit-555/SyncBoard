@@ -1,6 +1,6 @@
 import TaskCard from './TaskCard';
 
-const TaskColumn = ({ title, tasks, onAddTask, onEdit, onDelete, onMove }) => {
+const TaskColumn = ({ title, tasks, onAddTask, onEdit, onDelete, onMove, onViewDetails }) => {
   return (
     <div className="bg-white rounded-lg min-w-[280px] md:min-w-[280px] min-w-full shadow-md p-4">
       <div className="flex justify-between items-center mb-4 pb-2.5 border-b border-gray-100">
@@ -17,6 +17,7 @@ const TaskColumn = ({ title, tasks, onAddTask, onEdit, onDelete, onMove }) => {
             onEdit={onEdit}
             onDelete={onDelete}
             onMove={onMove}
+            onViewDetails={onViewDetails}
           />
         ))}
       </div>

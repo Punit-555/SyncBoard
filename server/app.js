@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
 import prisma from './prisma.config.js';
 
 dotenv.config();
@@ -21,6 +22,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'));
+
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
@@ -31,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'Server is running' });

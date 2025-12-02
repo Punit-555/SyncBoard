@@ -1,4 +1,5 @@
 import prisma from '../prisma.config.js';
+import { sendTaskAssignmentEmail } from '../services/emailService.js';
 
 // Get all tasks for the authenticated user
 export const getTasks = async (req, res) => {
@@ -9,8 +10,11 @@ export const getTasks = async (req, res) => {
     let tasks;
 
     if (userRole === 'SUPERADMIN' || userRole === 'ADMIN') {
-      // Admin and SuperAdmin can see all tasks
+      // Admin and SuperAdmin can see all tasks (only parent tasks, not subtasks)
       tasks = await prisma.task.findMany({
+        where: {
+          parentTaskId: null, // Only get parent tasks
+        },
         include: {
           user: {
             select: {
@@ -34,16 +38,37 @@ export const getTasks = async (req, res) => {
               name: true,
             },
           },
+          subtasks: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
+          _count: {
+            select: {
+              subtasks: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
         },
       });
     } else {
-      // Regular users see only their tasks
+      // Regular users see only their tasks (only parent tasks, not subtasks)
       tasks = await prisma.task.findMany({
         where: {
           userId: parseInt(userId),
+          parentTaskId: null, // Only get parent tasks
         },
         include: {
           manager: {
@@ -58,6 +83,26 @@ export const getTasks = async (req, res) => {
             select: {
               id: true,
               name: true,
+            },
+          },
+          subtasks: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
+          _count: {
+            select: {
+              subtasks: true,
             },
           },
         },
@@ -84,7 +129,7 @@ export const getTasks = async (req, res) => {
 // Create a new task
 export const createTask = async (req, res) => {
   try {
-    const { title, description, status, priority, userId, managerId, projectId, dueDate } = req.body;
+    const { title, description, status, priority, userId, managerId, projectId, dueDate, parentTaskId } = req.body;
     const requestUserId = req.user.userId;
     const userRole = req.user.role;
 
@@ -95,18 +140,32 @@ export const createTask = async (req, res) => {
       });
     }
 
-    // Determine the target user ID
     let targetUserId = userId || requestUserId;
 
-    // Only admins and superadmins can create tasks for other users
-    if (userId && userId !== requestUserId && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
-      return res.status(403).json({
-        success: false,
-        message: 'You do not have permission to create tasks for other users',
-      });
+    console.log('🔐 Task Creation Permission Check:', {
+      requestUserId,
+      userRole,
+      targetUserId: userId,
+      isAssigningToOther: userId && parseInt(userId) !== parseInt(requestUserId),
+      isAdmin: userRole === 'ADMIN' || userRole === 'SUPERADMIN'
+    });
+
+    // Only regular users need permission check
+    // Admins and SuperAdmins can create tasks for anyone
+    if (userId && parseInt(userId) !== parseInt(requestUserId)) {
+      if (userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
+        console.log('❌ Permission denied: User is not Admin/SuperAdmin');
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to create tasks for other users',
+        });
+      } else {
+        console.log('✅ Permission granted: User is Admin/SuperAdmin');
+      }
+    } else {
+      console.log('✅ Creating task for self');
     }
 
-    // Verify project exists
     const project = await prisma.project.findUnique({
       where: { id: parseInt(projectId) },
     });
@@ -128,6 +187,7 @@ export const createTask = async (req, res) => {
         managerId: managerId ? parseInt(managerId) : null,
         projectId: parseInt(projectId),
         dueDate: dueDate ? new Date(dueDate) : null,
+        parentTaskId: parentTaskId ? parseInt(parentTaskId) : null,
       },
       include: {
         user: {
@@ -154,6 +214,68 @@ export const createTask = async (req, res) => {
         },
       },
     });
+
+    // Send email notification to the assigned user
+    // Only send email if assigning to someone else (not yourself)
+    if (task.user && task.user.email && parseInt(task.userId) !== parseInt(requestUserId)) {
+      try {
+        console.log(`📧 Attempting to send email to ${task.user.email}...`);
+
+        const assignedByUser = await prisma.user.findUnique({
+          where: { id: parseInt(requestUserId) },
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        });
+
+        const assignedByName = assignedByUser
+          ? `${assignedByUser.firstName} ${assignedByUser.lastName}`
+          : 'Admin';
+
+        const assigneeName = `${task.user.firstName} ${task.user.lastName}`;
+
+        const taskDetails = {
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          status: task.status,
+          dueDate: task.dueDate,
+          projectName: task.project.name,
+        };
+
+        console.log(`📨 Sending email with details:`, {
+          to: task.user.email,
+          assigneeName,
+          assignedByName,
+          taskTitle: taskDetails.title
+        });
+
+        await sendTaskAssignmentEmail(
+          task.user.email,
+          assigneeName,
+          assignedByName,
+          taskDetails
+        );
+
+        console.log(`✅ Task assignment email sent successfully to ${task.user.email}`);
+      } catch (emailError) {
+        console.error('❌ Failed to send task assignment email:', emailError);
+        console.error('❌ Error details:', {
+          message: emailError.message,
+          stack: emailError.stack
+        });
+        // Don't fail the task creation if email fails
+      }
+    } else {
+      console.log(`ℹ️ Email not sent. Reasons:`, {
+        hasUser: !!task.user,
+        hasEmail: !!task.user?.email,
+        isSelfAssignment: parseInt(task.userId) === parseInt(requestUserId),
+        taskUserId: task.userId,
+        requestUserId: requestUserId
+      });
+    }
 
     return res.status(201).json({
       success: true,
@@ -174,7 +296,7 @@ export const createTask = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status, priority, managerId, projectId, dueDate } = req.body;
+    const { title, description, status, priority, managerId, projectId, dueDate, userId: newUserId } = req.body;
     const userId = req.user.userId;
     const userRole = req.user.role;
 
@@ -190,13 +312,15 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    // Check permissions: user can update their own tasks, admins can update any task
     if (task.userId !== parseInt(userId) && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to update this task',
       });
     }
+
+    // Check if the assigned user is changing
+    const isUserChanging = newUserId !== undefined && parseInt(newUserId) !== task.userId;
 
     const updatedTask = await prisma.task.update({
       where: { id: parseInt(id) },
@@ -208,6 +332,7 @@ export const updateTask = async (req, res) => {
         ...(managerId !== undefined && { managerId: managerId ? parseInt(managerId) : null }),
         ...(projectId && { projectId: parseInt(projectId) }),
         ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
+        ...(newUserId !== undefined && { userId: newUserId ? parseInt(newUserId) : task.userId }),
       },
       include: {
         user: {
@@ -234,6 +359,46 @@ export const updateTask = async (req, res) => {
         },
       },
     });
+
+    // Send email notification if user assignment changed
+    if (isUserChanging && updatedTask.user && updatedTask.user.email) {
+      try {
+        const assignedByUser = await prisma.user.findUnique({
+          where: { id: parseInt(userId) },
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        });
+
+        const assignedByName = assignedByUser
+          ? `${assignedByUser.firstName} ${assignedByUser.lastName}`
+          : 'Admin';
+
+        const assigneeName = `${updatedTask.user.firstName} ${updatedTask.user.lastName}`;
+
+        const taskDetails = {
+          title: updatedTask.title,
+          description: updatedTask.description,
+          priority: updatedTask.priority,
+          status: updatedTask.status,
+          dueDate: updatedTask.dueDate,
+          projectName: updatedTask.project.name,
+        };
+
+        await sendTaskAssignmentEmail(
+          updatedTask.user.email,
+          assigneeName,
+          assignedByName,
+          taskDetails
+        );
+
+        console.log(`✅ Task reassignment email sent to ${updatedTask.user.email}`);
+      } catch (emailError) {
+        console.error('❌ Failed to send task reassignment email:', emailError.message);
+        // Don't fail the task update if email fails
+      }
+    }
 
     return res.status(200).json({
       success: true,

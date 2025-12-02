@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import prisma from '../prisma.config.js';
-import { sendWelcomeEmailWithPassword } from '../services/emailService.js';
+import { sendWelcomeEmailWithPassword, sendAccountDetailsEmail, sendUserUpdateEmail, sendUserDeletedEmail } from '../services/emailService.js';
 
 // Generate a secure random password
 const generateRandomPassword = (length = 12) => {
@@ -24,7 +26,7 @@ const generateRandomPassword = (length = 12) => {
   return password.split('').sort(() => Math.random() - 0.5).join('');
 };
 
-// Get all users (Admin/SuperAdmin only)
+// Get all users (accessible to all authenticated users)
 export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
@@ -33,6 +35,7 @@ export const getAllUsers = async (req, res) => {
         email: true,
         firstName: true,
         lastName: true,
+        profilePicture: true,
         role: true,
         managerId: true,
         createdAt: true,
@@ -217,8 +220,19 @@ export const createUser = async (req, res) => {
     try {
       await sendWelcomeEmailWithPassword(email, firstName || 'User', randomPassword);
       console.log(`✅ Welcome email with credentials sent to ${email}`);
+      
+      // Also send account details email with role and project info
+      const projectNames = projectIds && projectIds.length > 0 
+        ? (await prisma.project.findMany({
+            where: { id: { in: projectIds.map(id => parseInt(id)) } },
+            select: { name: true },
+          })).map(p => p.name)
+        : [];
+      
+      await sendAccountDetailsEmail(email, firstName || 'User', role || 'USER', projectNames);
+      console.log(`✅ Account details email sent to ${email}`);
     } catch (emailError) {
-      console.error('Error sending welcome email:', emailError);
+      console.error('Error sending user emails:', emailError);
       // Don't fail the request if email fails
     }
 
@@ -322,6 +336,29 @@ export const updateUser = async (req, res) => {
       }
     }
 
+    // Send update notification email with changed fields
+    try {
+      const updatedFields = {};
+      if (role) updatedFields['Role'] = role;
+      if (firstName) updatedFields['First Name'] = firstName;
+      if (lastName) updatedFields['Last Name'] = lastName;
+      if (projectIds !== undefined) {
+        const projects = await prisma.project.findMany({
+          where: { id: { in: projectIds.map(id => parseInt(id)) } },
+          select: { name: true },
+        });
+        updatedFields['Assigned Projects'] = projects.length > 0 ? projects.map(p => p.name).join(', ') : 'None';
+      }
+
+      if (Object.keys(updatedFields).length > 0) {
+        await sendUserUpdateEmail(user.email, user.firstName || 'User', updatedFields);
+        console.log(`✅ Update notification email sent to ${user.email}`);
+      }
+    } catch (emailError) {
+      console.error('Error sending update email:', emailError);
+      // Don't fail the request if email fails
+    }
+
     return res.status(200).json({
       success: true,
       message: 'User updated successfully',
@@ -372,6 +409,15 @@ export const deleteUser = async (req, res) => {
       });
     }
 
+    // Send deletion notification email before deleting
+    try {
+      await sendUserDeletedEmail(user.email, user.firstName || 'User');
+      console.log(`✅ Deletion notification email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('Error sending deletion email:', emailError);
+      // Don't fail the deletion if email fails
+    }
+
     await prisma.user.delete({
       where: { id: parseInt(id) },
     });
@@ -385,6 +431,115 @@ export const deleteUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error deleting user',
+      error: error.message,
+    });
+  }
+};
+
+// Upload profile picture
+export const uploadProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded',
+      });
+    }
+
+    // Get the user's current profile picture
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: { profilePicture: true },
+    });
+
+    // Delete old profile picture if exists
+    if (user?.profilePicture) {
+      const oldFilePath = path.join(process.cwd(), user.profilePicture);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    // Save the new profile picture path
+    const profilePicturePath = `/uploads/profile-pictures/${req.file.filename}`;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: { profilePicture: profilePicturePath },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        profilePicture: true,
+        role: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error('Upload profile picture error:', error);
+
+    // Delete the uploaded file if there was an error
+    if (req.file) {
+      const filePath = path.join(process.cwd(), 'uploads', 'profile-pictures', req.file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Server error uploading profile picture',
+      error: error.message,
+    });
+  }
+};
+
+// Delete profile picture
+export const deleteProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: { profilePicture: true },
+    });
+
+    if (!user?.profilePicture) {
+      return res.status(404).json({
+        success: false,
+        message: 'No profile picture to delete',
+      });
+    }
+
+    // Delete the file
+    const filePath = path.join(process.cwd(), user.profilePicture);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Update database
+    await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: { profilePicture: null },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete profile picture error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error deleting profile picture',
       error: error.message,
     });
   }

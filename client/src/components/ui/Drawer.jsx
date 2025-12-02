@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 const Drawer = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const { user, logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     // Close drawer when route changes
@@ -25,12 +28,37 @@ const Drawer = ({ isOpen, onClose }) => {
     { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
     { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
     { path: '/tasks', icon: 'fas fa-tasks', label: 'My Tasks' },
+    { path: '/messages', icon: 'fas fa-comments', label: 'Messages' },
     { path: '/teams', icon: 'fas fa-users', label: 'Teams' },
     { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
     { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
     { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
     { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
   ];
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      logout();
+      window.location.href = '/login';
+    }, 1500);
+  };
+
+  const getInitials = () => {
+    if (!user) return 'U';
+    const first = user.firstName?.trim() || '';
+    const last = user.lastName?.trim() || '';
+    if (first && last) {
+      return `${first[0]}${last[0]}`.toUpperCase();
+    }
+    if (first) {
+      return first[0].toUpperCase();
+    }
+    if (last) {
+      return last[0].toUpperCase();
+    }
+    return user.email?.charAt(0).toUpperCase() || 'U';
+  };
 
   return (
     <>
@@ -87,16 +115,38 @@ const Drawer = ({ isOpen, onClose }) => {
         </nav>
 
         {/* Drawer Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#4895ef] flex items-center justify-center text-white font-semibold">
-              <span>JD</span>
+        <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-gray-100 bg-gray-50">
+          {/* User Info */}
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+            <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <span>{getInitials()}</span>
             </div>
-            <div>
-              <p className="font-semibold text-gray-800">John Doe</p>
-              <p className="text-sm text-gray-500">john@taskflow.com</p>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-800">
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className="text-sm text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors font-medium disabled:opacity-50"
+          >
+            {isLoggingOut ? (
+              <>
+                <i className="fas fa-spinner fa-spin w-5 text-center"></i>
+                <span>Logging out...</span>
+              </>
+            ) : (
+              <>
+                <i className="fas fa-sign-out-alt w-5 text-center"></i>
+                <span>Logout</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 

@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
-const Layout = ({ onCreateTask }) => {
+const Layout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const toggleSidebar = () => {
@@ -12,7 +12,7 @@ const Layout = ({ onCreateTask }) => {
 
   return (
     <div className="h-screen flex flex-col bg-[#f5f7fb] overflow-hidden ">
-      <Header onCreateTask={onCreateTask} />
+      <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
         <main
@@ -20,7 +20,7 @@ const Layout = ({ onCreateTask }) => {
             isSidebarCollapsed ? 'md:ml-30' : 'md:ml-64'
           } ml-0`}
         >
-          <div className=" sm:p-6 lg:p-10 max-w-[1600px]  w-full">
+          <div className=" sm:px-6 lg:px-4 max-w-[1600px]  w-full">
             <div className="animate-fadeIn">
               <Outlet />
             </div>
