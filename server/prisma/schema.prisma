@@ -23,12 +23,14 @@ model User {
   updatedAt      DateTime         @updatedAt
 
   // Relations
-  resetTokens  PasswordReset[]
-  manager      User?            @relation("UserManager", fields: [managerId], references: [id])
-  managedUsers User[]           @relation("UserManager")
-  tasks        Task[]           @relation("UserTasks")
-  managedTasks Task[]           @relation("ManagerTasks")
-  projects     UserProject[]
+  resetTokens     PasswordReset[]
+  manager         User?            @relation("UserManager", fields: [managerId], references: [id])
+  managedUsers    User[]           @relation("UserManager")
+  tasks           Task[]           @relation("UserTasks")
+  managedTasks    Task[]           @relation("ManagerTasks")
+  projects        UserProject[]
+  sentMessages    Message[]        @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
 
   @@map("users")
 }
@@ -97,6 +99,38 @@ model UserProject {
 
   @@unique([userId, projectId])
   @@map("user_projects")
+}
+
+model Message {
+  id           Int                @id @default(autoincrement())
+  content      String?
+  senderId     Int
+  receiverId   Int
+  isRead       Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  // Relations
+  sender       User               @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver     User               @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  attachments  MessageAttachment[]
+
+  @@map("messages")
+}
+
+model MessageAttachment {
+  id           Int      @id @default(autoincrement())
+  messageId    Int
+  fileName     String
+  fileUrl      String
+  fileType     String
+  fileSize     Int
+  createdAt    DateTime @default(now())
+
+  // Relations
+  message      Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("message_attachments")
 }
 
 enum Role {

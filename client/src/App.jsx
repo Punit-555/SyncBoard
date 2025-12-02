@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { PublicRoute } from './components/PublicRoute';
 import Layout from './components/layout/Layout';
@@ -15,13 +16,15 @@ import Settings from './pages/Settings';
 import Users from './pages/Users';
 import Tasks from './pages/Tasks';
 import Projects from './pages/Projects';
+import Messages from './pages/Messages';
 import UnderDevelopment from './pages/UnderDevelopment';
 import Loader from './components/ui/Loader';
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <NotificationProvider>
+        <Router>
         <Routes>
           <Route
             path="/login"
@@ -68,6 +71,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="tasks" element={<Tasks />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="messages" element={<Messages />} />
             <Route path="teams" element={<UnderDevelopment />} />
             <Route path="users" element={<Users />} />
             <Route path="calendar" element={<UnderDevelopment />} />
@@ -82,7 +86,8 @@ function App() {
             element={<Navigate to="/login" />}
           />
         </Routes>
-      </Router>
+        </Router>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

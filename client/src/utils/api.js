@@ -79,6 +79,34 @@ export const createProject = (payload) => request('/api/projects', payload, 'POS
 export const updateProject = (id, payload) => request(`/api/projects/${id}`, payload, 'PUT');
 export const deleteProject = (id) => request(`/api/projects/${id}`, null, 'DELETE');
 
+// Message endpoints
+export const getConversations = () => request('/api/messages/conversations', null, 'GET');
+export const getMessages = (otherUserId) => request(`/api/messages/${otherUserId}`, null, 'GET');
+export const getUnreadCount = () => request('/api/messages/unread/count', null, 'GET');
+export const markMessageAsRead = (id) => request(`/api/messages/${id}/read`, null, 'PATCH');
+export const deleteMessage = (id) => request(`/api/messages/${id}`, null, 'DELETE');
+
+// Send message with attachments
+export const sendMessage = async (formData) => {
+  const token = localStorage.getItem('token');
+
+  const res = await fetch(`${API_BASE}/api/messages`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || 'Failed to send message');
+    err.response = data;
+    throw err;
+  }
+  return data;
+};
+
 export default {
   get,
   post,
@@ -98,4 +126,18 @@ export default {
   updateTask,
   deleteTask,
   getUsers,
+  getProjects,
+  getAllProjects,
+  getProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
+  getConversations,
+  getMessages,
+  getUnreadCount,
+  markMessageAsRead,
+  deleteMessage,
+  sendMessage,
+  uploadProfilePicture,
+  deleteProfilePicture,
 };

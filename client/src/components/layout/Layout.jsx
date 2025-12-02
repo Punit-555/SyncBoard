@@ -20,7 +20,7 @@ const Layout = () => {
             isSidebarCollapsed ? 'md:ml-30' : 'md:ml-64'
           } ml-0`}
         >
-          <div className=" sm:p-6 lg:p-10 max-w-[1600px]  w-full">
+          <div className=" sm:px-6 lg:px-4 max-w-[1600px]  w-full">
             <div className="animate-fadeIn">
               <Outlet />
             </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotification } from '../../contexts/NotificationContext';
 import * as api from '../../utils/api';
 import useAudio from '../../hooks/useAudio';
 
@@ -8,52 +9,21 @@ const NotificationBell = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { playReceiveSound } = useAudio();
+  const { unreadCount } = useNotification();
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const bellRef = useRef(null);
-  const pollingIntervalRef = useRef(null);
   const previousUnreadCountRef = useRef(0);
 
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  // Poll for unread messages
   useEffect(() => {
-    if (!user?.userId) return;
+    if (unreadCount > previousUnreadCountRef.current) {
+      playReceiveSound();
+    }
+    previousUnreadCountRef.current = unreadCount;
+  }, [unreadCount, playReceiveSound]);
 
-    const fetchUnreadCount = async () => {
-      try {
-        const response = await api.getUnreadCount();
-        if (response.success) {
-          const newCount = response.data?.count || 0;
-          
-          // Play sound if unread count increased
-          if (newCount > previousUnreadCountRef.current) {
-            playReceiveSound();
-          }
-          
-          previousUnreadCountRef.current = newCount;
-          setUnreadCount(newCount);
-        }
-      } catch (error) {
-        console.error('Failed to fetch unread count:', error);
-      }
-    };
-
-    // Fetch immediately
-    fetchUnreadCount();
-
-    // Set up polling every 5 seconds
-    pollingIntervalRef.current = setInterval(fetchUnreadCount, 5000);
-
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-      }
-    };
-  }, [user?.userId]);
-
-  // Fetch notifications when dropdown opens
   useEffect(() => {
     if (!isOpen) return;
 
@@ -61,10 +31,9 @@ const NotificationBell = () => {
       try {
         const response = await api.getConversations();
         if (response.success) {
-          // Filter conversations with unread messages and get latest messages
           const unreadConversations = (response.data || [])
             .filter(conv => conv.unreadCount > 0)
-            .slice(0, 5) // Show only top 5
+            .slice(0, 5)
             .map(conv => ({
               userId: conv.user.id,
               userName: `${conv.user.firstName} ${conv.user.lastName}`,

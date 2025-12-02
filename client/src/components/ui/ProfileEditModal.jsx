@@ -19,6 +19,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef(null);
   const { user, refreshUser } = useAuth();
   const { snackbar, showSuccess, showError, hideSnackbar } = useSnackbar();
@@ -102,6 +103,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
       setFormData({ ...formData, profilePicture: '' });
       await refreshUser();
       onProfileUpdated?.();
+      setShowDeleteConfirm(false);
     } catch (error) {
       showError(error.message || 'Failed to delete profile picture');
     } finally {
@@ -232,7 +234,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
                   {(previewUrl && !selectedFile) && (
                     <button
                       type="button"
-                      onClick={handleDeleteProfilePicture}
+                      onClick={() => setShowDeleteConfirm(true)}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                       disabled={isUploading}
                     >
@@ -325,6 +327,59 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
         onClose={hideSnackbar}
         position="top-right"
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-310 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm animate-scaleIn">
+            {/* Header */}
+            <div className="bg-red-600 p-6 rounded-t-2xl">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <i className="fas fa-exclamation-circle"></i>
+                Confirm Deletion
+              </h3>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <p className="text-gray-700 mb-2">
+                Are you sure you want to remove your profile picture?
+              </p>
+              <p className="text-sm text-gray-500">
+                This action cannot be undone. Your profile will show your initials instead.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isUploading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteProfilePicture}
+                disabled={isUploading}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+              >
+                {isUploading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>
+                    Removing...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-trash mr-2"></i>
+                    Remove Picture
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

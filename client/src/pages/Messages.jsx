@@ -22,6 +22,7 @@ const Messages = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('conversations');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const pollingIntervalRef = useRef(null);
@@ -296,8 +297,8 @@ const Messages = () => {
 
   return (
     <div className="h-[calc(95vh-80px)] flex bg-gray-50 gap-4 p-4">
-      {/* Sidebar - Collapsible */}
-      <div className={`flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
+      {/* Desktop Sidebar - Collapsible */}
+      <div className={`hidden lg:flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
         isSidebarOpen ? 'w-80' : 'w-0 p-0'
       }`}>
         <div className="p-4 border-b border-gray-200 bg-linear-to-r from-blue-600 to-purple-600 flex-shrink-0">
@@ -457,21 +458,21 @@ const Messages = () => {
         </div>
       </div>
 
-      {/* Toggle Sidebar Button */}
+      {/* Toggle Sidebar Button - Desktop Only */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="mt-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors shrink-0 h-fit"
+        className="hidden lg:flex mt-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors shrink-0 h-fit"
         title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
       >
         <i className={`fas ${isSidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'} text-gray-600 text-lg`}></i>
       </button>
 
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-md overflow-hidden">
+      {/* Chat Area - Full width on mobile */}
+      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-md overflow-hidden relative">
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 shadow-md">
+            <div className="bg-linear-to-r from-blue-600 to-purple-600 p-4 shadow-md flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-900 font-bold overflow-hidden">
                   {selectedUser.profilePicture ? (
@@ -493,6 +494,15 @@ const Messages = () => {
                   <p className="text-white/80 text-sm">{selectedUser.email}</p>
                 </div>
               </div>
+
+              {/* Mobile Sidebar Toggle Button */}
+              <button
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="lg:hidden p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
+                title="Open conversations"
+              >
+                <i className="fas fa-bars text-lg"></i>
+              </button>
             </div>
 
             {/* Messages Container */}
@@ -656,15 +666,211 @@ const Messages = () => {
             </div>
           </>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50">
+          <div className="flex items-center justify-center h-full text-gray-500 bg-gray-50 flex-col gap-4">
             <div className="text-center">
               <i className="fas fa-comments text-6xl mb-4 text-gray-300"></i>
               <h3 className="text-xl font-semibold text-gray-700 mb-2">No conversation selected</h3>
               <p className="text-gray-500">Choose a conversation from the left or start a new one with a user</p>
             </div>
+            
+            {/* Mobile Sidebar Open Button */}
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="lg:hidden px-6 py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center gap-2"
+            >
+              <i className="fas fa-bars"></i>
+              Open Chats
+            </button>
           </div>
         )}
       </div>
+
+      {/* Mobile Sidebar Drawer */}
+      {isMobileSidebarOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-lg z-50 lg:hidden overflow-y-auto">
+            {/* Close Button */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-linear-to-r from-blue-600 to-purple-600">
+              <h2 className="text-xl font-bold text-white">Messages</h2>
+              <button
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
+              >
+                <i className="fas fa-times text-lg"></i>
+              </button>
+            </div>
+
+            {/* Search */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="relative">
+                <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                <input
+                  type="text"
+                  placeholder="Search conversations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setActiveTab('conversations')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'conversations'
+                    ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <i className="fas fa-comments mr-2"></i>
+                Conversations {conversations.length > 0 && `(${conversations.length})`}
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'users'
+                    ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <i className="fas fa-users mr-2"></i>
+                Users {allUsers.length > 0 && `(${allUsers.length})`}
+              </button>
+            </div>
+
+            {/* Conversations/Users List */}
+            <div className="flex-1">
+              {activeTab === 'conversations' ? (
+                filteredConversations.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <i className="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
+                    <p className="font-medium">No conversations</p>
+                    <p className="text-sm mt-1">Start a conversation from the Users tab</p>
+                  </div>
+                ) : (
+                  filteredConversations.map((conv) => (
+                    <div
+                      key={conv.user.id}
+                      onClick={() => {
+                        handleSelectUser(conv);
+                        setIsMobileSidebarOpen(false);
+                      }}
+                      className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 ${
+                        selectedUser?.id === conv.user.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="relative shrink-0">
+                          <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
+                            {conv.user.profilePicture ? (
+                              <img
+                                src={`${API_BASE}${conv.user.profilePicture}`}
+                                alt={`${conv.user.firstName} ${conv.user.lastName}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span>
+                                {conv.user.firstName?.[0]}{conv.user.lastName?.[0]}
+                              </span>
+                            )}
+                          </div>
+                          {conv.unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md">
+                              {conv.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <h3 className={`font-semibold text-gray-900 truncate ${
+                              conv.unreadCount > 0 ? 'font-bold' : ''
+                            }`}>
+                              {conv.user.firstName} {conv.user.lastName}
+                            </h3>
+                            {conv.lastMessage && (
+                              <span className={`text-xs shrink-0 ml-2 ${
+                                conv.unreadCount > 0 ? 'text-blue-600 font-semibold' : 'text-gray-500'
+                              }`}>
+                                {formatTime(conv.lastMessage.createdAt)}
+                              </span>
+                            )}
+                          </div>
+                          <p className={`text-sm truncate ${
+                            conv.unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-600'
+                          }`}>
+                            {conv.lastMessage?.content || '📎 File attachment'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )
+              ) : (
+                filteredUsers.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <i className="fas fa-user-slash text-4xl mb-3 text-gray-300"></i>
+                    <p className="font-medium">No users found</p>
+                    <p className="text-sm mt-1">Try a different search</p>
+                  </div>
+                ) : (
+                  filteredUsers.map((u) => (
+                    <div
+                      key={u.id}
+                      onClick={() => {
+                        handleSelectNewUser(u);
+                        setIsMobileSidebarOpen(false);
+                      }}
+                      className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-green-50 ${
+                        selectedUser?.id === u.id ? 'bg-green-50 border-l-4 border-l-green-600' : ''
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
+                          {u.profilePicture ? (
+                            <img
+                              src={`${API_BASE}${u.profilePicture}`}
+                              alt={`${u.firstName} ${u.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span>
+                              {u.firstName?.[0]}{u.lastName?.[0]}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {u.firstName} {u.lastName}
+                          </h3>
+                          <p className="text-sm text-gray-600 truncate">{u.email}</p>
+                          <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                            u.role === 'SUPERADMIN'
+                              ? 'bg-purple-100 text-purple-800'
+                              : u.role === 'ADMIN'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {u.role}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <Snackbar
         message={snackbar.message}

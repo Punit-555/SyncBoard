@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
 import prisma from './prisma.config.js';
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'Server is running' });

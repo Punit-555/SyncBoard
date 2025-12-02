@@ -15,7 +15,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
     dueDate: '',
     status: 'todo',
     projectId: projectId,
-    assignedTo: '',
+    userId: '',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -71,7 +71,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
         dueDate: task.dueDate ? task.dueDate.split('T')[0] : '',
         status: task.status || 'todo',
         projectId: task.projectId || projectId,
-        assignedTo: task.userId || task.assignedTo || '',
+        userId: task.userId || '',
       });
     } else {
       setFormData({
@@ -114,8 +114,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
 
       // userId (assignedTo) can be null
       userId:
-        formData.assignedTo && formData.assignedTo !== ""
-          ? Number(formData.assignedTo)
+        formData.userId && formData.userId !== ""
+          ? Number(formData.userId)
           : null,
 
       dueDate: formData.dueDate
@@ -198,8 +198,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
 
         <Select
           label="Assigned To"
-          name="assignedTo"
-          value={formData.assignedTo}
+          name="userId"
+          value={formData.userId}
           onChange={handleChange}
           options={[
             { value: '', label: 'Select a user (optional)' },
