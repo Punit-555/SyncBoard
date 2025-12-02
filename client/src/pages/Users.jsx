@@ -270,19 +270,35 @@ const Users = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => openEditModal(user)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </button>
-                    {user.id !== currentUser?.id && (
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
+                    {/* Admin can only edit/delete USER role, not ADMIN or SUPERADMIN */}
+                    {currentUser?.role === 'ADMIN' && (user.role === 'ADMIN' || user.role === 'SUPERADMIN') ? (
+                      <div className="flex gap-3">
+                        <span className="text-gray-400 cursor-not-allowed" title="Cannot edit Admin/SuperAdmin users">
+                          <i className="fas fa-edit"></i>
+                        </span>
+                        <span className="text-gray-400 cursor-not-allowed" title="Cannot delete Admin/SuperAdmin users">
+                          <i className="fas fa-trash"></i>
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Edit user"
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        {user.id !== currentUser?.id && (
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete user"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>

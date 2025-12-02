@@ -22,6 +22,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
       { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
       { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
       { path: '/tasks', icon: 'fas fa-tasks', label: 'Tasks' },
+      { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
       { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },
       { path: '/calendar', icon: 'fas fa-calendar-alt', label: 'Calendar' },
       { path: '/help', icon: 'fas fa-question-circle', label: 'Help & Support' },
