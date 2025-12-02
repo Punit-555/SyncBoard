@@ -1,6 +1,6 @@
 import TaskColumn from './TaskColumn';
 
-const TaskBoard = ({ tasks, onAddTask, onEdit, onDelete, onMove }) => {
+const TaskBoard = ({ tasks, onAddTask, onEdit, onDelete, onMove, onViewDetails }) => {
   const columns = [
     { id: 'todo', title: 'Todo', status: 'todo' },
     { id: 'in-progress', title: 'In Progress', status: 'in-progress' },
@@ -24,6 +24,7 @@ const TaskBoard = ({ tasks, onAddTask, onEdit, onDelete, onMove }) => {
           onEdit={onEdit}
           onDelete={onDelete}
           onMove={onMove}
+          onViewDetails={onViewDetails}
         />
       ))}
     </div>

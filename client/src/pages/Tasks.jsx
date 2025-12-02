@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import TaskBoard from '../components/tasks/TaskBoard';
 import TaskModal from '../components/tasks/TaskModal';
+import TaskDetailDrawer from '../components/tasks/TaskDetailDrawer';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -21,6 +22,8 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerTask, setDrawerTask] = useState(null);
   const { showSuccess, showError } = useSnackbar();
 
   useEffect(() => {
@@ -144,6 +147,20 @@ const Tasks = () => {
     setIsModalOpen(true);
   };
 
+  const handleViewDetails = (task) => {
+    setDrawerTask(task);
+    setIsDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false);
+    setDrawerTask(null);
+  };
+
+  const handleTaskUpdated = () => {
+    loadTasks();
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -226,6 +243,7 @@ const Tasks = () => {
           onEdit={handleEditTask}
           onDelete={handleDeleteTask}
           onMove={handleMoveTask}
+          onViewDetails={handleViewDetails}
         />
       )}
 
@@ -237,7 +255,7 @@ const Tasks = () => {
         }}
         onSubmit={handleTaskSubmit}
         task={selectedTask}
-        projectId={1}
+        projectId={null}
       />
 
       <ConfirmDialog
@@ -252,6 +270,13 @@ const Tasks = () => {
         confirmText="Delete"
         cancelText="Cancel"
         type="danger"
+      />
+
+      <TaskDetailDrawer
+        isOpen={isDrawerOpen}
+        onClose={handleDrawerClose}
+        task={drawerTask}
+        onTaskUpdated={handleTaskUpdated}
       />
 
     </div>

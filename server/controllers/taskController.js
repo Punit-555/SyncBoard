@@ -10,8 +10,11 @@ export const getTasks = async (req, res) => {
     let tasks;
 
     if (userRole === 'SUPERADMIN' || userRole === 'ADMIN') {
-      // Admin and SuperAdmin can see all tasks
+      // Admin and SuperAdmin can see all tasks (only parent tasks, not subtasks)
       tasks = await prisma.task.findMany({
+        where: {
+          parentTaskId: null, // Only get parent tasks
+        },
         include: {
           user: {
             select: {
@@ -35,16 +38,37 @@ export const getTasks = async (req, res) => {
               name: true,
             },
           },
+          subtasks: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
+          _count: {
+            select: {
+              subtasks: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
         },
       });
     } else {
-      // Regular users see only their tasks
+      // Regular users see only their tasks (only parent tasks, not subtasks)
       tasks = await prisma.task.findMany({
         where: {
           userId: parseInt(userId),
+          parentTaskId: null, // Only get parent tasks
         },
         include: {
           manager: {
@@ -59,6 +83,26 @@ export const getTasks = async (req, res) => {
             select: {
               id: true,
               name: true,
+            },
+          },
+          subtasks: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
+          _count: {
+            select: {
+              subtasks: true,
             },
           },
         },
@@ -85,7 +129,7 @@ export const getTasks = async (req, res) => {
 // Create a new task
 export const createTask = async (req, res) => {
   try {
-    const { title, description, status, priority, userId, managerId, projectId, dueDate } = req.body;
+    const { title, description, status, priority, userId, managerId, projectId, dueDate, parentTaskId } = req.body;
     const requestUserId = req.user.userId;
     const userRole = req.user.role;
 
@@ -143,6 +187,7 @@ export const createTask = async (req, res) => {
         managerId: managerId ? parseInt(managerId) : null,
         projectId: parseInt(projectId),
         dueDate: dueDate ? new Date(dueDate) : null,
+        parentTaskId: parentTaskId ? parseInt(parentTaskId) : null,
       },
       include: {
         user: {

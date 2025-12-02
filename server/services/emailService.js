@@ -19,9 +19,9 @@ transporter.verify((error, success) => {
 export const sendSignupEmail = async (email, firstName) => {
   try {
     const mailOptions = {
-      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
+      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Welcome to TaskFlow! 🚀 Your Account is Ready',
+      subject: 'Welcome to SyncBoard! 🚀 Your Account is Ready',
       html: generateSignupHTML(firstName, email),
     };
 
@@ -389,8 +389,6 @@ function generatePasswordResetHTML(firstName, resetLink) {
           <p class="greeting" style="color: #333;">Hi ${firstName},</p>
           <p style="color: #555; line-height: 1.8;">We received a request to reset your SyncBoard password.</p>
           <p style="color: #555; line-height: 1.8;">Click the button below to reset your password. This link is valid for <strong>1 hour</strong>:</p>
-          <p>We received a request to reset your TaskFlow password.</p>
-          <p>Click the button below to reset your password. This link is valid for <strong>1 hour</strong>:</p>
           <div class="cta-button">
             <a href="${resetLink}">Reset Password</a>
           </div>
@@ -418,9 +416,9 @@ function generatePasswordResetHTML(firstName, resetLink) {
 export const sendWelcomeEmailWithPassword = async (email, firstName, password, userDetails = {}) => {
   try {
     const mailOptions = {
-      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
+      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Welcome to TaskFlow! 🚀 Your Account is Ready',
+      subject: 'Welcome to SyncBoard! 🚀 Your Account is Ready',
       html: generateWelcomeWithPasswordHTML(firstName, email, password, userDetails),
     };
 
@@ -1473,9 +1471,9 @@ function generateUserUpdateHTML(firstName, updatedFields) {
 export const sendUserDeletedEmail = async (email, firstName) => {
   try {
     const mailOptions = {
-      from: `"TaskFlow" <${process.env.EMAIL_USER}>`,
+      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Your TaskFlow Account Has Been Deleted 🗑️',
+      subject: 'Your SyncBoard Account Has Been Deleted 🗑️',
       html: generateUserDeletedHTML(firstName),
     };
 

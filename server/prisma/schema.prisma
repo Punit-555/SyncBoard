@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id           Int              @id @default(autoincrement())
-  email        String           @unique
-  password     String
-  firstName    String?
-  lastName     String?
-  role         Role             @default(USER)
-  managerId    Int?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id             Int              @id @default(autoincrement())
+  email          String           @unique
+  password       String
+  firstName      String?
+  lastName       String?
+  profilePicture String?
+  role           Role             @default(USER)
+  managerId      Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   // Relations
   resetTokens  PasswordReset[]
@@ -60,22 +61,25 @@ model Project {
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  status      String   @default("pending")
-  priority    String   @default("medium")
-  userId      Int
-  managerId   Int?
-  projectId   Int
-  dueDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  status       String   @default("pending")
+  priority     String   @default("medium")
+  userId       Int
+  managerId    Int?
+  projectId    Int
+  parentTaskId Int?
+  dueDate      DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
   user        User     @relation("UserTasks", fields: [userId], references: [id], onDelete: Cascade)
   manager     User?    @relation("ManagerTasks", fields: [managerId], references: [id])
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parentTask  Task?    @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks    Task[]   @relation("TaskSubtasks")
 
   @@map("tasks")
 }

@@ -44,9 +44,36 @@ export const deleteTask = (id) => request(`/api/tasks/${id}`, null, 'DELETE');
 
 // User endpoints
 export const getUsers = () => request('/api/users', null, 'GET');
+export const getAllUsers = () => request('/api/users', null, 'GET');
+
+// Profile picture upload (uses FormData, not JSON)
+export const uploadProfilePicture = async (file) => {
+  const token = localStorage.getItem('token');
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+
+  const res = await fetch(`${API_BASE}/api/users/profile-picture`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(data.message || 'Upload failed');
+    err.response = data;
+    throw err;
+  }
+  return data;
+};
+
+export const deleteProfilePicture = () => request('/api/users/profile-picture', null, 'DELETE');
 
 // Project endpoints
 export const getProjects = () => request('/api/projects', null, 'GET');
+export const getAllProjects = () => request('/api/projects', null, 'GET');
 export const getProjectById = (id) => request(`/api/projects/${id}`, null, 'GET');
 export const createProject = (payload) => request('/api/projects', payload, 'POST');
 export const updateProject = (id, payload) => request(`/api/projects/${id}`, payload, 'PUT');

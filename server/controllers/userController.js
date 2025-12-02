@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import prisma from '../prisma.config.js';
 import { sendWelcomeEmailWithPassword, sendAccountDetailsEmail, sendUserUpdateEmail, sendUserDeletedEmail } from '../services/emailService.js';
 
@@ -33,6 +35,7 @@ export const getAllUsers = async (req, res) => {
         email: true,
         firstName: true,
         lastName: true,
+        profilePicture: true,
         role: true,
         managerId: true,
         createdAt: true,
@@ -428,6 +431,115 @@ export const deleteUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Server error deleting user',
+      error: error.message,
+    });
+  }
+};
+
+// Upload profile picture
+export const uploadProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded',
+      });
+    }
+
+    // Get the user's current profile picture
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: { profilePicture: true },
+    });
+
+    // Delete old profile picture if exists
+    if (user?.profilePicture) {
+      const oldFilePath = path.join(process.cwd(), user.profilePicture);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    // Save the new profile picture path
+    const profilePicturePath = `/uploads/profile-pictures/${req.file.filename}`;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: { profilePicture: profilePicturePath },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        profilePicture: true,
+        role: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error('Upload profile picture error:', error);
+
+    // Delete the uploaded file if there was an error
+    if (req.file) {
+      const filePath = path.join(process.cwd(), 'uploads', 'profile-pictures', req.file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Server error uploading profile picture',
+      error: error.message,
+    });
+  }
+};
+
+// Delete profile picture
+export const deleteProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: { profilePicture: true },
+    });
+
+    if (!user?.profilePicture) {
+      return res.status(404).json({
+        success: false,
+        message: 'No profile picture to delete',
+      });
+    }
+
+    // Delete the file
+    const filePath = path.join(process.cwd(), user.profilePicture);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Update database
+    await prisma.user.update({
+      where: { id: parseInt(userId) },
+      data: { profilePicture: null },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete profile picture error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error deleting profile picture',
       error: error.message,
     });
   }

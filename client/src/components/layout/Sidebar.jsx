@@ -110,8 +110,16 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
           {isCollapsed ? (
             <Tooltip text={`${user?.firstName || 'User'} - ${user?.role || 'USER'}`} position="right">
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold text-sm shadow-md">
-                  {user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold text-sm shadow-md overflow-hidden">
+                  {user?.profilePicture ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${user.profilePicture}`}
+                      alt={`${user?.firstName} ${user?.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}</span>
+                  )}
                 </div>
                 <div className="mt-2">
                   {user?.role === 'SUPERADMIN' && (
@@ -129,8 +137,16 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
           ) : (
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold text-sm shadow-md">
-                  {user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold text-sm shadow-md overflow-hidden">
+                  {user?.profilePicture ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${user.profilePicture}`}
+                      alt={`${user?.firstName} ${user?.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{user?.firstName?.[0] || 'U'}{user?.lastName?.[0] || ''}</span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">

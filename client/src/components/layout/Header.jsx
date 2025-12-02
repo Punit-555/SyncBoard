@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Drawer from '../ui/Drawer';
 import ProfileDropdown from '../ui/ProfileDropdown';
 import ProfileEditModal from '../ui/ProfileEditModal';
+import NotificationBell from '../ui/NotificationBell';
 import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
@@ -25,6 +26,7 @@ const Header = () => {
 
             {/* Desktop User Info */}
             <div className="hidden md:flex items-center gap-4">
+              <NotificationBell />
               <ProfileDropdown onEditProfile={() => setIsProfileModalOpen(true)} />
             </div>
 

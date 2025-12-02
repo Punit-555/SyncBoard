@@ -80,13 +80,14 @@ const ProfileDropdown = ({ onEditProfile }) => {
     return `${firstName} ${lastName}`.trim() || user.email;
   };
 
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   return (
     <div className="relative" ref={dropdownRef}>
       <div
         onClick={() => !isLoading && setIsOpen(!isOpen)}
         onMouseEnter={() => !isLoading && setIsOpen(true)}
-              className="flex items-center gap-3 px-4 py-2 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+              className="flex items-center gap-3 px-4 py-2 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100 cursor-pointer hover:border-blue-200 transition-all">
         {isLoading ? (
           <i className="fas fa-spinner fa-spin text-sm"></i>
         ) : (
@@ -97,8 +98,16 @@ const ProfileDropdown = ({ onEditProfile }) => {
                   </span>
                   <span className="text-xs text-gray-600">{user?.email}</span>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold shadow-md">
-                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold shadow-md overflow-hidden">
+                  {user?.profilePicture ? (
+                    <img
+                      src={`${API_BASE}${user.profilePicture}`}
+                      alt={getFullName()}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
+                  )}
                 </div>
           </>
         )}
@@ -109,8 +118,16 @@ const ProfileDropdown = ({ onEditProfile }) => {
           {/* User Info Section */}
           <div className="bg-linear-to-br from-[#4361ee] to-[#4895ef] p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-lg border-2 border-white/30">
-                {getInitials()}
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-lg border-2 border-white/30 overflow-hidden">
+                {user?.profilePicture ? (
+                  <img
+                    src={`${API_BASE}${user.profilePicture}`}
+                    alt={getFullName()}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>{getInitials()}</span>
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-white font-semibold text-sm truncate">{getFullName()}</h3>
