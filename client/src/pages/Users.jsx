@@ -18,6 +18,8 @@ const Users = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -111,14 +113,17 @@ const Users = () => {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteUser = (user) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
 
     try {
       setIsDeleting(true);
-      const response = await api.delete(`/api/users/${userId}`);
+      const response = await api.delete(`/api/users/${userToDelete.id}`);
       if (response.success) {
         showSnackbar('✅ User deleted successfully! Notification email sent.', 'success');
         await fetchUsers();
@@ -129,6 +134,8 @@ const Users = () => {
       showSnackbar(error.message || 'Failed to delete user', 'error');
     } finally {
       setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -187,13 +194,13 @@ const Users = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-3 md:p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
-          <p className="text-gray-600 mt-1">Manage users and their permissions</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">User Management</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1">Manage users and their permissions</p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
+        <Button onClick={() => setIsCreateModalOpen(true)} className="w-full md:w-auto">
           <i className="fas fa-plus mr-2"></i>
           Create User
         </Button>
@@ -291,7 +298,7 @@ const Users = () => {
                         </button>
                         {user.id !== currentUser?.id && (
                           <button
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(user)}
                             className="text-red-600 hover:text-red-900"
                             title="Delete user"
                           >
@@ -525,6 +532,39 @@ const Users = () => {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete User Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setUserToDelete(null);
+        }}
+        title="Delete User"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-700">
+            Are you sure you want to delete <strong>{userToDelete?.firstName} {userToDelete?.lastName}</strong> (<strong>{userToDelete?.email}</strong>)? This action cannot be undone and the user will be notified via email.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setUserToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={confirmDeleteUser}
+            >
+              Delete User
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

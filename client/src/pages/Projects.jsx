@@ -16,7 +16,6 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
-  const [expandedProject, setExpandedProject] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [isRemoveUserDialogOpen, setIsRemoveUserDialogOpen] = useState(false);
@@ -159,142 +158,191 @@ const Projects = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-2 sm:p-3 md:p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 sm:mb-4 md:mb-6 gap-2 sm:gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Projects</h1>
+          <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-0.5 sm:mt-1">
             {isAdmin ? 'Manage all projects' : 'View your assigned projects'}
           </p>
         </div>
         {isAdmin && (
-          <Button onClick={() => handleOpenModal()}>
+          <Button onClick={() => handleOpenModal()} className="w-full md:w-auto text-sm">
+            <i className="fas fa-plus mr-1.5 sm:mr-2"></i>
             Create New Project
           </Button>
         )}
       </div>
 
       {projects.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">No projects found</p>
+        <div className="bg-white rounded-lg shadow p-6 sm:p-8 text-center">
+          <p className="text-sm sm:text-base text-gray-500">No projects found</p>
           {isAdmin && (
-            <Button className="mt-4" onClick={() => handleOpenModal()}>
+            <Button className="mt-3 sm:mt-4 text-sm" onClick={() => handleOpenModal()}>
               Create Your First Project
             </Button>
           )}
         </div>
       ) : (
-        <div className="grid gap-4">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+      <div className="grid gap-3 sm:gap-4">
+         {projects.map((project) => (
+    <div
+      key={project.id}
+      className="bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+    >
+      <div className="p-3 sm:p-4 md:p-6">
+        <div className="flex flex-col gap-2 sm:gap-3">
+          
+          {/* Title and Status Row */}
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-gray-900 flex-1 min-w-0 break-words">
+              {project.name}
+            </h3>
+            <span
+              className={`px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium shrink-0 ${
+                project.status === 'active'
+                  ? 'bg-green-100 text-green-800'
+                  : project.status === 'completed'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-gray-100 text-gray-800'
+              }`}
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-semibold text-gray-900">
-                        {project.name}
-                      </h3>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          project.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : project.status === 'completed'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {project.status}
-                      </span>
-                    </div>
-                    {project.description && (
-                      <p className="text-gray-600 mt-2">{project.description}</p>
-                    )}
-                    <div className="flex gap-6 mt-4 text-sm text-gray-500">
-                      <span>Tasks: {project._count?.tasks || 0}</span>
-                      <span>Members: {project._count?.users || 0}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    {isAdmin && (
-                      <>
-                        <Button
-                          variant="secondary"
-                          onClick={() => handleOpenModal(project)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="danger"
-                          onClick={() => handleDelete(project)}
-                        >
-                          Delete
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
+              {project.status}
+            </span>
+          </div>
 
-                {/* Always show members for Admin/SuperAdmin */}
-                {isAdmin && project.users && project.users.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <i className="fas fa-users text-blue-600"></i>
-                      Team Members ({project.users.length})
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {project.users.map((userProject) => (
-                        <div
-                          key={userProject.user.id}
-                          className="flex flex-col p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-100 hover:shadow-md transition-all"
+          {/* Description */}
+          {project.description && (
+            <p className="text-xs sm:text-sm md:text-base text-gray-600 line-clamp-2 sm:line-clamp-3 md:line-clamp-none">
+              {project.description}
+            </p>
+          )}
+
+          {/* Stats + Actions in One Row */}
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            
+            {/* Stats */}
+            <div className="flex items-center gap-4 text-xs sm:text-sm text-gray-500">
+              
+              <span className="flex items-center gap-1.5">
+                <i className="fas fa-tasks text-blue-600"></i>
+                <span className="font-medium text-gray-900">{project._count?.tasks || 0}</span>
+                <span className="hidden xs:inline">
+                  task{project._count?.tasks !== 1 ? 's' : ''}
+                </span>
+              </span>
+
+              <span className="flex items-center gap-1.5">
+                <i className="fas fa-users text-purple-600"></i>
+                <span className="font-medium text-gray-900">{project._count?.users || 0}</span>
+                <span className="hidden xs:inline">
+                  member{project._count?.users !== 1 ? 's' : ''}
+                </span>
+              </span>
+
+            </div>
+
+            {/* Actions (Right Side) */}
+            {isAdmin && (
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => handleOpenModal(project)}
+                  className="text-xs sm:text-sm py-1.5 px-3 sm:px-4"
+                >
+                  <i className="fas fa-edit"></i>
+                  <span className="ml-1 sm:ml-2">Edit</span>
+                </Button>
+
+                <Button
+                  variant="danger"
+                  onClick={() => handleDelete(project)}
+                  className="text-xs sm:text-sm py-1.5 px-3 sm:px-4"
+                >
+                  <i className="fas fa-trash"></i>
+                  <span className="ml-1 sm:ml-2">Delete</span>
+                </Button>
+              </div>
+            )}
+
+          </div>
+
+        </div>
+
+        {/* Team Members */}
+        {isAdmin && project.users && project.users.length > 0 && (
+          <div className="mt-3 sm:mt-4 md:mt-6 pt-3 sm:pt-4 md:pt-6 border-t border-gray-200">
+            <h4 className="font-semibold text-gray-900 text-xs sm:text-sm md:text-base mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
+              <i className="fas fa-users text-blue-600 text-sm sm:text-base"></i>
+              <span>Team Members ({project.users.length})</span>
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+              {project.users.map((userProject) => (
+                <div
+                  key={userProject.user.id}
+                  className="flex flex-col p-2.5 sm:p-3 md:p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-100 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md shrink-0">
+                        {userProject.user.firstName?.[0]}
+                        {userProject.user.lastName?.[0]}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900 text-xs sm:text-sm truncate leading-tight">
+                          {userProject.user.firstName} {userProject.user.lastName}
+                        </p>
+
+                        <span
+                          className={`inline-block mt-0.5 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium ${
+                            userProject.user.role === 'SUPERADMIN'
+                              ? 'bg-purple-100 text-purple-800'
+                              : userProject.user.role === 'ADMIN'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
                         >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                                {userProject.user.firstName?.[0]}{userProject.user.lastName?.[0]}
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-900 text-sm">
-                                  {userProject.user.firstName} {userProject.user.lastName}
-                                </p>
-                                <span
-                                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                    userProject.user.role === 'SUPERADMIN'
-                                      ? 'bg-purple-100 text-purple-800'
-                                      : userProject.user.role === 'ADMIN'
-                                      ? 'bg-blue-100 text-blue-800'
-                                      : 'bg-gray-100 text-gray-800'
-                                  }`}
-                                >
-                                  {userProject.user.role}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-blue-200">
-                            <p className="text-xs text-gray-700 truncate flex-1" title={userProject.user.email}>
-                              <i className="fas fa-envelope mr-1 text-blue-600"></i>
-                              {userProject.user.email}
-                            </p>
-                            <button
-                              onClick={() => handleRemoveUserFromProject(project.id, userProject.user.id, userProject.user.firstName, userProject.user.lastName, project.name)}
-                              className="ml-2 p-1.5 text-xs font-medium text-red-600 hover:bg-red-100 rounded transition-colors"
-                              title="Remove from project"
-                            >
-                              <i className="fas fa-times"></i>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                          {userProject.user.role}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-blue-200 gap-2">
+                    <p className="text-xs text-gray-700 truncate flex-1 min-w-0">
+                      <i className="fas fa-envelope mr-1 text-blue-600 text-xs"></i>
+                      {userProject.user.email}
+                    </p>
+
+                    <button
+                      onClick={() =>
+                        handleRemoveUserFromProject(
+                          project.id,
+                          userProject.user.id,
+                          userProject.user.firstName,
+                          userProject.user.lastName,
+                          project.name
+                        )
+                      }
+                      className="shrink-0 p-1 sm:p-1.5 text-xs font-medium text-red-600 hover:bg-red-100 rounded transition-colors"
+                    >
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+         ))}
+      </div>
+
       )}
 
       <Modal
@@ -346,8 +394,8 @@ const Projects = () => {
         }}
         onConfirm={confirmDeleteProject}
         title="Delete Project"
-        message={`Are you sure you want to delete "${projectToDelete?.name}"? This will also delete all associated tasks. This action cannot be undone.`}
-        confirmText="Delete"
+        message={`Are you sure you want to delete "${projectToDelete?.name}"? This will permanently delete all associated tasks and cannot be undone.`}
+        confirmText="Delete Project"
         cancelText="Cancel"
         type="danger"
       />
@@ -360,8 +408,8 @@ const Projects = () => {
         }}
         onConfirm={confirmRemoveUser}
         title="Remove User from Project"
-        message={`Are you sure you want to remove ${userToRemove?.firstName} ${userToRemove?.lastName} from "${userToRemove?.projectName}"?`}
-        confirmText="Remove"
+        message={`Are you sure you want to remove ${userToRemove?.firstName} ${userToRemove?.lastName} from "${userToRemove?.projectName}"? The user will be notified via email.`}
+        confirmText="Remove User"
         cancelText="Cancel"
         type="danger"
       />
