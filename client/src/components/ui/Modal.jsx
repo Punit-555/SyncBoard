@@ -3,7 +3,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
   return (
     <div
-      className="fixed top-0 left-0 w-full h-full bg-black/50 z-[1000] flex items-center justify-center p-5 animate-fadeIn"
+      className="fixed top-0 left-0 w-full h-full bg-black/10 backdrop-blur-md z-[1000] flex items-center justify-center p-5 animate-fadeIn"
       onClick={onClose}
     >
       <div

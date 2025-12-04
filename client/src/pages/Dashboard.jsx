@@ -53,20 +53,20 @@ const Dashboard = () => {
   // SUPER ADMIN DASHBOARD
   if (user?.role === 'SUPERADMIN') {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Complete system overview and management</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1">Complete system overview and management</p>
           </div>
-          <Button onClick={() => window.location.href = '/projects'}>
+          <Button onClick={() => window.location.href = '/projects'} className="w-full md:w-auto">
             <i className="fas fa-plus mr-2"></i>
             Manage Projects
           </Button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <StatCard icon="fas fa-project-diagram" count={projects.length} label="Total Projects" color="blue" />
           <StatCard icon="fas fa-users" count={users.length} label="Total Users" color="green" />
           <StatCard icon="fas fa-user-shield" count={users.filter(u => u.role === 'ADMIN').length} label="Admins" color="purple" />
@@ -198,26 +198,26 @@ const Dashboard = () => {
   // ADMIN DASHBOARD
   if (user?.role === 'ADMIN') {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage projects, tasks, and users</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-sm md:text-base text-gray-600 mt-1">Manage projects, tasks, and users</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => window.location.href = '/tasks'}>
+          <div className="flex gap-2 w-full md:w-auto">
+            <Button variant="secondary" onClick={() => window.location.href = '/tasks'} className="flex-1 md:flex-none">
               <i className="fas fa-tasks mr-2"></i>
-              Manage Tasks
+              <span className="hidden sm:inline">Manage </span>Tasks
             </Button>
-            <Button onClick={() => window.location.href = '/projects'}>
+            <Button onClick={() => window.location.href = '/projects'} className="flex-1 md:flex-none">
               <i className="fas fa-plus mr-2"></i>
-              Manage Projects
+              <span className="hidden sm:inline">Manage </span>Projects
             </Button>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <StatCard icon="fas fa-tasks" count={stats.total} label="Total Tasks" color="blue" />
           <StatCard icon="fas fa-check-circle" count={stats.completed} label="Completed" color="green" />
           <StatCard icon="fas fa-clock" count={stats.inProgress} label="In Progress" color="orange" />
@@ -282,20 +282,20 @@ const Dashboard = () => {
 
   // USER DASHBOARD
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome back, {user?.firstName}!</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Dashboard</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1">Welcome back, {user?.firstName}!</p>
         </div>
-        <Button onClick={() => window.location.href = '/tasks'}>
+        <Button onClick={() => window.location.href = '/tasks'} className="w-full md:w-auto">
           <i className="fas fa-eye mr-2"></i>
           View My Tasks
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <StatCard icon="fas fa-tasks" count={stats.total} label="My Tasks" color="blue" />
         <StatCard icon="fas fa-check-circle" count={stats.completed} label="Completed" color="green" />
         <StatCard icon="fas fa-clock" count={stats.inProgress} label="In Progress" color="orange" />

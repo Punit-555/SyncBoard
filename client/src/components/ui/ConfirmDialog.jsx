@@ -7,8 +7,14 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmText
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 animate-scaleIn">
+    <>
+      <div
+        className="fixed inset-0 z-9998 bg-white/10 backdrop-blur-md animate-fadeIn"
+        onClick={onClose}
+      />
+
+      <div className="fixed inset-0 z-9999 flex items-center justify-center pointer-events-none">
+        <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 animate-scaleIn pointer-events-auto">
         <div className={`px-6 py-5 border-b border-gray-200 ${
           type === 'danger' ? 'bg-red-50' : 'bg-blue-50'
         } rounded-t-xl`}>
@@ -44,7 +50,8 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmText
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -296,7 +296,7 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-[calc(95vh-80px)] flex bg-gray-50 gap-4 p-4">
+    <div className="h-[calc(100vh-80px)] flex bg-gray-50 gap-2 md:gap-4 p-2 md:p-4">
       {/* Desktop Sidebar - Collapsible */}
       <div className={`hidden lg:flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
         isSidebarOpen ? 'w-80' : 'w-0 p-0'
@@ -472,9 +472,9 @@ const Messages = () => {
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="bg-linear-to-r from-blue-600 to-purple-600 p-4 shadow-md flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-900 font-bold overflow-hidden">
+            <div className="bg-linear-to-r from-blue-600 to-purple-600 p-3 md:p-4 shadow-md flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center text-gray-900 font-bold overflow-hidden shrink-0">
                   {selectedUser.profilePicture ? (
                     <img
                       src={`${API_BASE}${selectedUser.profilePicture}`}
@@ -487,11 +487,11 @@ const Messages = () => {
                     </span>
                   )}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-white">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-white text-sm md:text-base truncate">
                     {selectedUser.firstName} {selectedUser.lastName}
                   </h3>
-                  <p className="text-white/80 text-sm">{selectedUser.email}</p>
+                  <p className="text-white/80 text-xs md:text-sm truncate">{selectedUser.email}</p>
                 </div>
               </div>
 
@@ -506,7 +506,7 @@ const Messages = () => {
             </div>
 
             {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-2 md:p-4 space-y-3 md:space-y-4 bg-gray-50">
               {isLoadingMessages ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader />
@@ -527,16 +527,16 @@ const Messages = () => {
                       key={message.id}
                       className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
                     >
-                      <div className={`max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
+                      <div className={`max-w-[85%] md:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
                         <div
-                          className={`rounded-2xl px-4 py-3 shadow-sm ${
+                          className={`rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm ${
                             isOwnMessage
                               ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                               : 'bg-white text-gray-900 border border-gray-200'
                           }`}
                         >
                           {message.content && (
-                            <p className="break-words whitespace-pre-wrap">{message.content}</p>
+                            <p className="break-words whitespace-pre-wrap text-sm md:text-base">{message.content}</p>
                           )}
 
                           {message.attachments && message.attachments.length > 0 && (
@@ -595,9 +595,9 @@ const Messages = () => {
             </div>
 
             {/* Input Area */}
-            <div className="bg-white border-t border-gray-200 p-4 shadow-lg">
+            <div className="bg-white border-t border-gray-200 p-2 md:p-4 shadow-lg shrink-0">
               {selectedFiles.length > 0 && (
-                <div className="mb-3 flex flex-wrap gap-2">
+                <div className="mb-2 md:mb-3 flex flex-wrap gap-2">
                   {selectedFiles.map((file, index) => (
                     <div
                       key={index}
@@ -629,10 +629,10 @@ const Messages = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-3 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 md:p-3 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
                   title="Attach file (max 5 files, 5MB each)"
                 >
-                  <i className="fas fa-paperclip text-xl"></i>
+                  <i className="fas fa-paperclip text-lg md:text-xl"></i>
                 </button>
 
                 <textarea
@@ -644,8 +644,8 @@ const Messages = () => {
                       handleSendMessage(e);
                     }
                   }}
-                  placeholder="Type a message... (Shift+Enter for new line)"
-                  className="flex-1 resize-none border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Type a message..."
+                  className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 md:px-4 md:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
                   rows="1"
                   style={{ maxHeight: '120px' }}
                 />
@@ -653,13 +653,13 @@ const Messages = () => {
                 <button
                   type="submit"
                   disabled={isSending || (!messageText.trim() && selectedFiles.length === 0)}
-                  className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                  className="p-2 md:p-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg shrink-0"
                   title="Send message"
                 >
                   {isSending ? (
-                    <i className="fas fa-spinner fa-spin text-xl"></i>
+                    <i className="fas fa-spinner fa-spin text-lg md:text-xl"></i>
                   ) : (
-                    <i className="fas fa-paper-plane text-xl"></i>
+                    <i className="fas fa-paper-plane text-lg md:text-xl"></i>
                   )}
                 </button>
               </form>
@@ -690,71 +690,73 @@ const Messages = () => {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/60 z-40 lg:hidden animate-fadeIn"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
 
           {/* Drawer */}
-          <div className="fixed left-0 top-0 h-full w-80 bg-white shadow-lg z-50 lg:hidden overflow-y-auto">
+          <div className="fixed left-0 top-0 h-full w-[85vw] max-w-[320px] bg-white shadow-2xl z-50 lg:hidden overflow-hidden flex flex-col animate-slideInLeft">
             {/* Close Button */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-linear-to-r from-blue-600 to-purple-600">
-              <h2 className="text-xl font-bold text-white">Messages</h2>
+            <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-linear-to-r from-blue-600 to-purple-600 shrink-0">
+              <h2 className="text-lg font-bold text-white">Messages</h2>
               <button
                 onClick={() => setIsMobileSidebarOpen(false)}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white"
               >
-                <i className="fas fa-times text-lg"></i>
+                <i className="fas fa-times text-base"></i>
               </button>
             </div>
 
             {/* Search */}
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-3 border-b border-gray-200 bg-gray-50 shrink-0">
               <div className="relative">
-                <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                <i className="fas fa-search absolute left-3 top-2.5 text-blue-500 text-sm"></i>
                 <input
                   type="text"
-                  placeholder="Search conversations..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                 />
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-gray-200 bg-gray-50">
+            <div className="flex border-b border-gray-200 bg-gray-50 shrink-0">
               <button
                 onClick={() => setActiveTab('conversations')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
                   activeTab === 'conversations'
                     ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <i className="fas fa-comments mr-2"></i>
-                Conversations {conversations.length > 0 && `(${conversations.length})`}
+                <i className="fas fa-comments mr-1 text-sm"></i>
+                <span>Chats</span>
+                {conversations.length > 0 && <span className="ml-1">({conversations.length})</span>}
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
                   activeTab === 'users'
                     ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <i className="fas fa-users mr-2"></i>
-                Users {allUsers.length > 0 && `(${allUsers.length})`}
+                <i className="fas fa-users mr-1 text-sm"></i>
+                <span>Users</span>
+                {allUsers.length > 0 && <span className="ml-1">({allUsers.length})</span>}
               </button>
             </div>
 
             {/* Conversations/Users List */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-y-auto">
               {activeTab === 'conversations' ? (
                 filteredConversations.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    <i className="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
-                    <p className="font-medium">No conversations</p>
-                    <p className="text-sm mt-1">Start a conversation from the Users tab</p>
+                  <div className="p-6 text-center text-gray-500">
+                    <i className="fas fa-inbox text-3xl mb-2 text-gray-300"></i>
+                    <p className="font-medium text-sm">No conversations</p>
+                    <p className="text-xs mt-1">Start from Users tab</p>
                   </div>
                 ) : (
                   filteredConversations.map((conv) => (
@@ -764,13 +766,13 @@ const Messages = () => {
                         handleSelectUser(conv);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 ${
-                        selectedUser?.id === conv.user.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                      className={`p-2.5 border-b border-gray-100 cursor-pointer transition-all active:bg-blue-100 ${
+                        selectedUser?.id === conv.user.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : 'hover:bg-gray-50'
                       }`}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-center gap-2">
                         <div className="relative shrink-0">
-                          <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
+                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm">
                             {conv.user.profilePicture ? (
                               <img
                                 src={`${API_BASE}${conv.user.profilePicture}`}
@@ -784,30 +786,30 @@ const Messages = () => {
                             )}
                           </div>
                           {conv.unreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md">
-                              {conv.unreadCount}
+                            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md px-1">
+                              {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
                             </span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <h3 className={`font-semibold text-gray-900 truncate ${
-                              conv.unreadCount > 0 ? 'font-bold' : ''
+                          <div className="flex items-baseline justify-between gap-2 mb-0.5">
+                            <h3 className={`text-sm truncate ${
+                              conv.unreadCount > 0 ? 'font-bold text-gray-900' : 'font-semibold text-gray-800'
                             }`}>
                               {conv.user.firstName} {conv.user.lastName}
                             </h3>
                             {conv.lastMessage && (
-                              <span className={`text-xs shrink-0 ml-2 ${
+                              <span className={`text-xs shrink-0 ${
                                 conv.unreadCount > 0 ? 'text-blue-600 font-semibold' : 'text-gray-500'
                               }`}>
                                 {formatTime(conv.lastMessage.createdAt)}
                               </span>
                             )}
                           </div>
-                          <p className={`text-sm truncate ${
+                          <p className={`text-xs truncate leading-tight ${
                             conv.unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-600'
                           }`}>
-                            {conv.lastMessage?.content || '📎 File attachment'}
+                            {conv.lastMessage?.content || '📎 Attachment'}
                           </p>
                         </div>
                       </div>
@@ -816,10 +818,10 @@ const Messages = () => {
                 )
               ) : (
                 filteredUsers.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    <i className="fas fa-user-slash text-4xl mb-3 text-gray-300"></i>
-                    <p className="font-medium">No users found</p>
-                    <p className="text-sm mt-1">Try a different search</p>
+                  <div className="p-6 text-center text-gray-500">
+                    <i className="fas fa-user-slash text-3xl mb-2 text-gray-300"></i>
+                    <p className="font-medium text-sm">No users found</p>
+                    <p className="text-xs mt-1">Try different search</p>
                   </div>
                 ) : (
                   filteredUsers.map((u) => (
@@ -829,12 +831,12 @@ const Messages = () => {
                         handleSelectNewUser(u);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-green-50 ${
-                        selectedUser?.id === u.id ? 'bg-green-50 border-l-4 border-l-green-600' : ''
+                      className={`p-2.5 border-b border-gray-100 cursor-pointer transition-all active:bg-green-100 ${
+                        selectedUser?.id === u.id ? 'bg-green-50 border-l-4 border-l-green-600' : 'hover:bg-gray-50'
                       }`}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm shrink-0">
                           {u.profilePicture ? (
                             <img
                               src={`${API_BASE}${u.profilePicture}`}
@@ -848,19 +850,21 @@ const Messages = () => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {u.firstName} {u.lastName}
-                          </h3>
-                          <p className="text-sm text-gray-600 truncate">{u.email}</p>
-                          <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                            u.role === 'SUPERADMIN'
-                              ? 'bg-purple-100 text-purple-800'
-                              : u.role === 'ADMIN'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {u.role}
-                          </span>
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
+                            <h3 className="font-semibold text-gray-900 truncate text-sm">
+                              {u.firstName} {u.lastName}
+                            </h3>
+                            <span className={`shrink-0 px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                              u.role === 'SUPERADMIN'
+                                ? 'bg-purple-100 text-purple-800'
+                                : u.role === 'ADMIN'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {u.role}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 truncate leading-tight">{u.email}</p>
                         </div>
                       </div>
                     </div>
