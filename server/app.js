@@ -19,6 +19,7 @@ const allowedOrigins = [
   'http://localhost:5174',
   'https://syncboard-tyan.onrender.com',
   'https://syncboard-2397.onrender.com',
+  'https://sync-board-frontend-ivory.vercel.app',
 ];
 
 app.use(cors({
