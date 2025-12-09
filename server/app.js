@@ -18,6 +18,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'https://syncboard-tyan.onrender.com',
+  'https://syncboard-2397.onrender.com',
 ];
 
 app.use(cors({
