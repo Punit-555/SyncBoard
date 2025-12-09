@@ -1,0 +1,10 @@
+node_modules
+.env
+*.md
+uploads
+.git
+.gitignore
+createUsers.js
+updateSuperAdmin.js
+fixMongoIds.sh
+test-email.js

@@ -79,17 +79,20 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, async () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// Only start server if not in Vercel (serverless)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, async () => {
+        console.log(`Server running on http://localhost:${PORT}`);
 
-    // Test database connection
-    try {
-        await prisma.$connect();
-        console.log('✅ Database connected successfully!');
-    } catch (error) {
-        console.error('❌ Database connection failed:', error.message);
-        console.error('Please check your DATABASE_URL in .env file');
-    }
-});
+        // Test database connection
+        try {
+            await prisma.$connect();
+            console.log('✅ Database connected successfully!');
+        } catch (error) {
+            console.error('❌ Database connection failed:', error.message);
+            console.error('Please check your DATABASE_URL in .env file');
+        }
+    });
+}
 
 export default app;
