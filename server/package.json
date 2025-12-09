@@ -7,9 +7,9 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "npx prisma generate",
+    "build": "prisma generate",
+    "vercel-build": "prisma generate",
     "deploy": "npx prisma db push && node createAllUsers.js && node app.js",
-    "postinstall": "npx prisma generate",
     "test-email": "node test-email.js",
     "migrate": "prisma migrate dev",
     "migrate:prod": "prisma migrate deploy",
