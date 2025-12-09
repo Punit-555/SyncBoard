@@ -67,7 +67,7 @@ export const getTasks = async (req, res) => {
       // Regular users see only their tasks (only parent tasks, not subtasks)
       tasks = await prisma.task.findMany({
         where: {
-          userId: parseInt(userId),
+          userId: userId,
           parentTaskId: null, // Only get parent tasks
         },
         include: {
@@ -146,13 +146,13 @@ export const createTask = async (req, res) => {
       requestUserId,
       userRole,
       targetUserId: userId,
-      isAssigningToOther: userId && parseInt(userId) !== parseInt(requestUserId),
+      isAssigningToOther: userId && userId !== requestUserId,
       isAdmin: userRole === 'ADMIN' || userRole === 'SUPERADMIN'
     });
 
     // Only regular users need permission check
     // Admins and SuperAdmins can create tasks for anyone
-    if (userId && parseInt(userId) !== parseInt(requestUserId)) {
+    if (userId && userId !== requestUserId) {
       if (userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
         console.log('❌ Permission denied: User is not Admin/SuperAdmin');
         return res.status(403).json({
@@ -167,7 +167,7 @@ export const createTask = async (req, res) => {
     }
 
     const project = await prisma.project.findUnique({
-      where: { id: parseInt(projectId) },
+      where: { id: projectId },
     });
 
     if (!project) {
@@ -183,11 +183,11 @@ export const createTask = async (req, res) => {
         description: description || null,
         status: status || 'pending',
         priority: priority || 'medium',
-        userId: parseInt(targetUserId),
-        managerId: managerId ? parseInt(managerId) : null,
-        projectId: parseInt(projectId),
+        userId: targetUserId,
+        managerId: managerId ? managerId : null,
+        projectId: projectId,
         dueDate: dueDate ? new Date(dueDate) : null,
-        parentTaskId: parentTaskId ? parseInt(parentTaskId) : null,
+        parentTaskId: parentTaskId ? parentTaskId : null,
       },
       include: {
         user: {
@@ -217,12 +217,12 @@ export const createTask = async (req, res) => {
 
     // Send email notification to the assigned user
     // Only send email if assigning to someone else (not yourself)
-    if (task.user && task.user.email && parseInt(task.userId) !== parseInt(requestUserId)) {
+    if (task.user && task.user.email && parseInt(task.userId) !== requestUserId) {
       try {
         console.log(`📧 Attempting to send email to ${task.user.email}...`);
 
         const assignedByUser = await prisma.user.findUnique({
-          where: { id: parseInt(requestUserId) },
+          where: { id: requestUserId },
           select: {
             firstName: true,
             lastName: true,
@@ -271,7 +271,7 @@ export const createTask = async (req, res) => {
       console.log(`ℹ️ Email not sent. Reasons:`, {
         hasUser: !!task.user,
         hasEmail: !!task.user?.email,
-        isSelfAssignment: parseInt(task.userId) === parseInt(requestUserId),
+        isSelfAssignment: parseInt(task.userId) === requestUserId,
         taskUserId: task.userId,
         requestUserId: requestUserId
       });
@@ -312,7 +312,7 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    if (task.userId !== parseInt(userId) && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
+    if (task.userId !== userId && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to update this task',
@@ -320,7 +320,7 @@ export const updateTask = async (req, res) => {
     }
 
     // Check if the assigned user is changing
-    const isUserChanging = newUserId !== undefined && parseInt(newUserId) !== task.userId;
+    const isUserChanging = newUserId !== undefined && newUserId !== task.userId;
 
     const updatedTask = await prisma.task.update({
       where: { id: parseInt(id) },
@@ -329,10 +329,10 @@ export const updateTask = async (req, res) => {
         ...(description !== undefined && { description }),
         ...(status && { status }),
         ...(priority && { priority }),
-        ...(managerId !== undefined && { managerId: managerId ? parseInt(managerId) : null }),
-        ...(projectId && { projectId: parseInt(projectId) }),
+        ...(managerId !== undefined && { managerId: managerId ? managerId : null }),
+        ...(projectId && { projectId: projectId }),
         ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
-        ...(newUserId !== undefined && { userId: newUserId ? parseInt(newUserId) : task.userId }),
+        ...(newUserId !== undefined && { userId: newUserId ? newUserId : task.userId }),
       },
       include: {
         user: {
@@ -364,7 +364,7 @@ export const updateTask = async (req, res) => {
     if (isUserChanging && updatedTask.user && updatedTask.user.email) {
       try {
         const assignedByUser = await prisma.user.findUnique({
-          where: { id: parseInt(userId) },
+          where: { id: userId },
           select: {
             firstName: true,
             lastName: true,
@@ -435,7 +435,7 @@ export const deleteTask = async (req, res) => {
     }
 
     // Check permissions: user can delete their own tasks, admins can delete any task
-    if (task.userId !== parseInt(userId) && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
+    if (task.userId !== userId && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to delete this task',
@@ -504,7 +504,7 @@ export const getTaskById = async (req, res) => {
     }
 
     // Check permissions: user can view their own tasks, admins can view any task
-    if (task.userId !== parseInt(userId) && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
+    if (task.userId !== userId && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
       return res.status(403).json({
         success: false,
         message: 'You do not have permission to view this task',

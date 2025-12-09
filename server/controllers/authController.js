@@ -148,7 +148,7 @@ export const getCurrentUser = async (req, res) => {
     const userId = req.user.userId; // From JWT middleware
 
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       select: {
         id: true,
         email: true,
@@ -392,7 +392,7 @@ export const updateUserProfile = async (req, res) => {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       data: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -428,7 +428,7 @@ export const deleteAccount = async (req, res) => {
 
     // Get user data before deletion
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       select: {
         id: true,
         email: true,
@@ -451,7 +451,7 @@ export const deleteAccount = async (req, res) => {
     }
 
     await prisma.user.delete({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
     });
 
     return res.status(200).json({

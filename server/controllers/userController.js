@@ -84,7 +84,7 @@ export const getUserById = async (req, res) => {
     const { id } = req.params;
 
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       select: {
         id: true,
         email: true,
@@ -191,7 +191,7 @@ export const createUser = async (req, res) => {
         firstName: firstName || '',
         lastName: lastName || '',
         role: role || 'USER',
-        managerId: managerId ? parseInt(managerId) : null,
+        managerId: managerId ? managerId : null,
       },
       select: {
         id: true,
@@ -208,7 +208,7 @@ export const createUser = async (req, res) => {
     if (projectIds && Array.isArray(projectIds) && projectIds.length > 0) {
       const userProjects = projectIds.map((projectId) => ({
         userId: user.id,
-        projectId: parseInt(projectId),
+        projectId: projectId,
       }));
 
       await prisma.userProject.createMany({
@@ -224,7 +224,7 @@ export const createUser = async (req, res) => {
       // Also send account details email with role and project info
       const projectNames = projectIds && projectIds.length > 0 
         ? (await prisma.project.findMany({
-            where: { id: { in: projectIds.map(id => parseInt(id)) } },
+            where: { id: { in: projectIds.map(id => id) } },
             select: { name: true },
           })).map(p => p.name)
         : [];
@@ -261,7 +261,7 @@ export const updateUser = async (req, res) => {
 
     // Find the user
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     if (!user) {
@@ -288,7 +288,7 @@ export const updateUser = async (req, res) => {
     }
 
     // Prevent users from updating themselves to a higher role
-    if (parseInt(id) === parseInt(requestUserId) && role && role !== user.role) {
+    if (id === requestUserId && role && role !== user.role) {
       return res.status(403).json({
         success: false,
         message: 'You cannot change your own role',
@@ -297,13 +297,13 @@ export const updateUser = async (req, res) => {
 
     // Update user
     const updatedUser = await prisma.user.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(email && { email }),
         ...(firstName !== undefined && { firstName }),
         ...(lastName !== undefined && { lastName }),
         ...(role && { role }),
-        ...(managerId !== undefined && { managerId: managerId ? parseInt(managerId) : null }),
+        ...(managerId !== undefined && { managerId: managerId ? managerId : null }),
       },
       select: {
         id: true,
@@ -320,14 +320,14 @@ export const updateUser = async (req, res) => {
     if (projectIds !== undefined && Array.isArray(projectIds)) {
       // Delete existing project assignments
       await prisma.userProject.deleteMany({
-        where: { userId: parseInt(id) },
+        where: { userId: id },
       });
 
       // Create new project assignments
       if (projectIds.length > 0) {
         const userProjects = projectIds.map((projectId) => ({
-          userId: parseInt(id),
-          projectId: parseInt(projectId),
+          userId: id,
+          projectId: projectId,
         }));
 
         await prisma.userProject.createMany({
@@ -344,7 +344,7 @@ export const updateUser = async (req, res) => {
       if (lastName) updatedFields['Last Name'] = lastName;
       if (projectIds !== undefined) {
         const projects = await prisma.project.findMany({
-          where: { id: { in: projectIds.map(id => parseInt(id)) } },
+          where: { id: { in: projectIds.map(id => id) } },
           select: { name: true },
         });
         updatedFields['Assigned Projects'] = projects.length > 0 ? projects.map(p => p.name).join(', ') : 'None';
@@ -382,7 +382,7 @@ export const deleteUser = async (req, res) => {
     const requestUserId = req.user.userId;
 
     // Prevent users from deleting themselves
-    if (parseInt(id) === parseInt(requestUserId)) {
+    if (id === requestUserId) {
       return res.status(403).json({
         success: false,
         message: 'You cannot delete your own account via this endpoint',
@@ -391,7 +391,7 @@ export const deleteUser = async (req, res) => {
 
     // Find the user
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     if (!user) {
@@ -419,7 +419,7 @@ export const deleteUser = async (req, res) => {
     }
 
     await prisma.user.delete({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     return res.status(200).json({
@@ -450,7 +450,7 @@ export const uploadProfilePicture = async (req, res) => {
 
     // Get the user's current profile picture
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       select: { profilePicture: true },
     });
 
@@ -466,7 +466,7 @@ export const uploadProfilePicture = async (req, res) => {
     const profilePicturePath = `/uploads/profile-pictures/${req.file.filename}`;
 
     const updatedUser = await prisma.user.update({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       data: { profilePicture: profilePicturePath },
       select: {
         id: true,
@@ -508,7 +508,7 @@ export const deleteProfilePicture = async (req, res) => {
     const userId = req.user.userId;
 
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       select: { profilePicture: true },
     });
 
@@ -527,7 +527,7 @@ export const deleteProfilePicture = async (req, res) => {
 
     // Update database
     await prisma.user.update({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       data: { profilePicture: null },
     });
 

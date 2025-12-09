@@ -41,7 +41,7 @@ export const getAllProjects = async (req, res) => {
       // Regular users see only their assigned projects
       const userProjects = await prisma.userProject.findMany({
         where: {
-          userId: parseInt(userId),
+          userId: userId,
         },
         include: {
           project: {
@@ -126,7 +126,7 @@ export const getProjectById = async (req, res) => {
     if (userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
       const userProject = await prisma.userProject.findFirst({
         where: {
-          userId: parseInt(userId),
+          userId: userId,
           projectId: parseInt(id),
         },
       });
@@ -282,7 +282,7 @@ export const removeUserFromProject = async (req, res) => {
 
     // Get project details
     const project = await prisma.project.findUnique({
-      where: { id: parseInt(projectId) },
+      where: { id: projectId },
     });
 
     if (!project) {
@@ -294,7 +294,7 @@ export const removeUserFromProject = async (req, res) => {
 
     // Get user details
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       select: {
         id: true,
         email: true,
@@ -313,8 +313,8 @@ export const removeUserFromProject = async (req, res) => {
     // Check if user is in project
     const userProject = await prisma.userProject.findFirst({
       where: {
-        userId: parseInt(userId),
-        projectId: parseInt(projectId),
+        userId: userId,
+        projectId: projectId,
       },
     });
 
@@ -334,7 +334,7 @@ export const removeUserFromProject = async (req, res) => {
 
     // Get admin details for email
     const admin = await prisma.user.findUnique({
-      where: { id: parseInt(removedById) },
+      where: { id: removedById },
       select: {
         firstName: true,
         lastName: true,

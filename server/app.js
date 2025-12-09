@@ -13,7 +13,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware - CORS Configuration
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:5173',
@@ -23,19 +22,15 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, or curl)
     if (!origin) return callback(null, true);
 
-    // Allow any Vercel deployment URLs
     if (origin.includes('.vercel.app')) {
       return callback(null, true);
     }
 
-    // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else if (process.env.NODE_ENV === 'development') {
-      // Allow all origins in development
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

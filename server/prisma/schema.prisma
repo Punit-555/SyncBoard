@@ -6,25 +6,25 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id             Int              @id @default(autoincrement())
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
   email          String           @unique
   password       String
   firstName      String?
   lastName       String?
   profilePicture String?
   role           Role             @default(USER)
-  managerId      Int?
+  managerId      String?          @db.ObjectId
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
   // Relations
   resetTokens     PasswordReset[]
-  manager         User?            @relation("UserManager", fields: [managerId], references: [id])
+  manager         User?            @relation("UserManager", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   managedUsers    User[]           @relation("UserManager")
   tasks           Task[]           @relation("UserTasks")
   managedTasks    Task[]           @relation("ManagerTasks")
@@ -36,8 +36,8 @@ model User {
 }
 
 model PasswordReset {
-  id        Int      @id @default(autoincrement())
-  userId    Int
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   token     String   @unique
   expiresAt DateTime
   used      Boolean  @default(false)
@@ -48,7 +48,7 @@ model PasswordReset {
 }
 
 model Project {
-  id          Int           @id @default(autoincrement())
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String        @unique
   description String?
   status      String        @default("active")
@@ -63,33 +63,33 @@ model Project {
 }
 
 model Task {
-  id           Int      @id @default(autoincrement())
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
   title        String
   description  String?
-  status       String   @default("pending")
-  priority     String   @default("medium")
-  userId       Int
-  managerId    Int?
-  projectId    Int
-  parentTaskId Int?
+  status       String    @default("pending")
+  priority     String    @default("medium")
+  userId       String    @db.ObjectId
+  managerId    String?   @db.ObjectId
+  projectId    String    @db.ObjectId
+  parentTaskId String?   @db.ObjectId
   dueDate      DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
   user        User     @relation("UserTasks", fields: [userId], references: [id], onDelete: Cascade)
-  manager     User?    @relation("ManagerTasks", fields: [managerId], references: [id])
+  manager     User?    @relation("ManagerTasks", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  parentTask  Task?    @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  parentTask  Task?    @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   subtasks    Task[]   @relation("TaskSubtasks")
 
   @@map("tasks")
 }
 
 model UserProject {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  projectId Int
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  projectId String   @db.ObjectId
   role      String   @default("member")
   createdAt DateTime @default(now())
 
@@ -102,10 +102,10 @@ model UserProject {
 }
 
 model Message {
-  id           Int                @id @default(autoincrement())
+  id           String             @id @default(auto()) @map("_id") @db.ObjectId
   content      String?
-  senderId     Int
-  receiverId   Int
+  senderId     String             @db.ObjectId
+  receiverId   String             @db.ObjectId
   isRead       Boolean            @default(false)
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
@@ -119,8 +119,8 @@ model Message {
 }
 
 model MessageAttachment {
-  id           Int      @id @default(autoincrement())
-  messageId    Int
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  messageId    String   @db.ObjectId
   fileName     String
   fileUrl      String
   fileType     String

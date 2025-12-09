@@ -5,7 +5,7 @@ import fs from 'fs';
 // Get all conversations for the authenticated user
 export const getConversations = async (req, res) => {
   try {
-    const userId = parseInt(req.user.userId);
+    const userId = req.user.userId;
 
     // Get all unique users the current user has messaged with
     const sentMessages = await prisma.message.findMany({
@@ -94,9 +94,9 @@ export const getConversations = async (req, res) => {
 // Get messages between two users
 export const getMessages = async (req, res) => {
   try {
-    const userId = parseInt(req.user.userId);
+    const userId = req.user.userId;
     const { otherUserId } = req.params;
-    const otherUserIdInt = parseInt(otherUserId);
+    const otherUserIdInt = otherUserId;
 
     const messages = await prisma.message.findMany({
       where: {
@@ -156,7 +156,7 @@ export const getMessages = async (req, res) => {
 // Send a message
 export const sendMessage = async (req, res) => {
   try {
-    const senderId = parseInt(req.user.userId);
+    const senderId = req.user.userId;
     const { receiverId, content } = req.body;
 
     if (!receiverId) {
@@ -168,7 +168,7 @@ export const sendMessage = async (req, res) => {
 
     // Check if receiver exists
     const receiver = await prisma.user.findUnique({
-      where: { id: parseInt(receiverId) },
+      where: { id: receiverId },
     });
 
     if (!receiver) {
@@ -183,7 +183,7 @@ export const sendMessage = async (req, res) => {
       data: {
         content: content || null,
         senderId,
-        receiverId: parseInt(receiverId),
+        receiverId: receiverId,
       },
       include: {
         sender: {
@@ -256,7 +256,7 @@ export const sendMessage = async (req, res) => {
 // Delete a message
 export const deleteMessage = async (req, res) => {
   try {
-    const userId = parseInt(req.user.userId);
+    const userId = req.user.userId;
     const { id } = req.params;
 
     const message = await prisma.message.findUnique({
@@ -311,7 +311,7 @@ export const deleteMessage = async (req, res) => {
 // Mark message as read
 export const markAsRead = async (req, res) => {
   try {
-    const userId = parseInt(req.user.userId);
+    const userId = req.user.userId;
     const { id } = req.params;
 
     const message = await prisma.message.findUnique({
@@ -355,7 +355,7 @@ export const markAsRead = async (req, res) => {
 // Get unread count
 export const getUnreadCount = async (req, res) => {
   try {
-    const userId = parseInt(req.user.userId);
+    const userId = req.user.userId;
 
     const unreadCount = await prisma.message.count({
       where: {
