@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Snackbar from '../components/ui/Snackbar';
@@ -8,6 +8,7 @@ import { useSnackbar } from '../utils/useSnackbar';
 import api from '../utils/api';
 
 const Login = () => {
+  const navigate = useNavigate();
   const { snackbar, showSuccess, showError, showWarning, showInfo, hideSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -21,8 +22,8 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const payload = { 
-      email: formData.email, 
+    const payload = {
+      email: formData.email,
       password: formData.password,
       rememberMe: formData.remember,
     };
@@ -34,7 +35,7 @@ const Login = () => {
         showSuccess('Login successful! Redirecting...');
         setIsLoggingIn(true);
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          navigate('/dashboard');
         }, 1500);
       }
     } catch (err) {

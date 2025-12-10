@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getProjects, getTasks, getUsers } from '../utils/api';
 import StatCard from '../components/tasks/StatCard';
 import Button from '../components/ui/Button';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -59,7 +61,7 @@ const Dashboard = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
             <p className="text-sm md:text-base text-gray-600 mt-1">Complete system overview and management</p>
           </div>
-          <Button onClick={() => window.location.href = '/projects'} className="w-full md:w-auto">
+          <Button onClick={() => navigate('/projects')} className="w-full md:w-auto">
             <i className="fas fa-plus mr-2"></i>
             Manage Projects
           </Button>
@@ -81,7 +83,7 @@ const Dashboard = () => {
               <div className="text-center py-8 text-gray-500">
                 <i className="fas fa-folder-open text-4xl mb-2"></i>
                 <p>No projects yet. Create your first project!</p>
-                <Button className="mt-4" onClick={() => window.location.href = '/projects'}>
+                <Button className="mt-4" onClick={() => navigate('/projects')}>
                   Create Project
                 </Button>
               </div>
@@ -162,7 +164,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-900">Users Overview</h2>
-            <Button variant="secondary" onClick={() => window.location.href = '/users'}>
+            <Button variant="secondary" onClick={() => navigate('/users')}>
               View All Users
             </Button>
           </div>
@@ -205,11 +207,11 @@ const Dashboard = () => {
             <p className="text-sm md:text-base text-gray-600 mt-1">Manage projects, tasks, and users</p>
           </div>
           <div className="flex gap-2 w-full md:w-auto">
-            <Button variant="secondary" onClick={() => window.location.href = '/tasks'} className="flex-1 md:flex-none">
+            <Button variant="secondary" onClick={() => navigate('/tasks')} className="flex-1 md:flex-none">
               <i className="fas fa-tasks mr-2"></i>
               <span className="hidden sm:inline">Manage </span>Tasks
             </Button>
-            <Button onClick={() => window.location.href = '/projects'} className="flex-1 md:flex-none">
+            <Button onClick={() => navigate('/projects')} className="flex-1 md:flex-none">
               <i className="fas fa-plus mr-2"></i>
               <span className="hidden sm:inline">Manage </span>Projects
             </Button>
@@ -228,7 +230,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-900">Projects</h2>
-            <Button variant="secondary" onClick={() => window.location.href = '/projects'}>
+            <Button variant="secondary" onClick={() => navigate('/projects')}>
               View All Projects
             </Button>
           </div>
@@ -250,7 +252,7 @@ const Dashboard = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-900">Recent Tasks</h2>
-            <Button variant="secondary" onClick={() => window.location.href = '/tasks'}>
+            <Button variant="secondary" onClick={() => navigate('/tasks')}>
               View All Tasks
             </Button>
           </div>
@@ -288,7 +290,7 @@ const Dashboard = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Dashboard</h1>
           <p className="text-sm md:text-base text-gray-600 mt-1">Welcome back, {user?.firstName}!</p>
         </div>
-        <Button onClick={() => window.location.href = '/tasks'} className="w-full md:w-auto">
+        <Button onClick={() => navigate('/tasks')} className="w-full md:w-auto">
           <i className="fas fa-eye mr-2"></i>
           View My Tasks
         </Button>

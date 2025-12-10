@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 const Drawer = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -41,7 +42,7 @@ const Drawer = ({ isOpen, onClose }) => {
     setIsLoggingOut(true);
     setTimeout(() => {
       logout();
-      window.location.href = '/login';
+      navigate('/login');
     }, 1500);
   };
 

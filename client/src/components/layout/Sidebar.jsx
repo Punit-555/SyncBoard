@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Tooltip from '../ui/Tooltip';
 import LoadingPopup from '../ui/LoadingPopup';
 import { useAuth } from '../../hooks/useAuth';
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { user } = useAuth();
 
@@ -54,7 +55,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     setIsLoggingOut(true);
     setTimeout(() => {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      navigate('/login');
     }, 1500);
   };
 

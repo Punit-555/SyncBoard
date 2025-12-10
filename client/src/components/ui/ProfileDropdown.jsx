@@ -50,7 +50,7 @@ const ProfileDropdown = ({ onEditProfile }) => {
     setIsLoggingOut(true);
     setTimeout(() => {
       logout();
-      window.location.href = '/login';
+      navigate('/login');
     }, 1500);
   };
 
