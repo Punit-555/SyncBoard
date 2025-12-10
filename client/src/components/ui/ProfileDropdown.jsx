@@ -87,28 +87,43 @@ const ProfileDropdown = ({ onEditProfile }) => {
       <div
         onClick={() => !isLoading && setIsOpen(!isOpen)}
         onMouseEnter={() => !isLoading && setIsOpen(true)}
-              className="flex items-center gap-3 px-4 py-2 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100 cursor-pointer hover:border-blue-200 transition-all">
+        className="flex items-center gap-3 px-4 py-2 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100 cursor-pointer hover:border-blue-200 transition-all group relative"
+        title={`${getFullName()} (${user?.email || ''})`}
+      >
         {isLoading ? (
           <i className="fas fa-spinner fa-spin text-sm"></i>
         ) : (
           <>
             <div className="flex flex-col items-end">
-                  <span className="text-sm font-semibold text-gray-800">
-                    {user?.firstName} {user?.lastName}
-                  </span>
-                  <span className="text-xs text-gray-600">{user?.email}</span>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold shadow-md overflow-hidden">
-                  {user?.profilePicture ? (
-                    <img
-                      src={`${API_BASE}${user.profilePicture}`}
-                      alt={getFullName()}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span>{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
-                  )}
-                </div>
+              <span className="text-sm font-semibold text-gray-800">
+                {user?.firstName} {user?.lastName}
+              </span>
+              <span className="text-xs text-gray-600">{user?.email}</span>
+            </div>
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold shadow-md overflow-hidden ring-2 ring-transparent group-hover:ring-blue-300 transition-all">
+                {user?.profilePicture ? (
+                  <img
+                    src={`${API_BASE}${user.profilePicture}`}
+                    alt={getFullName()}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span>${getInitials()}</span>`;
+                    }}
+                  />
+                ) : (
+                  <span>{getInitials()}</span>
+                )}
+              </div>
+              {/* Tooltip */}
+              <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap shadow-lg">
+                <div className="font-semibold">{getFullName()}</div>
+                <div className="text-gray-300 text-xs">{user?.role || 'User'}</div>
+                {/* Arrow */}
+                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+              </div>
+            </div>
           </>
         )}
       </div>
