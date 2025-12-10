@@ -1,22 +1,36 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://syncboard-2397.onrender.com';
 
 async function request(path, body, method = 'POST') {
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err = new Error(data.message || 'API error');
-    err.response = data;
-    throw err;
+  console.log(`[API] ${method} ${path}`, { hasToken: !!token, apiBase: API_BASE });
+
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+      credentials: 'include',
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      console.error(`[API Error] ${method} ${path}`, { status: res.status, data });
+      const err = new Error(data.message || 'API error');
+      err.response = data;
+      err.status = res.status;
+      throw err;
+    }
+
+    console.log(`[API Success] ${method} ${path}`, { status: res.status });
+    return data;
+  } catch (error) {
+    console.error(`[API Exception] ${method} ${path}`, error);
+    throw error;
   }
-  return data;
 }
 
 // Generic HTTP methods
