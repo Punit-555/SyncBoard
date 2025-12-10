@@ -26,9 +26,16 @@ export const signup = async (req, res) => {
       });
     }
 
-    const existingUser = await prisma.user.findUnique({
+    // Add timeout for queries
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Query timeout')), 10000)
+    );
+
+    const existingUserPromise = prisma.user.findUnique({
       where: { email },
     });
+
+    const existingUser = await Promise.race([existingUserPromise, timeoutPromise]);
 
     if (existingUser) {
       return res.status(409).json({
@@ -39,21 +46,22 @@ export const signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
+    const createUserPromise = prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         firstName: firstName || '',
         lastName: lastName || '',
-        role: 'USER', 
+        role: 'USER',
       },
     });
 
-    try {
-      await sendSignupEmail(email, firstName || 'User');
-    } catch (emailError) {
-      console.error('Error sending signup email:', emailError);
-    }
+    const user = await Promise.race([createUserPromise, timeoutPromise]);
+
+    // Send signup email asynchronously (don't block response)
+    sendSignupEmail(email, firstName || 'User')
+      .then(() => console.log(`✅ Signup email sent to ${email}`))
+      .catch((emailError) => console.error('Error sending signup email:', emailError));
 
     const token = generateToken(user.id, user.email, user.role, rememberMe);
 
@@ -73,6 +81,14 @@ export const signup = async (req, res) => {
   } catch (error) {
     console.error('Signup error:', error);
     console.error('Error stack:', error.stack);
+
+    if (error.message === 'Query timeout') {
+      return res.status(504).json({
+        success: false,
+        message: 'Request timeout - signup took too long',
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: 'Server error during signup',

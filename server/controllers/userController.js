@@ -263,7 +263,7 @@ export const createUser = async (req, res) => {
 
       const userProjects = projectIds.map((projectId) => ({
         userId: user.id,
-        projectId: projectId,
+        projectId: String(projectId), // Convert to string for MongoDB ObjectId compatibility
       }));
 
       const createProjectsPromise = prisma.userProject.createMany({
@@ -279,9 +279,9 @@ export const createUser = async (req, res) => {
       console.log(`✅ Welcome email with credentials sent to ${email}`);
       
       // Also send account details email with role and project info
-      const projectNames = projectIds && projectIds.length > 0 
+      const projectNames = projectIds && projectIds.length > 0
         ? (await prisma.project.findMany({
-            where: { id: { in: projectIds.map(id => id) } },
+            where: { id: { in: projectIds.map(id => String(id)) } },
             select: { name: true },
           })).map(p => p.name)
         : [];
@@ -422,7 +422,7 @@ export const updateUser = async (req, res) => {
       if (projectIds.length > 0) {
         const userProjects = projectIds.map((projectId) => ({
           userId: id,
-          projectId: projectId,
+          projectId: String(projectId), // Convert to string for MongoDB ObjectId compatibility
         }));
 
         const createProjectsPromise = prisma.userProject.createMany({
