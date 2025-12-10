@@ -19,11 +19,13 @@ import Projects from './pages/Projects';
 import Messages from './pages/Messages';
 import UnderDevelopment from './pages/UnderDevelopment';
 import Loader from './components/ui/Loader';
+import UpdateNotification from './components/UpdateNotification';
 
 function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
+        <UpdateNotification />
         <Router>
         <Routes>
           <Route
