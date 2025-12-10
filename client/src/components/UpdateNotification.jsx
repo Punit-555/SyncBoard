@@ -155,27 +155,30 @@ const UpdateNotification = () => {
           role="alert"
           aria-live="polite"
         >
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-4 rounded-lg shadow-2xl flex items-start gap-4 min-w-[350px] max-w-md border-l-4 border-blue-300">
-            <div className="flex-shrink-0 mt-0.5">
-              <i className="fas fa-rocket text-2xl"></i>
+          <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white px-8 py-6 rounded-xl shadow-2xl flex items-start gap-5 min-w-[420px] max-w-lg border-2 border-white/20">
+            <div className="flex-shrink-0 mt-1">
+              <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <i className="fas fa-rocket text-3xl"></i>
+              </div>
             </div>
             <div className="flex-1">
-              <p className="font-bold text-base mb-1">
-                🎉 New Version Available!
+              <p className="font-bold text-lg mb-2 flex items-center gap-2">
+                <span>🎉 Latest Version Deployed!</span>
               </p>
-              <p className="text-sm opacity-90 mb-3">
-                A new update has been deployed. Reload to get the latest features and fixes.
+              <p className="text-base opacity-95 mb-4 leading-relaxed">
+                Get reload to get the latest updates and improvements.
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={handleDismiss}
-                  className="px-3 py-1.5 text-xs bg-white/20 hover:bg-white/30 rounded-md transition-colors font-medium"
+                  className="px-4 py-2 text-sm bg-white/20 hover:bg-white/30 rounded-lg transition-colors font-medium backdrop-blur-sm"
                 >
-                  Later
+                  <i className="fas fa-clock mr-2"></i>
+                  Remind Later
                 </button>
                 <button
                   onClick={handleReload}
-                  className="px-4 py-1.5 text-xs bg-white text-blue-600 hover:bg-gray-100 rounded-md transition-colors font-semibold flex items-center gap-1"
+                  className="px-5 py-2 text-sm bg-white text-blue-600 hover:bg-gray-100 rounded-lg transition-colors font-bold flex items-center gap-2 shadow-lg"
                 >
                   <i className="fas fa-sync-alt"></i>
                   Reload Now
@@ -184,10 +187,10 @@ const UpdateNotification = () => {
             </div>
             <button
               onClick={handleDismiss}
-              className="flex-shrink-0 ml-2 hover:bg-white/20 rounded p-1 transition-colors"
+              className="flex-shrink-0 hover:bg-white/20 rounded-full p-2 transition-colors"
               aria-label="Close notification"
             >
-              <i className="fas fa-times"></i>
+              <i className="fas fa-times text-lg"></i>
             </button>
           </div>
         </div>
