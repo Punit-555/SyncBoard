@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import * as api from '../../utils/api';
 import LoadingPopup from './LoadingPopup';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileDropdown = ({ onEditProfile }) => {
   const { user: authUser, logout } = useAuth();
@@ -10,6 +11,7 @@ const ProfileDropdown = ({ onEditProfile }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -172,7 +174,7 @@ const ProfileDropdown = ({ onEditProfile }) => {
             <button
               onClick={() => {
                 setIsOpen(false);
-                window.location.href = '/settings';
+                navigate('/settings');
               }}
               className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
             >

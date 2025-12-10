@@ -27,6 +27,7 @@ const Drawer = ({ isOpen, onClose }) => {
   const menuItems = [
     { path: '/dashboard', icon: 'fas fa-home', label: 'Dashboard' },
     { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
+    { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
     { path: '/tasks', icon: 'fas fa-tasks', label: 'My Tasks' },
     { path: '/messages', icon: 'fas fa-comments', label: 'Messages' },
     { path: '/teams', icon: 'fas fa-users', label: 'Teams' },

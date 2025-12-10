@@ -21,7 +21,6 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef(null);
-  const { user, refreshUser } = useAuth();
   const { snackbar, showSuccess, showError, hideSnackbar } = useSnackbar();
 
   const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
