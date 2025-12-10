@@ -5,6 +5,7 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  addUserToProject,
   removeUserFromProject,
 } from '../controllers/projectController.js';
 import { authenticateToken, authorizeRole } from '../middleware/authMiddleware.js';
@@ -26,6 +27,9 @@ router.put('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), updateProject);
 
 // Delete a project (Admin/SuperAdmin only)
 router.delete('/:id', authorizeRole('ADMIN', 'SUPERADMIN'), deleteProject);
+
+// Add user to project (Admin/SuperAdmin only)
+router.post('/:projectId/users', authorizeRole('ADMIN', 'SUPERADMIN'), addUserToProject);
 
 // Remove user from project (Admin/SuperAdmin only)
 router.delete('/:projectId/users/:userId', authorizeRole('ADMIN', 'SUPERADMIN'), removeUserFromProject);

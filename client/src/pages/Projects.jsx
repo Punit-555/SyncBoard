@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getProjects, createProject, updateProject, deleteProject } from '../utils/api';
+import { getProjects, createProject, updateProject, deleteProject, addUserToProject, getUsers } from '../utils/api';
 import { useSnackbar } from '../utils/useSnackbar';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
@@ -20,6 +20,10 @@ const Projects = () => {
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [isRemoveUserDialogOpen, setIsRemoveUserDialogOpen] = useState(false);
   const [userToRemove, setUserToRemove] = useState(null);
+  const [isAssignMemberModalOpen, setIsAssignMemberModalOpen] = useState(false);
+  const [projectToAssign, setProjectToAssign] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -30,6 +34,9 @@ const Projects = () => {
 
   useEffect(() => {
     fetchProjects();
+    if (isAdmin) {
+      fetchAllUsers();
+    }
   }, []);
 
   const fetchProjects = async () => {
@@ -44,6 +51,17 @@ const Projects = () => {
       showError('Failed to load projects');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    try {
+      const response = await getUsers();
+      if (response.success) {
+        setAllUsers(response.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
     }
   };
 
@@ -145,6 +163,46 @@ const Projects = () => {
     }
   };
 
+  const handleOpenAssignMemberModal = (project) => {
+    setProjectToAssign(project);
+    setSelectedUserId('');
+    setIsAssignMemberModalOpen(true);
+  };
+
+  const handleCloseAssignMemberModal = () => {
+    setIsAssignMemberModalOpen(false);
+    setProjectToAssign(null);
+    setSelectedUserId('');
+  };
+
+  const handleAssignMember = async () => {
+    if (!selectedUserId || !projectToAssign) {
+      showError('Please select a user');
+      return;
+    }
+
+    try {
+      const response = await addUserToProject(projectToAssign.id, selectedUserId);
+      if (response.success) {
+        showSuccess('Member assigned to project successfully');
+        fetchProjects();
+        handleCloseAssignMemberModal();
+      } else {
+        showError(response.message || 'Failed to assign member');
+      }
+    } catch (error) {
+      console.error('Failed to assign member:', error);
+      showError(error.response?.message || 'Failed to assign member to project');
+    }
+  };
+
+  // Filter users who are not already in the project
+  const getAvailableUsers = () => {
+    if (!projectToAssign) return [];
+    const projectMemberIds = (projectToAssign.users || []).map(up => up.user.id);
+    return allUsers.filter(u => !projectMemberIds.includes(u.id));
+  };
+
   const toggleExpandProject = (projectId) => {
     setExpandedProject(expandedProject === projectId ? null : projectId);
   };
@@ -244,14 +302,24 @@ const Projects = () => {
 
             {/* Actions (Right Side) */}
             {isAdmin && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="primary"
+                  onClick={() => handleOpenAssignMemberModal(project)}
+                  className="text-xs sm:text-sm py-1.5 px-3 sm:px-4"
+                  title="Assign members to this project"
+                >
+                  <i className="fas fa-user-plus"></i>
+                  <span className="ml-1 sm:ml-2 hidden md:inline">Assign</span>
+                </Button>
+
                 <Button
                   variant="secondary"
                   onClick={() => handleOpenModal(project)}
                   className="text-xs sm:text-sm py-1.5 px-3 sm:px-4"
                 >
                   <i className="fas fa-edit"></i>
-                  <span className="ml-1 sm:ml-2">Edit</span>
+                  <span className="ml-1 sm:ml-2 hidden md:inline">Edit</span>
                 </Button>
 
                 <Button
@@ -260,7 +328,7 @@ const Projects = () => {
                   className="text-xs sm:text-sm py-1.5 px-3 sm:px-4"
                 >
                   <i className="fas fa-trash"></i>
-                  <span className="ml-1 sm:ml-2">Delete</span>
+                  <span className="ml-1 sm:ml-2 hidden md:inline">Delete</span>
                 </Button>
               </div>
             )}
@@ -413,6 +481,58 @@ const Projects = () => {
         cancelText="Cancel"
         type="danger"
       />
+
+      <Modal
+        isOpen={isAssignMemberModalOpen}
+        onClose={handleCloseAssignMemberModal}
+        title={`Assign Members to "${projectToAssign?.name}"`}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            Select a user to assign to this project. They will be notified via email.
+          </p>
+
+          {getAvailableUsers().length === 0 ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+              <i className="fas fa-info-circle text-yellow-600 text-2xl mb-2"></i>
+              <p className="text-sm text-yellow-800 font-medium">All users are already assigned to this project</p>
+            </div>
+          ) : (
+            <>
+              <Select
+                label="Select User"
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                options={[
+                  { value: '', label: '-- Select a user --' },
+                  ...getAvailableUsers().map(u => ({
+                    value: u.id,
+                    label: `${u.firstName} ${u.lastName} (${u.email}) - ${u.role}`
+                  }))
+                ]}
+              />
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="secondary"
+                  onClick={handleCloseAssignMemberModal}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAssignMember}
+                  className="flex-1"
+                  disabled={!selectedUserId}
+                >
+                  <i className="fas fa-user-plus mr-2"></i>
+                  Assign Member
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

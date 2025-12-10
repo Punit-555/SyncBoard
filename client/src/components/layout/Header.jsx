@@ -17,11 +17,11 @@ const Header = () => {
         <div className="px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center gap-2.5 font-bold text-2xl text-[#4361ee] no-underline">
-              <div className="bg-linear-to-br from-[#4361ee] to-[#3f37c9] w-9 h-9 rounded-lg flex items-center justify-center text-white">
-                <i className="fas fa-tasks"></i>
+            <Link to="/dashboard" className="flex items-center gap-2 sm:gap-2.5 font-bold text-lg sm:text-2xl text-[#4361ee] no-underline">
+              <div className="bg-linear-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white">
+                <i className="fas fa-tasks text-sm sm:text-base"></i>
               </div>
-              <span className="hidden sm:inline">SyncBoard</span>
+              <span>SyncBoard</span>
             </Link>
 
             {/* Desktop User Info */}

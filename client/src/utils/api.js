@@ -92,6 +92,7 @@ export const getProjectById = (id) => request(`/api/projects/${id}`, null, 'GET'
 export const createProject = (payload) => request('/api/projects', payload, 'POST');
 export const updateProject = (id, payload) => request(`/api/projects/${id}`, payload, 'PUT');
 export const deleteProject = (id) => request(`/api/projects/${id}`, null, 'DELETE');
+export const addUserToProject = (projectId, userId) => request(`/api/projects/${projectId}/users`, { userId }, 'POST');
 
 // Message endpoints
 export const getConversations = () => request('/api/messages/conversations', null, 'GET');

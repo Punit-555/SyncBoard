@@ -68,28 +68,30 @@ const Login = () => {
             required
           />
 
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-          />
-
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-2 sm:gap-0 text-xs sm:text-sm">
-            <div className="flex items-center gap-1.5">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={formData.remember}
-                onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
-              />
-              <label htmlFor="remember" className="text-gray-600">Remember me</label>
+          <div className="mb-4">
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
+            <div className="text-right mt-1">
+              <Link to="/forgot-password" className="text-[#4361ee] no-underline hover:underline text-xs sm:text-sm">
+                Forgot Password?
+              </Link>
             </div>
-            <Link to="/forgot-password" className="text-[#4361ee] no-underline hover:underline">
-              Forgot Password?
-            </Link>
+          </div>
+
+          <div className="flex items-center gap-1.5 mb-4 sm:mb-5 text-xs sm:text-sm">
+            <input
+              type="checkbox"
+              id="remember"
+              checked={formData.remember}
+              onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
+            />
+            <label htmlFor="remember" className="text-gray-600">Remember me</label>
           </div>
 
           <Button type="submit" className="w-full mb-4 text-center sm:mb-5 d-flex justify-center" disabled={isLoading}>

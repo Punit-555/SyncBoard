@@ -274,6 +274,116 @@ export const deleteProject = async (req, res) => {
   }
 };
 
+// Add user to project (Admin/SuperAdmin only)
+export const addUserToProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { userId } = req.body;
+    const addedById = req.user.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required',
+      });
+    }
+
+    // Get project details
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: 'Project not found',
+      });
+    }
+
+    // Get user details
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // Check if user is already in project
+    const existingUserProject = await prisma.userProject.findFirst({
+      where: {
+        userId: userId,
+        projectId: projectId,
+      },
+    });
+
+    if (existingUserProject) {
+      return res.status(409).json({
+        success: false,
+        message: 'User is already a member of this project',
+      });
+    }
+
+    // Add user to project
+    await prisma.userProject.create({
+      data: {
+        userId: userId,
+        projectId: projectId,
+      },
+    });
+
+    // Get admin details for email
+    const admin = await prisma.user.findUnique({
+      where: { id: addedById },
+      select: {
+        firstName: true,
+        lastName: true,
+      },
+    });
+
+    const adminName = admin ? `${admin.firstName} ${admin.lastName}` : 'Admin';
+
+    // Send email notification
+    try {
+      await sendEmail(
+        user.email,
+        `Added to Project: ${project.name}`,
+        generateProjectAssignmentHTML(
+          `${user.firstName} ${user.lastName}`,
+          adminName,
+          project.name,
+          project.description
+        )
+      );
+      console.log(`✅ Project assignment email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send project assignment email:', emailError);
+      // Don't fail the assignment if email fails
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'User added to project successfully',
+    });
+  } catch (error) {
+    console.error('Add user to project error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error adding user to project',
+      error: error.message,
+    });
+  }
+};
+
 // Remove user from project (Admin/SuperAdmin only)
 export const removeUserFromProject = async (req, res) => {
   try {
@@ -373,6 +483,128 @@ export const removeUserFromProject = async (req, res) => {
     });
   }
 };
+
+// HTML template for project assignment email
+function generateProjectAssignmentHTML(userName, adminName, projectName, projectDescription) {
+  const currentYear = new Date().getFullYear();
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 30px 20px;
+          text-align: center;
+          color: white;
+        }
+        .header h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; color: white; }
+        .content { padding: 30px; }
+        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .message { color: #555; font-size: 15px; line-height: 1.8; margin-bottom: 25px; }
+        .project-box {
+          background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+          border: 2px solid #667eea;
+          border-radius: 8px;
+          padding: 25px;
+          margin: 25px 0;
+        }
+        .project-name {
+          font-size: 20px;
+          color: #333;
+          font-weight: 700;
+          margin-bottom: 15px;
+        }
+        .project-description {
+          color: #555;
+          font-size: 14px;
+          line-height: 1.6;
+          margin-top: 10px;
+        }
+        .cta-button { text-align: center; margin: 30px 0; }
+        .cta-button a {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 14px 40px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 16px;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          border-top: 1px solid #eee;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🎉 Assigned to New Project</h1>
+          <p>You've been added to a project</p>
+        </div>
+        <div class="content">
+          <p class="greeting">Hi ${userName}!</p>
+          <p class="message">
+            Great news! <strong>${adminName}</strong> has assigned you to a new project in SyncBoard:
+          </p>
+
+          <div class="project-box">
+            <div class="project-name">
+              📁 ${projectName}
+            </div>
+            ${projectDescription ? `<div class="project-description">${projectDescription}</div>` : ''}
+          </div>
+
+          <p class="message">
+            You can now view and manage tasks associated with this project. Login to SyncBoard to get started!
+          </p>
+
+          <div class="cta-button">
+            <a href="http://localhost:5173/projects">View Project →</a>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p style="margin-bottom: 10px;">
+            © ${currentYear} SyncBoard. All rights reserved.<br>
+            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+          </p>
+          <p style="margin-top: 15px; font-size: 11px;">
+            You're receiving this email because you were added to a project in SyncBoard.
+          </p>
+          <p style="margin-top: 10px; font-size: 10px; color: #bbb;">
+            Developed by <strong>Punit</strong>
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
 
 // HTML template for project removal email
 function generateProjectRemovalHTML(userName, adminName, projectName) {
