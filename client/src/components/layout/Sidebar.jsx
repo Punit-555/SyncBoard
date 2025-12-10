@@ -33,6 +33,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     SUPERADMIN: [
       { path: '/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
       { path: '/projects', icon: 'fas fa-project-diagram', label: 'Projects' },
+      { path: '/tasks', icon: 'fas fa-tasks', label: 'Tasks' },
       { path: '/users', icon: 'fas fa-user-friends', label: 'Users' },
       { path: '/messages', icon: 'fas fa-comments', label: 'Messages' },
       { path: '/reports', icon: 'fas fa-chart-bar', label: 'Reports' },

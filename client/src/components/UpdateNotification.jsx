@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 const UpdateNotification = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [currentVersion, setCurrentVersion] = useState(null);
-  const [showDebug, setShowDebug] = useState(false);
 
   useEffect(() => {
     console.log('🔄 UpdateNotification component mounted');
@@ -99,55 +98,8 @@ const UpdateNotification = () => {
     }, 10 * 60 * 1000);
   };
 
-  const manualCheckForUpdate = async () => {
-    console.log('🔍 Manual update check triggered');
-    await checkForUpdate();
-  };
-
   return (
     <>
-      {/* Debug Panel (Bottom Right) - Remove this after testing */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <button
-          onClick={() => setShowDebug(!showDebug)}
-          className="bg-gray-800 text-white px-3 py-2 rounded-full text-xs shadow-lg hover:bg-gray-700 transition-colors"
-          title="Version Debug Info"
-        >
-          <i className="fas fa-info-circle"></i> v{currentVersion?.toString().substring(0, 8) || 'loading'}
-        </button>
-
-        {showDebug && (
-          <div className="absolute bottom-12 right-0 bg-white text-gray-800 p-4 rounded-lg shadow-xl w-80 text-sm border border-gray-200">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold">Version Debug</h3>
-              <button onClick={() => setShowDebug(false)} className="text-gray-500 hover:text-gray-700">
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className="space-y-2 text-xs">
-              <div>
-                <strong>Current Version:</strong>
-                <div className="bg-gray-100 p-2 rounded mt-1 font-mono break-all text-xs">
-                  {currentVersion || 'Not loaded'}
-                </div>
-              </div>
-              <div className="pt-2 border-t">
-                <button
-                  onClick={manualCheckForUpdate}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-xs transition-colors"
-                >
-                  <i className="fas fa-sync mr-2"></i>
-                  Check for Updates Now
-                </button>
-              </div>
-              <div className="text-gray-500 text-xs italic">
-                Auto-checks every 30 seconds
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Update Notification Snackbar */}
       {showNotification && (
         <div
