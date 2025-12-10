@@ -281,6 +281,8 @@ export const addUserToProject = async (req, res) => {
     const { userId } = req.body;
     const addedById = req.user.userId;
 
+    console.log('📝 Adding user to project:', { projectId, userId, addedById });
+
     if (!userId) {
       return res.status(400).json({
         success: false,
@@ -294,11 +296,14 @@ export const addUserToProject = async (req, res) => {
     });
 
     if (!project) {
+      console.log('❌ Project not found:', projectId);
       return res.status(404).json({
         success: false,
         message: 'Project not found',
       });
     }
+
+    console.log('✅ Project found:', project.name);
 
     // Get user details
     const user = await prisma.user.findUnique({
@@ -312,11 +317,14 @@ export const addUserToProject = async (req, res) => {
     });
 
     if (!user) {
+      console.log('❌ User not found:', userId);
       return res.status(404).json({
         success: false,
         message: 'User not found',
       });
     }
+
+    console.log('✅ User found:', user.email);
 
     // Check if user is already in project
     const existingUserProject = await prisma.userProject.findFirst({
@@ -327,9 +335,10 @@ export const addUserToProject = async (req, res) => {
     });
 
     if (existingUserProject) {
+      console.log('⚠️ User already in project:', { userId, projectId, existingId: existingUserProject.id });
       return res.status(409).json({
         success: false,
-        message: 'User is already a member of this project',
+        message: `${user.firstName} ${user.lastName} is already a member of this project`,
       });
     }
 

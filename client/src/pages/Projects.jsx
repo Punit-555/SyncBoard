@@ -181,8 +181,12 @@ const Projects = () => {
       return;
     }
 
+    console.log('Assigning member:', { projectId: projectToAssign.id, userId: selectedUserId });
+
     try {
       const response = await addUserToProject(projectToAssign.id, selectedUserId);
+      console.log('Assign response:', response);
+
       if (response.success) {
         showSuccess('Member assigned to project successfully');
         fetchProjects();
@@ -192,7 +196,8 @@ const Projects = () => {
       }
     } catch (error) {
       console.error('Failed to assign member:', error);
-      showError(error.response?.message || 'Failed to assign member to project');
+      const errorMessage = error.response?.message || error.message || 'Failed to assign member to project';
+      showError(errorMessage);
     }
   };
 
@@ -200,7 +205,18 @@ const Projects = () => {
   const getAvailableUsers = () => {
     if (!projectToAssign) return [];
     const projectMemberIds = (projectToAssign.users || []).map(up => up.user.id);
-    return allUsers.filter(u => !projectMemberIds.includes(u.id));
+    const availableUsers = allUsers.filter(u => !projectMemberIds.includes(u.id));
+
+    console.log('Available users for project:', {
+      projectName: projectToAssign.name,
+      totalUsers: allUsers.length,
+      projectMembers: projectMemberIds.length,
+      availableUsers: availableUsers.length,
+      projectMemberIds,
+      allUserIds: allUsers.map(u => u.id)
+    });
+
+    return availableUsers;
   };
 
   const toggleExpandProject = (projectId) => {
