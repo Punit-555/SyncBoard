@@ -83,7 +83,20 @@ export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await prisma.user.findUnique({
+    // Validate ObjectId format (MongoDB)
+    if (!id || id.length !== 24) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format',
+      });
+    }
+
+    // Add timeout to prevent hanging requests
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Query timeout')), 10000) // 10 second timeout
+    );
+
+    const userPromise = prisma.user.findUnique({
       where: { id: id },
       select: {
         id: true,
@@ -125,6 +138,8 @@ export const getUserById = async (req, res) => {
       },
     });
 
+    const user = await Promise.race([userPromise, timeoutPromise]);
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -138,6 +153,14 @@ export const getUserById = async (req, res) => {
     });
   } catch (error) {
     console.error('Get user error:', error);
+
+    if (error.message === 'Query timeout') {
+      return res.status(504).json({
+        success: false,
+        message: 'Request timeout - database query took too long',
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: 'Server error fetching user',
@@ -159,6 +182,23 @@ export const createUser = async (req, res) => {
       });
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format',
+      });
+    }
+
+    // Validate managerId if provided
+    if (managerId && managerId.length !== 24) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid manager ID format',
+      });
+    }
+
     // Only SuperAdmin can create Admin or SuperAdmin users
     if ((role === 'ADMIN' || role === 'SUPERADMIN') && requestUserRole !== 'SUPERADMIN') {
       return res.status(403).json({
@@ -167,10 +207,17 @@ export const createUser = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    // Add timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Query timeout')), 10000)
+    );
+
+    // Check if user already exists with timeout
+    const existingUserPromise = prisma.user.findUnique({
       where: { email },
     });
+
+    const existingUser = await Promise.race([existingUserPromise, timeoutPromise]);
 
     if (existingUser) {
       return res.status(409).json({
@@ -179,12 +226,14 @@ export const createUser = async (req, res) => {
       });
     }
 
+    console.log(`➕ Creating new user: ${email}`);
+
     // Generate a random password
     const randomPassword = generateRandomPassword();
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
-    // Create user
-    const user = await prisma.user.create({
+    // Create user with timeout
+    const createUserPromise = prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -204,16 +253,24 @@ export const createUser = async (req, res) => {
       },
     });
 
+    const user = await Promise.race([createUserPromise, timeoutPromise]);
+
+    console.log(`✅ User created: ${user.email} (${user.id})`);
+
     // Assign user to projects if projectIds are provided
     if (projectIds && Array.isArray(projectIds) && projectIds.length > 0) {
+      console.log(`📂 Assigning user to ${projectIds.length} projects`);
+
       const userProjects = projectIds.map((projectId) => ({
         userId: user.id,
         projectId: projectId,
       }));
 
-      await prisma.userProject.createMany({
+      const createProjectsPromise = prisma.userProject.createMany({
         data: userProjects,
       });
+
+      await Promise.race([createProjectsPromise, timeoutPromise]);
     }
 
     // Send welcome email with password to the new user
@@ -243,6 +300,14 @@ export const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Create user error:', error);
+
+    if (error.message === 'Query timeout') {
+      return res.status(504).json({
+        success: false,
+        message: 'Request timeout - user creation took too long',
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: 'Server error creating user',
@@ -259,10 +324,33 @@ export const updateUser = async (req, res) => {
     const requestUserRole = req.user.role;
     const requestUserId = req.user.userId;
 
+    // Validate ObjectId format
+    if (!id || id.length !== 24) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format',
+      });
+    }
+
+    // Validate managerId if provided
+    if (managerId && managerId.length !== 24) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid manager ID format',
+      });
+    }
+
+    // Add timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Query timeout')), 10000)
+    );
+
     // Find the user
-    const user = await prisma.user.findUnique({
+    const userPromise = prisma.user.findUnique({
       where: { id: id },
     });
+
+    const user = await Promise.race([userPromise, timeoutPromise]);
 
     if (!user) {
       return res.status(404).json({
@@ -295,8 +383,10 @@ export const updateUser = async (req, res) => {
       });
     }
 
-    // Update user
-    const updatedUser = await prisma.user.update({
+    console.log(`📝 Updating user: ${user.email} (${user.id})`);
+
+    // Update user with timeout
+    const updatePromise = prisma.user.update({
       where: { id: id },
       data: {
         ...(email && { email }),
@@ -316,12 +406,17 @@ export const updateUser = async (req, res) => {
       },
     });
 
+    const updatedUser = await Promise.race([updatePromise, timeoutPromise]);
+
     // Update project assignments if provided
     if (projectIds !== undefined && Array.isArray(projectIds)) {
-      // Delete existing project assignments
-      await prisma.userProject.deleteMany({
+      console.log(`📂 Updating project assignments for user ${id}`);
+
+      // Delete existing project assignments with timeout
+      const deleteProjectsPromise = prisma.userProject.deleteMany({
         where: { userId: id },
       });
+      await Promise.race([deleteProjectsPromise, timeoutPromise]);
 
       // Create new project assignments
       if (projectIds.length > 0) {
@@ -330,11 +425,14 @@ export const updateUser = async (req, res) => {
           projectId: projectId,
         }));
 
-        await prisma.userProject.createMany({
+        const createProjectsPromise = prisma.userProject.createMany({
           data: userProjects,
         });
+        await Promise.race([createProjectsPromise, timeoutPromise]);
       }
     }
+
+    console.log(`✅ User updated successfully: ${updatedUser.email}`);
 
     // Send update notification email with changed fields
     try {
@@ -366,6 +464,14 @@ export const updateUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Update user error:', error);
+
+    if (error.message === 'Query timeout') {
+      return res.status(504).json({
+        success: false,
+        message: 'Request timeout - update took too long',
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: 'Server error updating user',
@@ -381,6 +487,14 @@ export const deleteUser = async (req, res) => {
     const requestUserRole = req.user.role;
     const requestUserId = req.user.userId;
 
+    // Validate ObjectId format
+    if (!id || id.length !== 24) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format',
+      });
+    }
+
     // Prevent users from deleting themselves
     if (id === requestUserId) {
       return res.status(403).json({
@@ -389,10 +503,16 @@ export const deleteUser = async (req, res) => {
       });
     }
 
-    // Find the user
-    const user = await prisma.user.findUnique({
+    // Find the user with timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Query timeout')), 10000)
+    );
+
+    const userPromise = prisma.user.findUnique({
       where: { id: id },
     });
+
+    const user = await Promise.race([userPromise, timeoutPromise]);
 
     if (!user) {
       return res.status(404).json({
@@ -409,18 +529,21 @@ export const deleteUser = async (req, res) => {
       });
     }
 
-    // Send deletion notification email before deleting
-    try {
-      await sendUserDeletedEmail(user.email, user.firstName || 'User');
-      console.log(`✅ Deletion notification email sent to ${user.email}`);
-    } catch (emailError) {
-      console.error('Error sending deletion email:', emailError);
-      // Don't fail the deletion if email fails
-    }
+    console.log(`🗑️ Deleting user: ${user.email} (${user.id})`);
 
-    await prisma.user.delete({
+    // Delete the user with timeout
+    const deletePromise = prisma.user.delete({
       where: { id: id },
     });
+
+    await Promise.race([deletePromise, timeoutPromise]);
+
+    console.log(`✅ User deleted: ${user.email}`);
+
+    // Send deletion notification email after successful deletion (async, don't wait)
+    sendUserDeletedEmail(user.email, user.firstName || 'User')
+      .then(() => console.log(`✅ Deletion notification email sent to ${user.email}`))
+      .catch((emailError) => console.error('Error sending deletion email:', emailError));
 
     return res.status(200).json({
       success: true,
@@ -428,6 +551,14 @@ export const deleteUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete user error:', error);
+
+    if (error.message === 'Query timeout') {
+      return res.status(504).json({
+        success: false,
+        message: 'Request timeout - deletion took too long',
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: 'Server error deleting user',

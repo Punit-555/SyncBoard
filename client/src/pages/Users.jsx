@@ -554,14 +554,26 @@ const Users = () => {
                 setIsDeleteDialogOpen(false);
                 setUserToDelete(null);
               }}
+              disabled={isDeleting}
             >
               Cancel
             </Button>
             <Button
               variant="danger"
               onClick={confirmDeleteUser}
+              disabled={isDeleting}
             >
-              Delete User
+              {isDeleting ? (
+                <>
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-trash mr-2"></i>
+                  Delete User
+                </>
+              )}
             </Button>
           </div>
         </div>
