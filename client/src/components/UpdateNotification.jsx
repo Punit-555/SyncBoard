@@ -38,9 +38,7 @@ const UpdateNotification = () => {
 
   const fetchVersion = async () => {
     try {
-      // Add timestamp to prevent caching
       const url = `/version.json?t=${Date.now()}`;
-      console.log('🌐 Fetching version from:', url);
       const response = await fetch(url);
 
       if (!response.ok) {
