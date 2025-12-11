@@ -19,7 +19,7 @@ async function main() {
       status: 'active',
     },
     {
-      name: 'TaskFlow',
+      name: 'syncBoard',
       description: 'Task management and workflow automation platform',
       status: 'active',
     },
@@ -56,7 +56,7 @@ async function main() {
   }
 
   // Create sample admin user
-  const adminEmail = 'admin@taskflow.com';
+  const adminEmail = 'admin@syncBoard.com';
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
   });
@@ -72,13 +72,13 @@ async function main() {
         role: 'ADMIN',
       },
     });
-    console.log('✅ Created admin user: admin@taskflow.com (password: Admin@123)');
+    console.log('✅ Created admin user: admin@syncBoard.com (password: Admin@123)');
   } else {
     console.log('⏭️  Admin user already exists');
   }
 
   // Create sample superadmin user
-  const superAdminEmail = 'superadmin@taskflow.com';
+  const superAdminEmail = 'superadmin@syncBoard.com';
   const existingSuperAdmin = await prisma.user.findUnique({
     where: { email: superAdminEmail },
   });
@@ -94,7 +94,7 @@ async function main() {
         role: 'SUPERADMIN',
       },
     });
-    console.log('✅ Created superadmin user: superadmin@taskflow.com (password: SuperAdmin@123)');
+    console.log('✅ Created superadmin user: superadmin@syncBoard.com (password: SuperAdmin@123)');
   } else {
     console.log('⏭️  SuperAdmin user already exists');
   }

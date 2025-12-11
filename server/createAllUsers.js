@@ -12,7 +12,7 @@ async function createAllUsers() {
     const projects = [
       { name: 'AI', description: 'Artificial Intelligence and Machine Learning initiatives', status: 'active' },
       { name: 'ML', description: 'Machine Learning research and development', status: 'active' },
-      { name: 'TaskFlow', description: 'Task management and workflow automation platform', status: 'active' },
+      { name: 'syncBoard', description: 'Task management and workflow automation platform', status: 'active' },
       { name: 'SyncBoard', description: 'Real-time collaboration and synchronization board', status: 'active' },
       { name: 'DataViz', description: 'Data visualization and analytics platform', status: 'active' },
       { name: 'CloudOps', description: 'Cloud operations and infrastructure management', status: 'active' },
@@ -54,14 +54,14 @@ async function createAllUsers() {
         role: 'SUPERADMIN',
       },
       {
-        email: 'admin@taskflow.com',
+        email: 'admin@syncBoard.com',
         password: await bcrypt.hash('Admin@123', 10),
         firstName: 'Admin',
         lastName: 'User',
         role: 'ADMIN',
       },
       {
-        email: 'superadmin@taskflow.com',
+        email: 'superadmin@syncBoard.com',
         password: await bcrypt.hash('SuperAdmin@123', 10),
         firstName: 'Super',
         lastName: 'Admin',
@@ -92,8 +92,8 @@ async function createAllUsers() {
     console.log('│ codesharma452@gmail.com                 │ Code@123     │ USER          │');
     console.log('│ Puneet.sharma@qsstechnosoft.com         │ Puneet@123   │ ADMIN         │');
     console.log('│ developerpunit9628@gmail.com            │ Developer@123│ SUPERADMIN    │');
-    console.log('│ admin@taskflow.com                      │ Admin@123    │ ADMIN         │');
-    console.log('│ superadmin@taskflow.com                 │ SuperAdmin@123│ SUPERADMIN   │');
+    console.log('│ admin@syncBoard.com                      │ Admin@123    │ ADMIN         │');
+    console.log('│ superadmin@syncBoard.com                 │ SuperAdmin@123│ SUPERADMIN   │');
     console.log('└─────────────────────────────────────────┴──────────────┴───────────────┘\n');
 
   } catch (error) {
