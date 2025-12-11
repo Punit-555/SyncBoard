@@ -273,25 +273,26 @@ export const createUser = async (req, res) => {
       await Promise.race([createProjectsPromise, timeoutPromise]);
     }
 
-    // Send welcome email with password to the new user
-    try {
-      await sendWelcomeEmailWithPassword(email, firstName || 'User', randomPassword);
-      console.log(`✅ Welcome email with credentials sent to ${email}`);
-      
-      // Also send account details email with role and project info
-      const projectNames = projectIds && projectIds.length > 0
-        ? (await prisma.project.findMany({
-            where: { id: { in: projectIds.map(id => String(id)) } },
-            select: { name: true },
-          })).map(p => p.name)
-        : [];
-      
-      await sendAccountDetailsEmail(email, firstName || 'User', role || 'USER', projectNames);
-      console.log(`✅ Account details email sent to ${email}`);
-    } catch (emailError) {
-      console.error('Error sending user emails:', emailError);
-      // Don't fail the request if email fails
-    }
+    // Send welcome email with password asynchronously (don't block response)
+    (async () => {
+      try {
+        await sendWelcomeEmailWithPassword(email, firstName || 'User', randomPassword);
+        console.log(`✅ Welcome email with credentials sent to ${email}`);
+
+        // Also send account details email with role and project info
+        const projectNames = projectIds && projectIds.length > 0
+          ? (await prisma.project.findMany({
+              where: { id: { in: projectIds.map(id => String(id)) } },
+              select: { name: true },
+            })).map(p => p.name)
+          : [];
+
+        await sendAccountDetailsEmail(email, firstName || 'User', role || 'USER', projectNames);
+        console.log(`✅ Account details email sent to ${email}`);
+      } catch (emailError) {
+        console.error('Error sending user emails:', emailError);
+      }
+    })();
 
     return res.status(201).json({
       success: true,

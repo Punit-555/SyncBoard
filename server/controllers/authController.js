@@ -171,6 +171,7 @@ export const getCurrentUser = async (req, res) => {
         firstName: true,
         lastName: true,
         role: true,
+        profilePicture: true,
         createdAt: true,
       },
     });

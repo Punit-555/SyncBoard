@@ -62,6 +62,8 @@ const Drawer = ({ isOpen, onClose }) => {
     return user.email?.charAt(0).toUpperCase() || 'U';
   };
 
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   return (
     <>
       {/* Overlay */}
@@ -120,8 +122,20 @@ const Drawer = ({ isOpen, onClose }) => {
         <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-gray-100 bg-gray-50">
           {/* User Info */}
           <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
-            <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-              <span>{getInitials()}</span>
+            <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden">
+              {user?.profilePicture ? (
+                <img
+                  src={`${API_BASE}${user.profilePicture}`}
+                  alt={`${user?.firstName} ${user?.lastName}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `<span class="text-white font-semibold">${getInitials()}</span>`;
+                  }}
+                />
+              ) : (
+                <span>{getInitials()}</span>
+              )}
             </div>
             <div className="flex-1">
               <p className="font-semibold text-gray-800">
