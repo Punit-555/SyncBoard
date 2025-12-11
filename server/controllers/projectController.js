@@ -1,6 +1,9 @@
 import prisma from '../prisma.config.js';
 import { sendEmail } from '../services/emailService.js';
 
+// Get frontend URL from environment variable or fallback to localhost
+const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
 // Get all projects
 export const getAllProjects = async (req, res) => {
   try {
@@ -591,15 +594,15 @@ function generateProjectAssignmentHTML(userName, adminName, projectName, project
           </p>
 
           <div class="cta-button">
-            <a href="http://localhost:5173/projects">View Project →</a>
+            <a href="${FRONTEND_URL}/projects">View Project →</a>
           </div>
         </div>
 
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
-            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+            <a href="${FRONTEND_URL}" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because you were added to a project in SyncBoard.
@@ -709,15 +712,15 @@ function generateProjectRemovalHTML(userName, adminName, projectName) {
           </p>
 
           <div class="cta-button">
-            <a href="http://localhost:5173/projects">View Your Projects →</a>
+            <a href="${FRONTEND_URL}/projects">View Your Projects →</a>
           </div>
         </div>
 
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
-            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+            <a href="${FRONTEND_URL}" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because you were removed from a project in SyncBoard.

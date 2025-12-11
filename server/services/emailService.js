@@ -1,9 +1,13 @@
 import nodemailer from 'nodemailer';
 
+// Get frontend URL from environment variable or fallback to localhost
+const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
 // Log email configuration (without showing the password)
 console.log('📧 Email Service Configuration:', {
   user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'NOT SET',
   passConfigured: !!process.env.EMAIL_PASS,
+  frontendUrl: FRONTEND_URL,
   service: 'gmail'
 });
 
@@ -260,7 +264,7 @@ function generateSignupHTML(firstName, email) {
 
           <!-- CTA Button -->
           <div class="cta-button">
-            <a href="http://localhost:5173/login">Get Started Now →</a>
+            <a href="${FRONTEND_URL}/login">Get Started Now →</a>
           </div>
 
           <p class="message" style="font-size: 13px; text-align: center; color: #999;">
@@ -284,9 +288,9 @@ function generateSignupHTML(firstName, email) {
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173">Visit SyncBoard</a> | 
-            <a href="http://localhost:5173/help">Help Center</a> | 
-            <a href="http://localhost:5173/settings">Settings</a>
+            <a href="${FRONTEND_URL}">Visit SyncBoard</a> | 
+            <a href="${FRONTEND_URL}/help">Help Center</a> | 
+            <a href="${FRONTEND_URL}/settings">Settings</a>
           </p>
           <div class="social-links">
             <a href="#" title="Twitter">𝕏</a>
@@ -617,7 +621,7 @@ function generateWelcomeWithPasswordHTML(firstName, email, password, userDetails
 
           <!-- CTA Button -->
           <div class="cta-button">
-            <a href="http://localhost:5173/login">Login to SyncBoard →</a>
+            <a href="${FRONTEND_URL}/login">Login to SyncBoard →</a>
           </div>
         </div>
 
@@ -625,8 +629,8 @@ function generateWelcomeWithPasswordHTML(firstName, email, password, userDetails
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
-            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+            <a href="${FRONTEND_URL}" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because an administrator created a SyncBoard account for you.
@@ -830,7 +834,7 @@ function generateAccountDeletedHTML(firstName) {
           <!-- Support -->
           <div class="support-link">
             <p style="font-size: 13px; color: #555; margin-bottom: 10px;">Have questions or need help?</p>
-            <a href="http://localhost:5173/help">Contact Support</a>
+            <a href="${FRONTEND_URL}/help">Contact Support</a>
           </div>
         </div>
 
@@ -838,8 +842,8 @@ function generateAccountDeletedHTML(firstName) {
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173">Visit SyncBoard</a> | 
-            <a href="http://localhost:5173/help">Help Center</a>
+            <a href="${FRONTEND_URL}">Visit SyncBoard</a> | 
+            <a href="${FRONTEND_URL}/help">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because you deleted your SyncBoard account.
@@ -973,7 +977,7 @@ function generateRoleChangeHTML(firstName, oldRole, newRole) {
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="http://localhost:5173/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 40px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
+            <a href="${FRONTEND_URL}/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 40px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
               Login to SyncBoard →
             </a>
           </div>
@@ -982,8 +986,8 @@ function generateRoleChangeHTML(firstName, oldRole, newRole) {
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
-            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+            <a href="${FRONTEND_URL}" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because your SyncBoard role was updated.
@@ -1131,7 +1135,7 @@ function generateProjectAssignmentHTML(firstName, addedProjects, removedProjects
           ` : ''}
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="http://localhost:5173/projects" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 40px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
+            <a href="${FRONTEND_URL}/projects" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 40px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 16px;">
               View Your Projects →
             </a>
           </div>
@@ -1140,8 +1144,8 @@ function generateProjectAssignmentHTML(firstName, addedProjects, removedProjects
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
-            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+            <a href="${FRONTEND_URL}" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because your SyncBoard project assignments were updated.
@@ -1327,8 +1331,8 @@ function generateAccountDetailsHTML(firstName, email, role, projects) {
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173">Visit SyncBoard</a> | 
-            <a href="http://localhost:5173/help">Help Center</a>
+            <a href="${FRONTEND_URL}">Visit SyncBoard</a> | 
+            <a href="${FRONTEND_URL}/help">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because your account was created on SyncBoard.
@@ -1721,15 +1725,15 @@ function generateTaskAssignmentHTML(assigneeName, assignedByName, taskDetails) {
           </div>
 
           <div class="cta-button">
-            <a href="http://localhost:5173/tasks">View Task in SyncBoard →</a>
+            <a href="${FRONTEND_URL}/tasks">View Task in SyncBoard →</a>
           </div>
         </div>
 
         <div class="footer">
           <p style="margin-bottom: 10px;">
             © ${currentYear} SyncBoard. All rights reserved.<br>
-            <a href="http://localhost:5173" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
-            <a href="http://localhost:5173/help" style="color: #667eea; text-decoration: none;">Help Center</a>
+            <a href="${FRONTEND_URL}" style="color: #667eea; text-decoration: none;">Visit SyncBoard</a> |
+            <a href="${FRONTEND_URL}/help" style="color: #667eea; text-decoration: none;">Help Center</a>
           </p>
           <p style="margin-top: 15px; font-size: 11px;">
             You're receiving this email because you were assigned a task in SyncBoard.
