@@ -20,6 +20,10 @@ const Users = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRole, setSelectedRole] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -191,6 +195,29 @@ const Users = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  // Filter and pagination logic
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesRole = selectedRole === 'ALL' || user.role === selectedRole;
+
+    return matchesSearch && matchesRole;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedRole]);
 
   if (loading) {
     return (
