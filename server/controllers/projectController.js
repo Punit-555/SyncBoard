@@ -350,35 +350,42 @@ export const addUserToProject = async (req, res) => {
       },
     });
 
-    // Get admin details for email
-    const admin = await prisma.user.findUnique({
-      where: { id: addedById },
-      select: {
-        firstName: true,
-        lastName: true,
-      },
-    });
-
-    const adminName = admin ? `${admin.firstName} ${admin.lastName}` : 'Admin';
-
-    // Send email notification asynchronously (don't block response)
-    sendEmail(
-      user.email,
-      `Added to Project: ${project.name}`,
-      generateProjectAssignmentHTML(
-        `${user.firstName} ${user.lastName}`,
-        adminName,
-        project.name,
-        project.description
-      )
-    )
-      .then(() => console.log(`✅ Project assignment email sent to ${user.email}`))
-      .catch((emailError) => console.error('❌ Failed to send project assignment email:', emailError));
-
-    return res.status(200).json({
+    // Send response immediately, then send email in background
+    const responsePromise = res.status(200).json({
       success: true,
       message: 'User added to project successfully',
     });
+
+    // Get admin details and send email asynchronously (don't block response)
+    (async () => {
+      try {
+        const admin = await prisma.user.findUnique({
+          where: { id: addedById },
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        });
+
+        const adminName = admin ? `${admin.firstName} ${admin.lastName}` : 'Admin';
+
+        await sendEmail(
+          user.email,
+          `Added to Project: ${project.name}`,
+          generateProjectAssignmentHTML(
+            `${user.firstName} ${user.lastName}`,
+            adminName,
+            project.name,
+            project.description
+          )
+        );
+        console.log(`✅ Project assignment email sent to ${user.email}`);
+      } catch (emailError) {
+        console.error('❌ Failed to send project assignment email:', emailError);
+      }
+    })();
+
+    return responsePromise;
   } catch (error) {
     console.error('Add user to project error:', error);
     return res.status(500).json({

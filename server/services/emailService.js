@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer';
 
+// Log email configuration (without showing the password)
+console.log('📧 Email Service Configuration:', {
+  user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'NOT SET',
+  passConfigured: !!process.env.EMAIL_PASS,
+  service: 'gmail'
+});
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -10,7 +17,12 @@ const transporter = nodemailer.createTransport({
 
 transporter.verify((error, success) => {
   if (error) {
-    console.error('Email transporter error:', error.message);
+    console.error('❌ Email transporter verification failed:', error.message);
+    console.error('❌ Full error:', error);
+    console.error('⚠️ Please check:');
+    console.error('   1. EMAIL_USER environment variable is set correctly');
+    console.error('   2. EMAIL_PASS is a Gmail App Password (not regular password)');
+    console.error('   3. 2-Step Verification is enabled on Gmail');
   } else {
     console.log('✅ Email service is ready to send messages');
   }
