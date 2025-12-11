@@ -364,7 +364,7 @@ const Messages = () => {
                       <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
                         {conv.user.profilePicture ? (
                           <img
-                            src={`${API_BASE}${conv.user.profilePicture}`}
+                            src={`${API_BASE}${conv.user.profilePicture}?t=${Date.now()}`}
                             alt={`${conv.user.firstName} ${conv.user.lastName}`}
                             className="w-full h-full object-cover"
                           />
@@ -425,7 +425,7 @@ const Messages = () => {
                     <div className="w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
                       {u.profilePicture ? (
                         <img
-                          src={`${API_BASE}${u.profilePicture}`}
+                          src={`${API_BASE}${u.profilePicture}?t=${Date.now()}`}
                           alt={`${u.firstName} ${u.lastName}`}
                           className="w-full h-full object-cover"
                         />
@@ -477,7 +477,7 @@ const Messages = () => {
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center text-gray-900 font-bold overflow-hidden shrink-0">
                   {selectedUser.profilePicture ? (
                     <img
-                      src={`${API_BASE}${selectedUser.profilePicture}`}
+                      src={`${API_BASE}${selectedUser.profilePicture}?t=${Date.now()}`}
                       alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
                       className="w-full h-full object-cover"
                     />
@@ -522,12 +522,30 @@ const Messages = () => {
               ) : (
                 messages.map((message) => {
                   const isOwnMessage = message.senderId === user?.userId;
+                  const messageSender = isOwnMessage ? user : selectedUser;
                   return (
                     <div
                       key={message.id}
-                      className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
+                      className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} gap-2 group`}
                     >
-                      <div className={`max-w-[85%] md:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
+                      {/* Sender Avatar - Left side for received messages */}
+                      {!isOwnMessage && (
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md shrink-0">
+                          {selectedUser?.profilePicture ? (
+                            <img
+                              src={`${API_BASE}${selectedUser.profilePicture}?t=${Date.now()}`}
+                              alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-sm">
+                              {selectedUser?.firstName?.[0]}{selectedUser?.lastName?.[0]}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className={`max-w-[85%] md:max-w-md`}>
                         <div
                           className={`rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm ${
                             isOwnMessage
@@ -775,7 +793,7 @@ const Messages = () => {
                           <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm">
                             {conv.user.profilePicture ? (
                               <img
-                                src={`${API_BASE}${conv.user.profilePicture}`}
+                                src={`${API_BASE}${conv.user.profilePicture}?t=${Date.now()}`}
                                 alt={`${conv.user.firstName} ${conv.user.lastName}`}
                                 className="w-full h-full object-cover"
                               />
@@ -839,7 +857,7 @@ const Messages = () => {
                         <div className="w-10 h-10 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm shrink-0">
                           {u.profilePicture ? (
                             <img
-                              src={`${API_BASE}${u.profilePicture}`}
+                              src={`${API_BASE}${u.profilePicture}?t=${Date.now()}`}
                               alt={`${u.firstName} ${u.lastName}`}
                               className="w-full h-full object-cover"
                             />
