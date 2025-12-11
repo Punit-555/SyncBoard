@@ -256,7 +256,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
         <Button
           type="submit"
           className="w-full"
-          disabled={isLoading || !formData.projectId}
+          disabled={isLoading || !formData.title?.trim()}
         >
           {isLoading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
         </Button>
