@@ -97,8 +97,15 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
       return;
     }
 
-    if (!formData.projectId) {
+    if (!formData.projectId || formData.projectId === '' || formData.projectId === null) {
       showError("Please select a project to create task");
+      setIsLoading(false);
+      return;
+    }
+
+    const projectIdNum = Number(formData.projectId);
+    if (isNaN(projectIdNum) || projectIdNum <= 0) {
+      showError("Please select a valid project");
       setIsLoading(false);
       return;
     }
@@ -109,8 +116,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
       priority: formData.priority,
       status: formData.status,
 
-      // Prevents NaN issues
-      projectId: Number(formData.projectId),
+      // Use validated project ID
+      projectId: projectIdNum,
 
       // userId (assignedTo) can be null
       userId:
