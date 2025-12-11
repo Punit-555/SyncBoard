@@ -14,6 +14,7 @@ const Messages = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,10 +73,21 @@ const Messages = () => {
     scrollToBottom();
   }, [messages]);
 
+  const loadCurrentUser = async () => {
+    try {
+      const response = await api.getCurrentUser();
+      if (response.success && response.data) {
+        setCurrentUser(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load current user:', error);
+    }
+  };
+
   const initializeMessages = async () => {
     try {
       setIsLoading(true);
-      await Promise.all([loadConversations(), loadAllUsers()]);
+      await Promise.all([loadConversations(), loadAllUsers(), loadCurrentUser()]);
     } finally {
       setIsLoading(false);
     }
@@ -522,7 +534,7 @@ const Messages = () => {
               ) : (
                 messages.map((message) => {
                   const isOwnMessage = message.senderId === user?.userId;
-                  const messageSender = isOwnMessage ? user : selectedUser;
+                  const messageSender = isOwnMessage ? currentUser : selectedUser;
                   return (
                     <div
                       key={message.id}
@@ -549,8 +561,8 @@ const Messages = () => {
                         <div
                           className={`rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm ${
                             isOwnMessage
-                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                              : 'bg-white text-gray-900 border border-gray-200'
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white rounded-br-md'
+                              : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
                           }`}
                         >
                           {message.content && (
@@ -605,6 +617,23 @@ const Messages = () => {
                           {formatTime(message.createdAt)}
                         </p>
                       </div>
+
+                      {/* Sender Avatar - Right side for sent messages */}
+                      {isOwnMessage && (
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md shrink-0">
+                          {currentUser?.profilePicture ? (
+                            <img
+                              src={`${API_BASE}${currentUser.profilePicture}?t=${Date.now()}`}
+                              alt={`${currentUser.firstName} ${currentUser.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-sm">
+                              {currentUser?.firstName?.[0]}{currentUser?.lastName?.[0]}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })
