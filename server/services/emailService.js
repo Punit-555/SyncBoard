@@ -36,7 +36,7 @@ if (useSendGrid) {
   console.log('📧 Using Gmail SMTP for email delivery');
 
   // Verify Gmail transporter
-  transporter.verify((error, success) => {
+  transporter.verify((error) => {
     if (error) {
       console.error('❌ Gmail verification failed:', error.message);
     } else {
@@ -51,9 +51,24 @@ async function sendEmailInternal(to, subject, html) {
     // Use SendGrid Web API (HTTPS - bypasses SMTP blocks!)
     const msg = {
       to: to,
-      from: process.env.EMAIL_USER, // Must be verified in SendGrid
+      from: {
+        email: process.env.EMAIL_USER, // Must be verified in SendGrid
+        name: 'SyncBoard'
+      },
+      replyTo: process.env.EMAIL_USER,
       subject: subject,
       html: html,
+      text: html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(), // Plain text fallback
+      // Add tracking settings to improve deliverability
+      trackingSettings: {
+        clickTracking: { enable: false },
+        openTracking: { enable: false },
+        subscriptionTracking: { enable: false }
+      },
+      // Add mail settings for better delivery
+      mailSettings: {
+        sandboxMode: { enable: false }
+      }
     };
 
     const response = await sgMail.send(msg);
@@ -62,9 +77,11 @@ async function sendEmailInternal(to, subject, html) {
     // Use Gmail SMTP (for local development)
     const mailOptions = {
       from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
+      replyTo: process.env.EMAIL_USER,
       to: to,
       subject: subject,
       html: html,
+      text: html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(), // Plain text fallback
     };
 
     const info = await transporter.sendMail(mailOptions);
