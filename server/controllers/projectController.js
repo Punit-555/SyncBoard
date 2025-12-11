@@ -361,23 +361,19 @@ export const addUserToProject = async (req, res) => {
 
     const adminName = admin ? `${admin.firstName} ${admin.lastName}` : 'Admin';
 
-    // Send email notification
-    try {
-      await sendEmail(
-        user.email,
-        `Added to Project: ${project.name}`,
-        generateProjectAssignmentHTML(
-          `${user.firstName} ${user.lastName}`,
-          adminName,
-          project.name,
-          project.description
-        )
-      );
-      console.log(`✅ Project assignment email sent to ${user.email}`);
-    } catch (emailError) {
-      console.error('❌ Failed to send project assignment email:', emailError);
-      // Don't fail the assignment if email fails
-    }
+    // Send email notification asynchronously (don't block response)
+    sendEmail(
+      user.email,
+      `Added to Project: ${project.name}`,
+      generateProjectAssignmentHTML(
+        `${user.firstName} ${user.lastName}`,
+        adminName,
+        project.name,
+        project.description
+      )
+    )
+      .then(() => console.log(`✅ Project assignment email sent to ${user.email}`))
+      .catch((emailError) => console.error('❌ Failed to send project assignment email:', emailError));
 
     return res.status(200).json({
       success: true,
@@ -462,22 +458,18 @@ export const removeUserFromProject = async (req, res) => {
 
     const adminName = admin ? `${admin.firstName} ${admin.lastName}` : 'Admin';
 
-    // Send email notification
-    try {
-      await sendEmail(
-        user.email,
-        `Removed from Project: ${project.name}`,
-        generateProjectRemovalHTML(
-          `${user.firstName} ${user.lastName}`,
-          adminName,
-          project.name
-        )
-      );
-      console.log(`✅ Project removal email sent to ${user.email}`);
-    } catch (emailError) {
-      console.error('❌ Failed to send project removal email:', emailError);
-      // Don't fail the removal if email fails
-    }
+    // Send email notification asynchronously (don't block response)
+    sendEmail(
+      user.email,
+      `Removed from Project: ${project.name}`,
+      generateProjectRemovalHTML(
+        `${user.firstName} ${user.lastName}`,
+        adminName,
+        project.name
+      )
+    )
+      .then(() => console.log(`✅ Project removal email sent to ${user.email}`))
+      .catch((emailError) => console.error('❌ Failed to send project removal email:', emailError));
 
     return res.status(200).json({
       success: true,

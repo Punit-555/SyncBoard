@@ -251,21 +251,23 @@ export const createTask = async (req, res) => {
           taskTitle: taskDetails.title
         });
 
-        await sendTaskAssignmentEmail(
+        // Send task assignment email asynchronously (don't block response)
+        sendTaskAssignmentEmail(
           task.user.email,
           assigneeName,
           assignedByName,
           taskDetails
-        );
-
-        console.log(`✅ Task assignment email sent successfully to ${task.user.email}`);
+        )
+          .then(() => console.log(`✅ Task assignment email sent successfully to ${task.user.email}`))
+          .catch((emailError) => {
+            console.error('❌ Failed to send task assignment email:', emailError);
+            console.error('❌ Error details:', {
+              message: emailError.message,
+              stack: emailError.stack
+            });
+          });
       } catch (emailError) {
-        console.error('❌ Failed to send task assignment email:', emailError);
-        console.error('❌ Error details:', {
-          message: emailError.message,
-          stack: emailError.stack
-        });
-        // Don't fail the task creation if email fails
+        console.error('❌ Failed to prepare task assignment email:', emailError);
       }
     } else {
       console.log(`ℹ️ Email not sent. Reasons:`, {
@@ -386,17 +388,17 @@ export const updateTask = async (req, res) => {
           projectName: updatedTask.project.name,
         };
 
-        await sendTaskAssignmentEmail(
+        // Send task reassignment email asynchronously (don't block response)
+        sendTaskAssignmentEmail(
           updatedTask.user.email,
           assigneeName,
           assignedByName,
           taskDetails
-        );
-
-        console.log(`✅ Task reassignment email sent to ${updatedTask.user.email}`);
+        )
+          .then(() => console.log(`✅ Task reassignment email sent to ${updatedTask.user.email}`))
+          .catch((emailError) => console.error('❌ Failed to send task reassignment email:', emailError.message));
       } catch (emailError) {
-        console.error('❌ Failed to send task reassignment email:', emailError.message);
-        // Don't fail the task update if email fails
+        console.error('❌ Failed to prepare task reassignment email:', emailError.message);
       }
     }
 

@@ -450,12 +450,13 @@ export const updateUser = async (req, res) => {
       }
 
       if (Object.keys(updatedFields).length > 0) {
-        await sendUserUpdateEmail(user.email, user.firstName || 'User', updatedFields);
-        console.log(`✅ Update notification email sent to ${user.email}`);
+        // Send update email asynchronously (don't block response)
+        sendUserUpdateEmail(user.email, user.firstName || 'User', updatedFields)
+          .then(() => console.log(`✅ Update notification email sent to ${user.email}`))
+          .catch((emailError) => console.error('Error sending update email:', emailError));
       }
     } catch (emailError) {
-      console.error('Error sending update email:', emailError);
-      // Don't fail the request if email fails
+      console.error('Error preparing update email:', emailError);
     }
 
     return res.status(200).json({

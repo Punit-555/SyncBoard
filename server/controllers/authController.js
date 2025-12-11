@@ -243,15 +243,12 @@ export const forgotPassword = async (req, res) => {
       },
     });
 
-    // Send password reset email
+    // Send password reset email asynchronously (don't block response)
     const resetUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
 
-    try {
-      await sendPasswordResetEmail(email, user.firstName || 'User', resetUrl);
-    } catch (emailError) {
-      console.error('Error sending password reset email:', emailError);
-      // Don't fail the request if email fails
-    }
+    sendPasswordResetEmail(email, user.firstName || 'User', resetUrl)
+      .then(() => console.log(`✅ Password reset email sent to ${email}`))
+      .catch((emailError) => console.error('Error sending password reset email:', emailError));
 
     return res.status(200).json({
       success: true,
@@ -461,15 +458,14 @@ export const deleteAccount = async (req, res) => {
       });
     }
 
-    try {
-      await sendAccountDeletedEmail(user.email, user.firstName || 'User');
-    } catch (emailError) {
-      console.error('Error sending account deletion email:', emailError);
-    }
-
     await prisma.user.delete({
       where: { id: userId },
     });
+
+    // Send account deletion email asynchronously (don't block response)
+    sendAccountDeletedEmail(user.email, user.firstName || 'User')
+      .then(() => console.log(`✅ Account deletion email sent to ${user.email}`))
+      .catch((emailError) => console.error('Error sending account deletion email:', emailError));
 
     return res.status(200).json({
       success: true,
