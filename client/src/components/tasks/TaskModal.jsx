@@ -4,7 +4,7 @@ import Input from '../ui/Input';
 import Textarea from '../ui/Textarea';
 import Select from '../ui/Select';
 import Button from '../ui/Button';
-import { createTask, updateTask, getTaskById, getUsers, getAllProjects } from '../../utils/api';
+import { createTask, updateTask, getUsers, getAllProjects } from '../../utils/api';
 import { useSnackbar } from '../../utils/useSnackbar';
 
 const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null }) => {
@@ -138,7 +138,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
 
   } catch (error) {
     console.error("TASK ERROR:", error);
-    showError(error?.response?.data?.message || error.message || "Failed to save task");
+    const errorMsg = error?.response?.message || error?.message || "Failed to save task";
+    showError(errorMsg);
   } finally {
     setIsLoading(false);
   }
