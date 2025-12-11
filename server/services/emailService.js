@@ -1,11 +1,12 @@
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 // Get frontend URL from environment variable or fallback to localhost
 const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 // Determine which email service to use
 const useSendGrid = process.env.SENDGRID_API_KEY;
-const emailService = useSendGrid ? 'SendGrid' : 'Gmail';
+const emailService = useSendGrid ? 'SendGrid Web API' : 'Gmail SMTP';
 
 // Log email configuration (without showing sensitive data)
 console.log('📧 Email Service Configuration:', {
@@ -16,23 +17,15 @@ console.log('📧 Email Service Configuration:', {
   frontendUrl: FRONTEND_URL
 });
 
-// Create transporter based on available credentials
+// Configure email service
 let transporter;
 
 if (useSendGrid) {
-  // Use SendGrid for production (works on Render)
-  transporter = nodemailer.createTransport({
-    host: 'smtp.sendgrid.net',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'apikey',
-      pass: process.env.SENDGRID_API_KEY,
-    },
-  });
-  console.log('📧 Using SendGrid for email delivery');
+  // Use SendGrid Web API for production (works on Render - uses HTTPS, not SMTP!)
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('📧 Using SendGrid Web API for email delivery (HTTPS - works on Render!)');
 } else {
-  // Use Gmail for local development
+  // Use Gmail SMTP for local development
   transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -40,42 +33,54 @@ if (useSendGrid) {
       pass: process.env.EMAIL_PASS,
     },
   });
-  console.log('📧 Using Gmail for email delivery');
+  console.log('📧 Using Gmail SMTP for email delivery');
+
+  // Verify Gmail transporter
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Gmail verification failed:', error.message);
+    } else {
+      console.log('✅ Gmail service is ready to send messages');
+    }
+  });
 }
 
-// Verify transporter (optional, don't block startup)
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Email transporter verification failed:', error.message);
-    if (useSendGrid) {
-      console.error('⚠️ SendGrid issue - Please check:');
-      console.error('   1. SENDGRID_API_KEY environment variable is set correctly');
-      console.error('   2. API key has "Mail Send" permissions');
-      console.error('   3. Sender email is verified in SendGrid');
-    } else {
-      console.error('⚠️ Gmail issue - Please check:');
-      console.error('   1. EMAIL_USER environment variable is set correctly');
-      console.error('   2. EMAIL_PASS is a Gmail App Password (not regular password)');
-      console.error('   3. 2-Step Verification is enabled on Gmail');
-      console.error('   4. SMTP connections are not blocked by your hosting provider');
-    }
+// Helper function to send email with automatic service selection
+async function sendEmailInternal(to, subject, html) {
+  if (useSendGrid) {
+    // Use SendGrid Web API (HTTPS - bypasses SMTP blocks!)
+    const msg = {
+      to: to,
+      from: process.env.EMAIL_USER, // Must be verified in SendGrid
+      subject: subject,
+      html: html,
+    };
+
+    const response = await sgMail.send(msg);
+    return { messageId: response[0].headers['x-message-id'] };
   } else {
-    console.log(`✅ Email service (${emailService}) is ready to send messages`);
+    // Use Gmail SMTP (for local development)
+    const mailOptions = {
+      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
+      to: to,
+      subject: subject,
+      html: html,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    return { messageId: info.messageId };
   }
-});
+}
 
 export const sendSignupEmail = async (email, firstName) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Welcome to SyncBoard! 🚀 Your Account is Ready',
-      html: generateSignupHTML(firstName, email),
-    };
-
     console.log(`📧 Attempting to send signup email to ${email}...`);
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Signup email sent to ${email}. Message ID: ${info.messageId}`);
+    const result = await sendEmailInternal(
+      email,
+      'Welcome to SyncBoard! 🚀 Your Account is Ready',
+      generateSignupHTML(firstName, email)
+    );
+    console.log(`✅ Signup email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending signup email:', error.message);
@@ -349,18 +354,17 @@ function generateSignupHTML(firstName, email) {
 
 export const sendPasswordResetEmail = async (email, firstName, resetLink) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Reset Your SyncBoard Password 🔐',
-      html: generatePasswordResetHTML(firstName, resetLink),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Password reset email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send password reset email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Reset Your SyncBoard Password 🔐',
+      generatePasswordResetHTML(firstName, resetLink)
+    );
+    console.log(`✅ Password reset email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending password reset email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -465,16 +469,13 @@ function generatePasswordResetHTML(firstName, resetLink) {
 
 export const sendWelcomeEmailWithPassword = async (email, firstName, password, userDetails = {}) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Welcome to SyncBoard! 🚀 Your Account is Ready',
-      html: generateWelcomeWithPasswordHTML(firstName, email, password, userDetails),
-    };
-
     console.log(`📧 Attempting to send welcome email with password to ${email}...`);
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Welcome email with password sent to ${email}. Message ID: ${info.messageId}`);
+    const result = await sendEmailInternal(
+      email,
+      'Welcome to SyncBoard! 🚀 Your Account is Ready',
+      generateWelcomeWithPasswordHTML(firstName, email, password, userDetails)
+    );
+    console.log(`✅ Welcome email with password sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending welcome email with password:', error.message);
@@ -683,18 +684,17 @@ function generateWelcomeWithPasswordHTML(firstName, email, password, userDetails
 
 export const sendAccountDeletedEmail = async (email, firstName) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Your SyncBoard Account Has Been Deleted 👋',
-      html: generateAccountDeletedHTML(firstName),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Account deletion email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send account deletion email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Your SyncBoard Account Has Been Deleted 👋',
+      generateAccountDeletedHTML(firstName)
+    );
+    console.log(`✅ Account deletion email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending account deletion email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -896,18 +896,17 @@ function generateAccountDeletedHTML(firstName) {
 
 export const sendRoleChangeEmail = async (email, firstName, oldRole, newRole) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Your Role Has Been Updated - SyncBoard',
-      html: generateRoleChangeHTML(firstName, oldRole, newRole),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Role change email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send role change email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Your Role Has Been Updated - SyncBoard',
+      generateRoleChangeHTML(firstName, oldRole, newRole)
+    );
+    console.log(`✅ Role change email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending role change email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -1040,18 +1039,17 @@ function generateRoleChangeHTML(firstName, oldRole, newRole) {
 
 export const sendProjectAssignmentEmail = async (email, firstName, addedProjects, removedProjects) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Your Project Assignments Have Been Updated - SyncBoard',
-      html: generateProjectAssignmentHTML(firstName, addedProjects, removedProjects),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Project assignment email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send project assignment email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Your Project Assignments Have Been Updated - SyncBoard',
+      generateProjectAssignmentHTML(firstName, addedProjects, removedProjects)
+    );
+    console.log(`✅ Project assignment email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending project assignment email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -1199,18 +1197,17 @@ function generateProjectAssignmentHTML(firstName, addedProjects, removedProjects
 // Send account details email (with role and project info)
 export const sendAccountDetailsEmail = async (email, firstName, role, projects = []) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Your SyncBoard Account Details 📋',
-      html: generateAccountDetailsHTML(firstName, email, role, projects),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Account details email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send account details email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Your SyncBoard Account Details 📋',
+      generateAccountDetailsHTML(firstName, email, role, projects)
+    );
+    console.log(`✅ Account details email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending account details email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -1386,18 +1383,17 @@ function generateAccountDetailsHTML(firstName, email, role, projects) {
 // Send user update notification email
 export const sendUserUpdateEmail = async (email, firstName, updatedFields = {}) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Your SyncBoard Account Has Been Updated 📝',
-      html: generateUserUpdateHTML(firstName, updatedFields),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ User update email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send user update email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Your SyncBoard Account Has Been Updated 📝',
+      generateUserUpdateHTML(firstName, updatedFields)
+    );
+    console.log(`✅ User update email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending user update email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -1522,18 +1518,17 @@ function generateUserUpdateHTML(firstName, updatedFields) {
 // Send user deletion notification email
 export const sendUserDeletedEmail = async (email, firstName) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: 'Your SyncBoard Account Has Been Deleted 🗑️',
-      html: generateUserDeletedHTML(firstName),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ User deletion email sent to ${email}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send user deletion email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      'Your SyncBoard Account Has Been Deleted 🗑️',
+      generateUserDeletedHTML(firstName)
+    );
+    console.log(`✅ User deletion email sent to ${email}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending user deletion email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -1543,21 +1538,16 @@ export const sendTaskAssignmentEmail = async (assigneeEmail, assigneeName, assig
   try {
     console.log('📧 Email Service - Starting to send task assignment email...');
     console.log('📧 Email User:', process.env.EMAIL_USER ? 'Configured ✓' : 'NOT CONFIGURED ✗');
-    console.log('📧 Email Pass:', process.env.EMAIL_PASS ? 'Configured ✓' : 'NOT CONFIGURED ✗');
     console.log('📧 Recipient:', assigneeEmail);
 
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to: assigneeEmail,
-      subject: `New Task Assigned: ${taskDetails.title} 📋`,
-      html: generateTaskAssignmentHTML(assigneeName, assignedByName, taskDetails),
-    };
-
-    console.log('📨 Attempting to send email...');
-    const info = await transporter.sendMail(mailOptions);
+    console.log('📨 Attempting to send task assignment email...');
+    const result = await sendEmailInternal(
+      assigneeEmail,
+      `New Task Assigned: ${taskDetails.title} 📋`,
+      generateTaskAssignmentHTML(assigneeName, assignedByName, taskDetails)
+    );
     console.log(`✅ Task assignment email sent successfully to ${assigneeEmail}`);
-    console.log(`✅ Message ID: ${info.messageId}`);
-    console.log(`✅ Response: ${info.response}`);
+    console.log(`✅ Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending task assignment email:', error.message);
@@ -1900,18 +1890,13 @@ function generateUserDeletedHTML(firstName) {
 // Generic sendEmail function
 export const sendEmail = async (to, subject, htmlContent) => {
   try {
-    const mailOptions = {
-      from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html: htmlContent,
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent to ${to}. Message ID: ${info.messageId}`);
+    console.log(`📧 Attempting to send email to ${to}...`);
+    const result = await sendEmailInternal(to, subject, htmlContent);
+    console.log(`✅ Email sent to ${to}. Message ID: ${result.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
