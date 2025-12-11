@@ -43,11 +43,35 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
           profilePicture: response.data.profilePicture || '',
         });
         if (response.data.profilePicture) {
-          setPreviewUrl(`${API_BASE}${response.data.profilePicture}`);
+          const imageUrl = `${API_BASE}${response.data.profilePicture}?t=${Date.now()}`;
+          setPreviewUrl(imageUrl);
         }
       }
     } catch (error) {
       showError('Failed to load user data');
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const response = await api.getCurrentUser();
+      if (response.success && response.data) {
+        setFormData({
+          firstName: response.data.firstName || '',
+          lastName: response.data.lastName || '',
+          email: response.data.email || '',
+          role: response.data.role ? response.data.role.toLowerCase() : '',
+          profilePicture: response.data.profilePicture || '',
+        });
+        if (response.data.profilePicture) {
+          const imageUrl = `${API_BASE}${response.data.profilePicture}?t=${Date.now()}`;
+          setPreviewUrl(imageUrl);
+        } else {
+          setPreviewUrl(null);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
     }
   };
 
