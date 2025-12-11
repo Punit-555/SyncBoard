@@ -73,11 +73,13 @@ export const sendSignupEmail = async (email, firstName) => {
       html: generateSignupHTML(firstName, email),
     };
 
+    console.log(`📧 Attempting to send signup email to ${email}...`);
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Signup email sent to ${email}. Message ID: ${info.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending signup email:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
@@ -470,11 +472,13 @@ export const sendWelcomeEmailWithPassword = async (email, firstName, password, u
       html: generateWelcomeWithPasswordHTML(firstName, email, password, userDetails),
     };
 
+    console.log(`📧 Attempting to send welcome email with password to ${email}...`);
     const info = await transporter.sendMail(mailOptions);
     console.log(`✅ Welcome email with password sent to ${email}. Message ID: ${info.messageId}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending welcome email with password:', error.message);
+    console.error('❌ Full error:', error);
     throw error;
   }
 };
