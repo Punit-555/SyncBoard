@@ -3,32 +3,64 @@ import nodemailer from 'nodemailer';
 // Get frontend URL from environment variable or fallback to localhost
 const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
-// Log email configuration (without showing the password)
+// Determine which email service to use
+const useSendGrid = process.env.SENDGRID_API_KEY;
+const emailService = useSendGrid ? 'SendGrid' : 'Gmail';
+
+// Log email configuration (without showing sensitive data)
 console.log('📧 Email Service Configuration:', {
+  service: emailService,
   user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'NOT SET',
-  passConfigured: !!process.env.EMAIL_PASS,
-  frontendUrl: FRONTEND_URL,
-  service: 'gmail'
+  sendGridConfigured: !!process.env.SENDGRID_API_KEY,
+  gmailConfigured: !!process.env.EMAIL_PASS,
+  frontendUrl: FRONTEND_URL
 });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// Create transporter based on available credentials
+let transporter;
 
+if (useSendGrid) {
+  // Use SendGrid for production (works on Render)
+  transporter = nodemailer.createTransport({
+    host: 'smtp.sendgrid.net',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'apikey',
+      pass: process.env.SENDGRID_API_KEY,
+    },
+  });
+  console.log('📧 Using SendGrid for email delivery');
+} else {
+  // Use Gmail for local development
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  console.log('📧 Using Gmail for email delivery');
+}
+
+// Verify transporter (optional, don't block startup)
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ Email transporter verification failed:', error.message);
-    console.error('❌ Full error:', error);
-    console.error('⚠️ Please check:');
-    console.error('   1. EMAIL_USER environment variable is set correctly');
-    console.error('   2. EMAIL_PASS is a Gmail App Password (not regular password)');
-    console.error('   3. 2-Step Verification is enabled on Gmail');
+    if (useSendGrid) {
+      console.error('⚠️ SendGrid issue - Please check:');
+      console.error('   1. SENDGRID_API_KEY environment variable is set correctly');
+      console.error('   2. API key has "Mail Send" permissions');
+      console.error('   3. Sender email is verified in SendGrid');
+    } else {
+      console.error('⚠️ Gmail issue - Please check:');
+      console.error('   1. EMAIL_USER environment variable is set correctly');
+      console.error('   2. EMAIL_PASS is a Gmail App Password (not regular password)');
+      console.error('   3. 2-Step Verification is enabled on Gmail');
+      console.error('   4. SMTP connections are not blocked by your hosting provider');
+    }
   } else {
-    console.log('✅ Email service is ready to send messages');
+    console.log(`✅ Email service (${emailService}) is ready to send messages`);
   }
 });
 
