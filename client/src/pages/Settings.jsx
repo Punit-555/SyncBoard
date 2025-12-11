@@ -92,7 +92,7 @@ const Settings = () => {
                   <i className="fas fa-palette text-[#4361ee]"></i>
                   Appearance
                 </h2>
-                <p className="text-gray-600 text-xs md:text-sm mt-1">Customize how TaskFlow looks</p>
+                <p className="text-gray-600 text-xs md:text-sm mt-1">Customize how SyncBoard looks</p>
               </div>
             </div>
 

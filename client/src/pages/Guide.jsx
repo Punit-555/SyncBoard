@@ -16,8 +16,8 @@ const Guide = () => {
       icon: 'fas fa-rocket',
       sections: [
         {
-          subtitle: 'Welcome to TaskFlow',
-          content: 'TaskFlow is a comprehensive task management platform designed to help teams collaborate efficiently and manage projects seamlessly.',
+          subtitle: 'Welcome to SyncBoard',
+          content: 'SyncBoard is a comprehensive task management platform designed to help teams collaborate efficiently and manage projects seamlessly.',
           steps: [
             'Sign in to your account',
             'Navigate to Dashboard to see your tasks',
@@ -27,7 +27,7 @@ const Guide = () => {
         },
         {
           subtitle: 'Key Features',
-          content: 'Discover the powerful features that make TaskFlow your go-to task management solution.',
+          content: 'Discover the powerful features that make SyncBoard your go-to task management solution.',
           steps: [
             '📊 Real-time Analytics & Reports',
             '👥 Team Collaboration Tools',
@@ -46,7 +46,7 @@ const Guide = () => {
       sections: [
         {
           subtitle: 'Role Overview',
-          content: 'TaskFlow has three main user roles, each with specific permissions and responsibilities.',
+          content: 'SyncBoard has three main user roles, each with specific permissions and responsibilities.',
           steps: []
         }
       ]
@@ -249,10 +249,10 @@ const Guide = () => {
       <div className="max-w-7xl mx-auto mb-8 md:mb-12">
         <div className="text-center mb-8 md:mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#4361ee] to-[#3f37c9] bg-clip-text text-transparent">
-            TaskFlow Guide
+            SyncBoard Guide
           </h1>
           <p className="text-gray-600 text-lg md:text-xl">
-            Complete documentation and tutorials for using TaskFlow
+            Complete documentation and tutorials for using SyncBoard
           </p>
         </div>
 
@@ -336,7 +336,7 @@ const Guide = () => {
       {/* Main Guide Sections */}
       <div className="max-w-7xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-800">
-          How to Use TaskFlow
+          How to Use SyncBoard
         </h2>
 
         <div className="space-y-4 md:space-y-6">

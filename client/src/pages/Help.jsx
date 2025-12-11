@@ -85,7 +85,7 @@ const Help = () => {
     {
       icon: 'fas fa-users',
       title: 'Community Forum',
-      description: 'Connect with other TaskFlow users',
+      description: 'Connect with other SyncBoard users',
       action: 'Visit Forum',
       color: 'green',
     },
@@ -225,7 +225,7 @@ const Help = () => {
                 <i className="fas fa-envelope text-[#4361ee] text-xl mt-1"></i>
                 <div>
                   <h3 className="font-semibold text-gray-800">Email Support</h3>
-                  <p className="text-gray-600">support@taskflow.com</p>
+                  <p className="text-gray-600">support@syncboard.com</p>
                   <p className="text-sm text-gray-500">We respond within 24 hours</p>
                 </div>
               </div>
