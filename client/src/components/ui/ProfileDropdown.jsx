@@ -110,8 +110,12 @@ const ProfileDropdown = ({ onEditProfile }) => {
                     alt={getFullName()}
                     className="w-full h-full object-cover"
                     onError={(e) => {
+                      console.error('Failed to load profile picture:', `${API_BASE}${user.profilePicture}`);
                       e.target.style.display = 'none';
                       e.target.parentElement.innerHTML = `<span>${getInitials()}</span>`;
+                    }}
+                    onLoad={() => {
+                      console.log('Profile picture loaded successfully:', `${API_BASE}${user.profilePicture}`);
                     }}
                   />
                 ) : (
@@ -141,6 +145,11 @@ const ProfileDropdown = ({ onEditProfile }) => {
                     src={`${API_BASE}${user.profilePicture}`}
                     alt={getFullName()}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error('Failed to load dropdown profile picture:', `${API_BASE}${user.profilePicture}`);
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-white font-bold text-lg">${getInitials()}</span>`;
+                    }}
                   />
                 ) : (
                   <span>{getInitials()}</span>

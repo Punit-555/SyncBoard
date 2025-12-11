@@ -74,18 +74,31 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
   };
 
   const handleUploadProfilePicture = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.warn('No file selected for upload');
+      return;
+    }
+
+    console.log('📸 Starting profile picture upload...');
+    console.log('📸 File:', selectedFile.name, selectedFile.type, selectedFile.size);
 
     setIsUploading(true);
     try {
       const response = await api.uploadProfilePicture(selectedFile);
+      console.log('📸 Upload response:', response);
+
       if (response.success) {
         showSuccess('Profile picture updated successfully!');
+        console.log('✅ Profile picture path:', response.data?.profilePicture);
         setSelectedFile(null);
         await refreshUser();
         onProfileUpdated?.();
+      } else {
+        console.error('❌ Upload failed:', response.message);
+        showError(response.message || 'Failed to upload profile picture');
       }
     } catch (error) {
+      console.error('❌ Upload error:', error);
       showError(error.message || 'Failed to upload profile picture');
     } finally {
       setIsUploading(false);
