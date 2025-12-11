@@ -296,7 +296,7 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-80px)] flex bg-gray-50 gap-2 md:gap-4 p-2 md:p-4">
+    <div className="h-[calc(100vh-80px)] flex bg-gray-50 gap-2 md:gap-4 p-2 md:p-4 overflow-hidden">
       {/* Desktop Sidebar - Collapsible */}
       <div className={`hidden lg:flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
         isSidebarOpen ? 'w-80' : 'w-0 p-0'
@@ -468,7 +468,7 @@ const Messages = () => {
       </button>
 
       {/* Chat Area - Full width on mobile */}
-      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-md overflow-hidden relative">
+      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-md overflow-hidden relative min-h-0">
         {selectedUser ? (
           <>
             {/* Chat Header */}
