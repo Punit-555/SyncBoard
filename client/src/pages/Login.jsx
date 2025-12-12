@@ -5,10 +5,12 @@ import Button from '../components/ui/Button';
 import Snackbar from '../components/ui/Snackbar';
 import LoadingPopup from '../components/ui/LoadingPopup';
 import { useSnackbar } from '../utils/useSnackbar';
+import { useAuth } from '../hooks/useAuth';
 import api from '../utils/api';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const { snackbar, showSuccess, showError, showWarning, showInfo, hideSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -31,12 +33,13 @@ const Login = () => {
     try {
       const res = await api.login(payload);
       if (res && res.token) {
-        localStorage.setItem('token', res.token);
+        // Update AuthContext with user data and token
+        login(res.data, res.token);
         showSuccess('Login successful! Redirecting...');
         setIsLoggingIn(true);
         setTimeout(() => {
           navigate('/dashboard');
-        }, 1500);
+        }, 500);
       }
     } catch (err) {
       console.error('Login error', err);
