@@ -3,10 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function updateSuperAdmin() {
-  console.log('Updating superadmin@taskflow.com to SUPERADMIN role...\n');
+  console.log('Updating superadmin@syncBoard.com to SUPERADMIN role...\n');
 
   try {
-    const email = 'superadmin@taskflow.com';
+    const email = 'superadmin@syncBoard.com';
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({

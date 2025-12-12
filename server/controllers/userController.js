@@ -572,14 +572,26 @@ export const deleteUser = async (req, res) => {
 // Upload profile picture
 export const uploadProfilePicture = async (req, res) => {
   try {
+    console.log('📸 Profile picture upload request received');
+    console.log('📸 User ID:', req.user?.userId);
+    console.log('📸 File received:', req.file ? 'Yes' : 'No');
+
     const userId = req.user.userId;
 
     if (!req.file) {
+      console.error('❌ No file in request');
       return res.status(400).json({
         success: false,
         message: 'No file uploaded',
       });
     }
+
+    console.log('📸 File details:', {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+    });
 
     // Get the user's current profile picture
     const user = await prisma.user.findUnique({
@@ -590,13 +602,16 @@ export const uploadProfilePicture = async (req, res) => {
     // Delete old profile picture if exists
     if (user?.profilePicture) {
       const oldFilePath = path.join(process.cwd(), user.profilePicture);
+      console.log('📸 Checking for old profile picture:', oldFilePath);
       if (fs.existsSync(oldFilePath)) {
         fs.unlinkSync(oldFilePath);
+        console.log('✅ Old profile picture deleted');
       }
     }
 
     // Save the new profile picture path
     const profilePicturePath = `/uploads/profile-pictures/${req.file.filename}`;
+    console.log('📸 New profile picture path:', profilePicturePath);
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -611,13 +626,17 @@ export const uploadProfilePicture = async (req, res) => {
       },
     });
 
+    console.log('✅ Profile picture uploaded successfully');
+    console.log('✅ Full URL will be: /uploads/profile-pictures/' + req.file.filename);
+
     return res.status(200).json({
       success: true,
       message: 'Profile picture uploaded successfully',
       data: updatedUser,
     });
   } catch (error) {
-    console.error('Upload profile picture error:', error);
+    console.error('❌ Upload profile picture error:', error);
+    console.error('❌ Error stack:', error.stack);
 
     // Delete the uploaded file if there was an error
     if (req.file) {

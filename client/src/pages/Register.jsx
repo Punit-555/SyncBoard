@@ -74,10 +74,10 @@ const Register = () => {
             <div className="bg-gradient-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white">
               <i className="fas fa-tasks text-sm sm:text-base"></i>
             </div>
-            <span className="text-xl sm:text-2xl md:text-3xl">TaskFlow</span>
+            <span className="text-xl sm:text-2xl md:text-3xl">SyncBoard</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-semibold mb-1 sm:mb-2 text-gray-800">Create Account</h2>
-          <p className="text-gray-600 text-xs sm:text-sm">Sign up to get started with TaskFlow</p>
+          <p className="text-gray-600 text-xs sm:text-sm">Sign up to get started with SyncBoard</p>
         </div>
 
         <form onSubmit={handleSubmit}>

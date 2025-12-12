@@ -106,12 +106,16 @@ const ProfileDropdown = ({ onEditProfile }) => {
               <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold shadow-md overflow-hidden ring-2 ring-transparent group-hover:ring-blue-300 transition-all">
                 {user?.profilePicture ? (
                   <img
-                    src={`${API_BASE}${user.profilePicture}`}
+                    src={`${API_BASE}${user.profilePicture}?t=${Date.now()}`}
                     alt={getFullName()}
                     className="w-full h-full object-cover"
                     onError={(e) => {
+                      console.error('Failed to load profile picture:', `${API_BASE}${user.profilePicture}`);
                       e.target.style.display = 'none';
                       e.target.parentElement.innerHTML = `<span>${getInitials()}</span>`;
+                    }}
+                    onLoad={() => {
+                      console.log('Profile picture loaded successfully:', `${API_BASE}${user.profilePicture}`);
                     }}
                   />
                 ) : (
@@ -138,9 +142,14 @@ const ProfileDropdown = ({ onEditProfile }) => {
               <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-lg border-2 border-white/30 overflow-hidden">
                 {user?.profilePicture ? (
                   <img
-                    src={`${API_BASE}${user.profilePicture}`}
+                    src={`${API_BASE}${user.profilePicture}?t=${Date.now()}`}
                     alt={getFullName()}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error('Failed to load dropdown profile picture:', `${API_BASE}${user.profilePicture}`);
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-white font-bold text-lg">${getInitials()}</span>`;
+                    }}
                   />
                 ) : (
                   <span>{getInitials()}</span>

@@ -4,7 +4,7 @@ import Input from '../ui/Input';
 import Textarea from '../ui/Textarea';
 import Select from '../ui/Select';
 import Button from '../ui/Button';
-import { createTask, updateTask, getTaskById, getUsers, getAllProjects } from '../../utils/api';
+import { createTask, updateTask, getUsers, getAllProjects } from '../../utils/api';
 import { useSnackbar } from '../../utils/useSnackbar';
 
 const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null }) => {
@@ -17,6 +17,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
     projectId: projectId,
     userId: '',
   });
+
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -24,14 +25,15 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
   const [projectsLoading, setProjectsLoading] = useState(true);
   const { showSuccess, showError } = useSnackbar();
 
+  // ========== Fetch Users + Projects When Modal Opens ==========
   useEffect(() => {
+    if (!isOpen) return;
+
     const fetchUsers = async () => {
       try {
         setUsersLoading(true);
         const response = await getUsers();
-        if (response.success) {
-          setUsers(response.data || []);
-        }
+        setUsers(response.success ? response.data || [] : []);
       } catch (error) {
         console.error('Failed to fetch users:', error);
         setUsers([]);
@@ -44,9 +46,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
       try {
         setProjectsLoading(true);
         const response = await getAllProjects();
-        if (response.success) {
-          setProjects(response.data || []);
-        }
+        setProjects(response.success ? response.data || [] : []);
       } catch (error) {
         console.error('Failed to fetch projects:', error);
         setProjects([]);
@@ -55,13 +55,11 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
       }
     };
 
-    if (isOpen) {
-      fetchUsers();
-      fetchProjects();
-    }
+    fetchUsers();
+    fetchProjects();
   }, [isOpen]);
 
-
+  // ========== Load Existing Task Or Reset Form ==========
   useEffect(() => {
     if (task) {
       setFormData({
@@ -81,79 +79,77 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
         dueDate: '',
         status: 'todo',
         projectId: projectId,
-        assignedTo: '',
+        userId: '',
       });
     }
   }, [task, isOpen, projectId]);
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-
-  try {
-    if (!formData.title || !formData.title.trim()) {
-      showError("Task title is required");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!formData.projectId) {
-      showError("Please select a project to create task");
-      setIsLoading(false);
-      return;
-    }
-
-    const payload = {
-      title: formData.title.trim(),
-      description: formData.description?.trim() || null,
-      priority: formData.priority,
-      status: formData.status,
-
-      // Prevents NaN issues
-      projectId: Number(formData.projectId),
-
-      // userId (assignedTo) can be null
-      userId:
-        formData.userId && formData.userId !== ""
-          ? Number(formData.userId)
-          : null,
-
-      dueDate: formData.dueDate
-        ? new Date(formData.dueDate).toISOString()
-        : null,
-    };
-
-
-    // --- API CALL (SAFE) ---
-    if (task && task.id) {
-      await updateTask(task.id, payload);
-      showSuccess("Task updated successfully");
-    } else {
-      await createTask(payload);
-      showSuccess("Task created successfully");
-    }
-
-    onSubmit(formData);
-    onClose();
-
-  } catch (error) {
-    console.error("TASK ERROR:", error);
-    showError(error?.response?.data?.message || error.message || "Failed to save task");
-  } finally {
-    setIsLoading(false);
-  }
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData(prev => ({ ...prev, [name]: value }));
 };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+
+
+  // ========== Submit Handler ==========
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+
+    try {
+      if (!formData.title.trim()) {
+        showError("Task title is required");
+        return;
+      }
+
+      if (!formData.projectId) {
+        showError("Please select a project to create the task");
+        return;
+      }
+
+  
+
+      console.log("FORM", formData, )
+
+      const payload = {
+  title: formData.title.trim(),
+  description: formData.description?.trim() || null,
+  priority: formData.priority,
+  status: formData.status,
+  projectId: formData.projectId, // <-- KEEP AS STRING
+  userId: formData.userId || null, // keep as string also
+  dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null,
+};
+
+console.log("PAYLOAD", payload);
+
+      console.log("PAYLOAD", payload)
+
+      if (task?.id) {
+        await updateTask(task.id, payload);
+        showSuccess("Task updated successfully");
+      } else {
+        await createTask(payload);
+        showSuccess("Task created successfully");
+      }
+
+      onSubmit(formData);
+      onClose();
+
+    } catch (error) {
+      console.error("TASK ERROR:", error);
+      const errorMsg = error?.response?.message || error?.message || "Failed to save task";
+      showError(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={task ? 'Edit Task' : 'Create New Task'}>
       <form onSubmit={handleSubmit}>
+
         <Input
           label="Task Title"
           name="title"
@@ -199,7 +195,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
         <Select
           label="Assigned To"
           name="userId"
-          value={formData.userId}
+          value={formData.userId || ''}
           onChange={handleChange}
           options={[
             { value: '', label: 'Select a user (optional)' },
@@ -248,7 +244,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, task = null, projectId = null })
         <Button
           type="submit"
           className="w-full"
-          disabled={isLoading || !formData.projectId}
+          disabled={isLoading || !formData.title.trim()}
         >
           {isLoading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
         </Button>

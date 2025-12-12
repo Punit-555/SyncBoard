@@ -43,11 +43,35 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
           profilePicture: response.data.profilePicture || '',
         });
         if (response.data.profilePicture) {
-          setPreviewUrl(`${API_BASE}${response.data.profilePicture}`);
+          const imageUrl = `${API_BASE}${response.data.profilePicture}?t=${Date.now()}`;
+          setPreviewUrl(imageUrl);
         }
       }
     } catch (error) {
       showError('Failed to load user data');
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const response = await api.getCurrentUser();
+      if (response.success && response.data) {
+        setFormData({
+          firstName: response.data.firstName || '',
+          lastName: response.data.lastName || '',
+          email: response.data.email || '',
+          role: response.data.role ? response.data.role.toLowerCase() : '',
+          profilePicture: response.data.profilePicture || '',
+        });
+        if (response.data.profilePicture) {
+          const imageUrl = `${API_BASE}${response.data.profilePicture}?t=${Date.now()}`;
+          setPreviewUrl(imageUrl);
+        } else {
+          setPreviewUrl(null);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
     }
   };
 
@@ -74,18 +98,31 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
   };
 
   const handleUploadProfilePicture = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.warn('No file selected for upload');
+      return;
+    }
+
+    console.log('📸 Starting profile picture upload...');
+    console.log('📸 File:', selectedFile.name, selectedFile.type, selectedFile.size);
 
     setIsUploading(true);
     try {
       const response = await api.uploadProfilePicture(selectedFile);
+      console.log('📸 Upload response:', response);
+
       if (response.success) {
         showSuccess('Profile picture updated successfully!');
+        console.log('✅ Profile picture path:', response.data?.profilePicture);
         setSelectedFile(null);
         await refreshUser();
         onProfileUpdated?.();
+      } else {
+        console.error('❌ Upload failed:', response.message);
+        showError(response.message || 'Failed to upload profile picture');
       }
     } catch (error) {
+      console.error('❌ Upload error:', error);
       showError(error.message || 'Failed to upload profile picture');
     } finally {
       setIsUploading(false);

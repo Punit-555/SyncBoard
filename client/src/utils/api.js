@@ -62,9 +62,17 @@ export const getAllUsers = () => request('/api/users', null, 'GET');
 
 // Profile picture upload (uses FormData, not JSON)
 export const uploadProfilePicture = async (file) => {
+  console.log('📸 API: Uploading profile picture...');
+  console.log('📸 API: File name:', file.name);
+  console.log('📸 API: File type:', file.type);
+  console.log('📸 API: File size:', file.size);
+  console.log('📸 API: Upload URL:', `${API_BASE}/api/users/profile-picture`);
+
   const token = localStorage.getItem('token');
   const formData = new FormData();
   formData.append('profilePicture', file);
+
+  console.log('📸 API: FormData created, sending request...');
 
   const res = await fetch(`${API_BASE}/api/users/profile-picture`, {
     method: 'POST',
@@ -74,12 +82,21 @@ export const uploadProfilePicture = async (file) => {
     body: formData,
   });
 
+  console.log('📸 API: Response status:', res.status);
+  console.log('📸 API: Response ok:', res.ok);
+
   const data = await res.json().catch(() => ({}));
+  console.log('📸 API: Response data:', data);
+
   if (!res.ok) {
+    console.error('❌ API: Upload failed with status:', res.status);
+    console.error('❌ API: Error data:', data);
     const err = new Error(data.message || 'Upload failed');
     err.response = data;
     throw err;
   }
+
+  console.log('✅ API: Upload successful');
   return data;
 };
 

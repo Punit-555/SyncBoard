@@ -36,7 +36,7 @@ if (useSendGrid) {
   console.log('📧 Using Gmail SMTP for email delivery');
 
   // Verify Gmail transporter
-  transporter.verify((error, success) => {
+  transporter.verify((error) => {
     if (error) {
       console.error('❌ Gmail verification failed:', error.message);
     } else {
@@ -51,9 +51,24 @@ async function sendEmailInternal(to, subject, html) {
     // Use SendGrid Web API (HTTPS - bypasses SMTP blocks!)
     const msg = {
       to: to,
-      from: process.env.EMAIL_USER, // Must be verified in SendGrid
+      from: {
+        email: process.env.EMAIL_USER, // Must be verified in SendGrid
+        name: 'SyncBoard'
+      },
+      replyTo: process.env.EMAIL_USER,
       subject: subject,
       html: html,
+      text: html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(), // Plain text fallback
+      // Add tracking settings to improve deliverability
+      trackingSettings: {
+        clickTracking: { enable: false },
+        openTracking: { enable: false },
+        subscriptionTracking: { enable: false }
+      },
+      // Add mail settings for better delivery
+      mailSettings: {
+        sandboxMode: { enable: false }
+      }
     };
 
     const response = await sgMail.send(msg);
@@ -62,9 +77,11 @@ async function sendEmailInternal(to, subject, html) {
     // Use Gmail SMTP (for local development)
     const mailOptions = {
       from: `"SyncBoard" <${process.env.EMAIL_USER}>`,
+      replyTo: process.env.EMAIL_USER,
       to: to,
       subject: subject,
       html: html,
+      text: html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(), // Plain text fallback
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -437,9 +454,11 @@ function generatePasswordResetHTML(firstName, resetLink) {
     <body>
       <div class="container">
         <div class="header">
-          <h1 style="color: #333;">🔐 Password Reset Request</h1>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
         <div class="content">
+          <h2 style="color: #667eea; font-size: 24px; margin-bottom: 20px;">🔐 Password Reset Request</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName},</p>
           <p style="color: #555; line-height: 1.8;">We received a request to reset your SyncBoard password.</p>
           <p style="color: #555; line-height: 1.8;">Click the button below to reset your password. This link is valid for <strong>1 hour</strong>:</p>
@@ -826,10 +845,12 @@ function generateAccountDeletedHTML(firstName) {
       <div class="container">
         <!-- Header -->
         <div class="header">
-          <h1 style="color: #333;">Account Deleted</h1>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
 
         <div class="content">
+          <h2 style="color: #e74c3c; font-size: 24px; margin-bottom: 20px;">Account Deleted</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName},</p>
           
           <p class="message" style="color: #555;">
@@ -986,10 +1007,11 @@ function generateRoleChangeHTML(firstName, oldRole, newRole) {
     <body>
       <div class="container">
         <div class="header">
-          <h1 style="color: #333;">🎉 Role Updated</h1>
-          <p style="color: #555;">Your SyncBoard Role Has Changed</p>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
         <div class="content">
+          <h2 style="color: #667eea; font-size: 24px; margin-bottom: 20px;">🎉 Role Updated</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName}! 👋</p>
           <p class="message" style="color: #555;">
             Great news! Your role in SyncBoard has been updated by your administrator.
@@ -1134,10 +1156,11 @@ function generateProjectAssignmentHTML(firstName, addedProjects, removedProjects
     <body>
       <div class="container">
         <div class="header">
-          <h1 style="color: #333;">📋 Projects Updated</h1>
-          <p style="color: #555;">Your Project Assignments Have Changed</p>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
         <div class="content">
+          <h2 style="color: #667eea; font-size: 24px; margin-bottom: 20px;">📋 Projects Updated</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName}! 👋</p>
           <p class="message" style="color: #555;">
             Your administrator has updated your project assignments in SyncBoard.
@@ -1322,10 +1345,12 @@ function generateAccountDetailsHTML(firstName, email, role, projects) {
     <body>
       <div class="container">
         <div class="header">
-          <h1 style="color: #333;">📋 Account Details</h1>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
 
         <div class="content">
+          <h2 style="color: #667eea; font-size: 24px; margin-bottom: 20px;">📋 Account Details</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName},</p>
           
           <p style="color: #555; line-height: 1.8; margin-bottom: 20px;">
@@ -1478,10 +1503,12 @@ function generateUserUpdateHTML(firstName, updatedFields) {
     <body>
       <div class="container">
         <div class="header">
-          <h1 style="color: #333;">📝 Account Updated</h1>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
 
         <div class="content">
+          <h2 style="color: #17a2b8; font-size: 24px; margin-bottom: 20px;">📝 Account Updated</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName},</p>
           
           <p style="color: #555; line-height: 1.8; margin-bottom: 20px;">
@@ -1848,10 +1875,12 @@ function generateUserDeletedHTML(firstName) {
     <body>
       <div class="container">
         <div class="header">
-          <h1 style="color: #333;">🗑️ Account Deleted</h1>
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Your Intelligent Task Management Companion</p>
         </div>
 
         <div class="content">
+          <h2 style="color: #e74c3c; font-size: 24px; margin-bottom: 20px;">🗑️ Account Deleted</h2>
           <p class="greeting" style="color: #333;">Hi ${firstName},</p>
           
           <p style="color: #555; line-height: 1.8; margin-bottom: 20px;">

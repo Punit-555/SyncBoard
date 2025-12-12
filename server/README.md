@@ -1,4 +1,4 @@
-# 🚀 TaskFlow Backend - Complete Setup Guide
+# 🚀 syncBoard Backend - Complete Setup Guide
 
 ## ✅ What's Been Implemented
 
@@ -8,7 +8,7 @@
 - ✅ **Role-Based Access** - User roles: USER (default), ADMIN, MANAGER
 - ✅ **Password Hashing** - Bcrypt with 10 salt rounds
 - ✅ **Protected Routes** - Get current user info with valid token
-- ✅ **Beautiful Email Templates** - TaskFlow branded welcome emails
+- ✅ **Beautiful Email Templates** - syncBoard branded welcome emails
 
 ### Database
 - ✅ **PostgreSQL** - Database is synced and ready
@@ -207,9 +207,9 @@ curl -X GET http://localhost:5000/api/auth/me \
 
 ## 📧 Email Template Features
 
-The TaskFlow welcome email includes:
+The syncBoard welcome email includes:
 
-- 🎨 **Beautiful Design** - Gradient purple theme matching TaskFlow branding
+- 🎨 **Beautiful Design** - Gradient purple theme matching syncBoard branding
 - 📋 **Feature Highlights** - Shows what users can do
 - 💡 **Pro Tips** - Productivity tips for new users
 - 🔗 **Call-to-Action** - Direct link to login
@@ -334,4 +334,4 @@ If you face any issues:
 
 ---
 
-**Happy coding! 🚀 TaskFlow is ready to go!**
+**Happy coding! 🚀 syncBoard is ready to go!**
