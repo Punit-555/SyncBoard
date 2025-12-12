@@ -8,7 +8,7 @@ import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
 import MultiSelect from '../components/ui/MultiSelect';
 import Loader from '../components/ui/Loader';
-import { getTasks, deleteTask, getUsers, getProjects } from '../utils/api';
+import { getTasks, deleteTask, getUsers, getProjects, updateTask } from '../utils/api';
 import { useSnackbar } from '../utils/useSnackbar';
 
 const Tasks = () => {
@@ -161,6 +161,17 @@ const Tasks = () => {
     loadTasks();
   };
 
+  const handleTaskStatusChange = async (task, newStatus) => {
+    try {
+      await updateTask(task.id, { status: newStatus });
+      showSuccess(`Task moved to ${newStatus.replace('-', ' ')}`);
+      loadTasks();
+    } catch (error) {
+      console.error('Update task status error:', error);
+      showError(error.message || 'Failed to update task status');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -244,6 +255,7 @@ const Tasks = () => {
           onDelete={handleDeleteTask}
           onMove={handleMoveTask}
           onViewDetails={handleViewDetails}
+          onTaskStatusChange={handleTaskStatusChange}
         />
       )}
 

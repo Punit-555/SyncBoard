@@ -304,7 +304,7 @@ export const updateTask = async (req, res) => {
 
     // Find the task
     const task = await prisma.task.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     if (!task) {
@@ -325,7 +325,7 @@ export const updateTask = async (req, res) => {
     const isUserChanging = newUserId !== undefined && newUserId !== task.userId;
 
     const updatedTask = await prisma.task.update({
-      where: { id: parseInt(id) },
+      where: { id: id },
       data: {
         ...(title && { title }),
         ...(description !== undefined && { description }),
@@ -426,7 +426,7 @@ export const deleteTask = async (req, res) => {
 
     // Find the task
     const task = await prisma.task.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     if (!task) {
@@ -445,7 +445,7 @@ export const deleteTask = async (req, res) => {
     }
 
     await prisma.task.delete({
-      where: { id: parseInt(id) },
+      where: { id: id },
     });
 
     return res.status(200).json({
@@ -470,7 +470,7 @@ export const getTaskById = async (req, res) => {
     const userRole = req.user.role;
 
     const task = await prisma.task.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: {
         user: {
           select: {

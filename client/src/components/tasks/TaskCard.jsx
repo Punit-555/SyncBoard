@@ -1,4 +1,4 @@
-const TaskCard = ({ task, onEdit, onDelete, onMove, onViewDetails }) => {
+const TaskCard = ({ task, onEdit, onDelete, onMove, onViewDetails, onDragStart, onDragEnd }) => {
   const priorityColors = {
     high: 'border-l-[#f72585]',
     medium: 'border-l-[#f8961e]',
@@ -18,12 +18,33 @@ const TaskCard = ({ task, onEdit, onDelete, onMove, onViewDetails }) => {
   const subtaskCount = task.subtasks?.length || 0;
   const completedSubtasks = task.subtasks?.filter((st) => st.status === 'completed').length || 0;
 
+  const handleDragStart = (e) => {
+    e.stopPropagation();
+    if (onDragStart) {
+      onDragStart(task);
+    }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('taskId', task.id);
+    // Add a semi-transparent effect
+    e.currentTarget.style.opacity = '0.5';
+  };
+
+  const handleDragEnd = (e) => {
+    e.currentTarget.style.opacity = '1';
+    if (onDragEnd) {
+      onDragEnd();
+    }
+  };
+
   return (
     <div
       className={`bg-white rounded-lg p-4 mb-4 shadow-sm border-l-4 ${
         priorityColors[task.priority]
       } cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg animate-scaleIn`}
-      onClick={() => onViewDetails?.(task)}
+      onClick={() => onEdit?.(task)}
+      draggable="true"
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
       <div className="font-semibold mb-2 text-gray-800">{task.title}</div>
       {task.description && (
@@ -33,8 +54,8 @@ const TaskCard = ({ task, onEdit, onDelete, onMove, onViewDetails }) => {
         <span title={`Due: ${formatDate(task.dueDate)}`}>
           <i className="far fa-calendar mr-1"></i> {formatDate(task.dueDate)}
         </span>
-        <span title={`Assigned to: ${task.assignee || 'Unassigned'}`}>
-          <i className="far fa-user mr-1"></i> {task.assignee || 'Unassigned'}
+        <span title={`Assigned to: ${task.user ? `${task.user.firstName} ${task.user.lastName}` : 'Unassigned'}`}>
+          <i className="far fa-user mr-1"></i> {task.user ? `${task.user.firstName} ${task.user.lastName}` : 'Unassigned'}
         </span>
       </div>
 
