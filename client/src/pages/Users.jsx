@@ -234,10 +234,13 @@ const Users = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">User Management</h1>
           <p className="text-sm md:text-base text-gray-600 mt-1">Manage users and their permissions</p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)} className="w-full md:w-auto">
-          <i className="fas fa-plus mr-2"></i>
-          Create User
-        </Button>
+        {/* Only ADMIN and SUPERADMIN can create users */}
+        {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') && (
+          <Button onClick={() => setIsCreateModalOpen(true)} className="w-full md:w-auto">
+            <i className="fas fa-plus mr-2"></i>
+            Create User
+          </Button>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -311,8 +314,33 @@ const Users = () => {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    {/* Admin can only edit/delete USER role, not ADMIN or SUPERADMIN */}
-                    {currentUser?.role === 'ADMIN' && (user.role === 'ADMIN' || user.role === 'SUPERADMIN') ? (
+                    {/* USER role: Can only update their own info */}
+                    {currentUser?.role === 'USER' ? (
+                      user.id === currentUser?.id ? (
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => openEditModal(user)}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Edit your profile"
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                          <span className="text-gray-400 cursor-not-allowed" title="Cannot delete yourself">
+                            <i className="fas fa-trash"></i>
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex gap-3">
+                          <span className="text-gray-400 cursor-not-allowed" title="No permission to edit other users">
+                            <i className="fas fa-edit"></i>
+                          </span>
+                          <span className="text-gray-400 cursor-not-allowed" title="No permission to delete other users">
+                            <i className="fas fa-trash"></i>
+                          </span>
+                        </div>
+                      )
+                    ) : currentUser?.role === 'ADMIN' && (user.role === 'ADMIN' || user.role === 'SUPERADMIN') ? (
+                      /* ADMIN: Cannot edit/delete other ADMIN or SUPERADMIN */
                       <div className="flex gap-3">
                         <span className="text-gray-400 cursor-not-allowed" title="Cannot edit Admin/SuperAdmin users">
                           <i className="fas fa-edit"></i>
@@ -322,6 +350,7 @@ const Users = () => {
                         </span>
                       </div>
                     ) : (
+                      /* ADMIN and SUPERADMIN: Can edit/delete users based on their permissions */
                       <div className="flex gap-3">
                         <button
                           onClick={() => openEditModal(user)}
