@@ -8,6 +8,8 @@ import {
   resetPassword,
   updateUserProfile,
   deleteAccount,
+  sendOtp,
+  verifyOtp,
 } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
@@ -15,6 +17,8 @@ const router = express.Router();
 
 router.post('/signup', signup);
 router.post('/login', login);
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyOtp);
 
 router.post('/forgot-password', forgotPassword);
 router.post('/validate-reset-token', validateResetToken);

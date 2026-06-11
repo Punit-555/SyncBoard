@@ -10,6 +10,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    phoneNumber: '',
     email: '',
     role: '',
     profilePicture: '',
@@ -37,6 +38,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
         setFormData({
           firstName: response.data.firstName || '',
           lastName: response.data.lastName || '',
+          phoneNumber: response.data.phoneNumber || '',
           email: response.data.email || '',
           role: response.data.role ? response.data.role.toLowerCase() : '',
           profilePicture: response.data.profilePicture || '',
@@ -58,6 +60,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
         setFormData({
           firstName: response.data.firstName || '',
           lastName: response.data.lastName || '',
+          phoneNumber: response.data.phoneNumber || '',
           email: response.data.email || '',
           role: response.data.role ? response.data.role.toLowerCase() : '',
           profilePicture: response.data.profilePicture || '',
@@ -157,9 +160,10 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
     setIsLoading(true);
     try {
       const response = await api.updateUserProfile({
-  firstName: formData.firstName,
-  lastName: formData.lastName,
-});
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+      });
 
 
       if (!response.success) {
@@ -303,6 +307,15 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
 
               </div>
              
+
+              <Input
+                label="Phone Number"
+                name="phoneNumber"
+                type="tel"
+                value={formData.phoneNumber}
+                onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value.replace(/[^0-9+\-\s()]/g, '') })}
+                placeholder="e.g. +91 98765 43210"
+              />
 
               <Input
                 label="Email Address"

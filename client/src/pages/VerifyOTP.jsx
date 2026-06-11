@@ -5,11 +5,13 @@ import Input from '../components/ui/Input';
 import ContactQueryModal from '../components/ui/ContactQueryModal';
 import api from '../utils/api';
 import { useSnackbar } from '../utils/useSnackbar';
+import { useAuth } from '../hooks/useAuth';
 
 const VerifyOTP = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
+  const { login } = useAuth();
   const [code, setCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -36,7 +38,7 @@ const VerifyOTP = () => {
       setIsVerifying(true);
       const res = await api.verifyOtp({ email, code });
       if (res && res.token) {
-        localStorage.setItem('token', res.token);
+        login(res.data, res.token);
         showSnackbar('Verification successful! Redirecting...', 'success');
         setTimeout(() => navigate('/dashboard'), 1000);
       } else {

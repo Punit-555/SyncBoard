@@ -1916,6 +1916,114 @@ function generateUserDeletedHTML(firstName) {
   `;
 }
 
+// Send login verification OTP code
+export const sendOtpEmail = async (email, firstName, code) => {
+  try {
+    console.log(`📧 Attempting to send OTP email to ${email}...`);
+    const result = await sendEmailInternal(
+      email,
+      `${code} is your SyncBoard verification code 🔐`,
+      generateOtpHTML(firstName, code)
+    );
+    console.log(`✅ OTP email sent to ${email}. Message ID: ${result.messageId}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending OTP email:', error.message);
+    throw error;
+  }
+};
+
+function generateOtpHTML(firstName, code) {
+  const currentYear = new Date().getFullYear();
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+        }
+        .container {
+          max-width: 480px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 30px 20px;
+          text-align: center;
+        }
+        .content { padding: 35px 30px; text-align: center; }
+        .otp-code {
+          font-size: 40px;
+          font-weight: 800;
+          letter-spacing: 12px;
+          color: #4361ee;
+          background: #f8f9ff;
+          border: 2px dashed #4361ee;
+          border-radius: 10px;
+          padding: 18px 10px;
+          margin: 25px 0;
+          font-family: 'Courier New', monospace;
+        }
+        .warning {
+          background: #fff3cd;
+          border-left: 4px solid #ffc107;
+          padding: 12px 15px;
+          border-radius: 4px;
+          margin-top: 25px;
+          font-size: 13px;
+          color: #856404;
+          text-align: left;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 25px;
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          border-top: 1px solid #eee;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="color: white; font-size: 26px;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9; font-size: 13px;">Login Verification</p>
+        </div>
+        <div class="content">
+          <h2 style="color: #333; font-size: 20px; margin-bottom: 8px;">Hi ${firstName || 'there'} 👋</h2>
+          <p style="color: #555; font-size: 14px; line-height: 1.7;">
+            Use this code to finish signing in to SyncBoard:
+          </p>
+          <div class="otp-code">${code}</div>
+          <p style="color: #999; font-size: 13px;">
+            This code expires in <strong>10 minutes</strong>.
+          </p>
+          <div class="warning">
+            <strong>⚠️ Didn't try to sign in?</strong><br>
+            Someone may have your password. Reset it immediately and ignore this code.
+          </div>
+        </div>
+        <div class="footer">
+          <p>© ${currentYear} SyncBoard. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 // Notify Super Admin(s) that a new support query was submitted
 export const sendQueryNotificationEmail = async (superAdminEmail, query) => {
   try {

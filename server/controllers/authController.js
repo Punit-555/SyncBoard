@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import prisma from '../prisma.config.js';
-import { sendSignupEmail, sendPasswordResetEmail, sendAccountDeletedEmail } from '../services/emailService.js';
+import { sendSignupEmail, sendPasswordResetEmail, sendAccountDeletedEmail, sendOtpEmail } from '../services/emailService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
@@ -17,7 +17,7 @@ const generateToken = (userId, email, role, rememberMe = false) => {
 
 export const signup = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, rememberMe } = req.body;
+    const { email, password, firstName, lastName, phoneNumber, rememberMe } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -52,6 +52,7 @@ export const signup = async (req, res) => {
         password: hashedPassword,
         firstName: firstName || '',
         lastName: lastName || '',
+        phoneNumber: phoneNumber?.trim() || null,
         role: 'USER',
       },
     });
@@ -132,6 +133,15 @@ export const login = async (req, res) => {
       });
     }
 
+    // If login OTP is enabled, require email verification before issuing a token
+    if (process.env.ENABLE_LOGIN_OTP === 'true') {
+      return res.status(200).json({
+        success: true,
+        otpRequired: true,
+        message: 'OTP verification required',
+      });
+    }
+
     // Generate JWT token
     const token = generateToken(user.id, user.email, user.role, rememberMe);
 
@@ -143,6 +153,7 @@ export const login = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
         profilePicture: user.profilePicture,
         role: user.role,
       },
@@ -170,6 +181,7 @@ export const getCurrentUser = async (req, res) => {
         email: true,
         firstName: true,
         lastName: true,
+        phoneNumber: true,
         role: true,
         profilePicture: true,
         createdAt: true,
@@ -385,11 +397,125 @@ export const resetPassword = async (req, res) => {
 
 
 // Update User Profile
-export const updateUserProfile = async (req, res) => {
-  console.log("RES", req);
+// Send a 5-digit OTP to the user's email for login verification
+export const sendOtp = async (req, res) => {
   try {
-    const userId = req.user.userId; 
-    const { firstName, lastName, email } = req.body;
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required',
+      });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    // Don't reveal whether the account exists
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message: 'If an account exists, a code has been sent',
+      });
+    }
+
+    // Invalidate previous unused codes for this email
+    await prisma.otpCode.updateMany({
+      where: { email, used: false },
+      data: { used: true },
+    });
+
+    const code = String(crypto.randomInt(10000, 100000)); // 5 digits
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await prisma.otpCode.create({
+      data: { email, code, expiresAt },
+    });
+
+    await sendOtpEmail(email, user.firstName, code);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Verification code sent to your email',
+    });
+  } catch (error) {
+    console.error('Send OTP error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error sending verification code',
+      error: error.message,
+    });
+  }
+};
+
+// Verify the OTP code and issue a JWT token
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and code are required',
+      });
+    }
+
+    const otp = await prisma.otpCode.findFirst({
+      where: { email, code: String(code), used: false },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!otp || otp.expiresAt < new Date()) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired verification code',
+      });
+    }
+
+    await prisma.otpCode.update({
+      where: { id: otp.id },
+      data: { used: true },
+    });
+
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const token = generateToken(user.id, user.email, user.role);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Verification successful',
+      data: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        profilePicture: user.profilePicture,
+        role: user.role,
+      },
+      token,
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error verifying code',
+      error: error.message,
+    });
+  }
+};
+
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { firstName, lastName, phoneNumber, email } = req.body;
 
     if (!firstName?.trim() || !lastName?.trim()) {
       return res.status(400).json({
@@ -410,12 +536,14 @@ export const updateUserProfile = async (req, res) => {
       data: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
+        ...(phoneNumber !== undefined && { phoneNumber: phoneNumber?.trim() || null }),
       },
       select: {
         id: true,
         email: true,
         firstName: true,
         lastName: true,
+        phoneNumber: true,
         role: true,
       },
     });

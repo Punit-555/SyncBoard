@@ -160,6 +160,8 @@ export default {
   put,
   delete: del,
   signup,
+  sendOtp,
+  verifyOtp,
   login,
   forgotPassword,
   validateResetToken,

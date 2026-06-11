@@ -17,6 +17,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
     rememberMe: false,
@@ -48,6 +49,7 @@ const Register = () => {
       email: formData.email,
       password: formData.password,
       firstName: formData.name,
+      phoneNumber: formData.phoneNumber,
       rememberMe: formData.rememberMe,
     };
 
@@ -100,6 +102,14 @@ const Register = () => {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
+          />
+
+          <Input
+            label="Phone Number (optional)"
+            type="tel"
+            placeholder="e.g. +91 98765 43210"
+            value={formData.phoneNumber}
+            onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value.replace(/[^0-9+\-\s()]/g, '') })}
           />
 
           <Input
