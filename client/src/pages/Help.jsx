@@ -4,8 +4,11 @@ import Textarea from '../components/ui/Textarea';
 import Select from '../components/ui/Select';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import { submitContactQuery } from '../utils/api';
+import { useSnackbar } from '../utils/useSnackbar';
 
 const Help = () => {
+  const { showError } = useSnackbar();
   const [feedbackForm, setFeedbackForm] = useState({
     name: '',
     email: '',
@@ -15,22 +18,39 @@ const Help = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, send this to your backend
-    console.log('Feedback submitted:', feedbackForm);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFeedbackForm({
-        name: '',
-        email: '',
-        category: 'general',
-        subject: '',
-        message: '',
+    try {
+      setIsSubmitting(true);
+      const res = await submitContactQuery({
+        name: feedbackForm.name,
+        email: feedbackForm.email,
+        subject: `[${feedbackForm.category}] ${feedbackForm.subject}`,
+        message: feedbackForm.message,
+        source: 'help',
       });
-    }, 3000);
+      if (!res.success) {
+        showError(res.message || 'Failed to submit feedback');
+        return;
+      }
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setFeedbackForm({
+          name: '',
+          email: '',
+          category: 'general',
+          subject: '',
+          message: '',
+        });
+      }, 3000);
+    } catch (err) {
+      showError(err.message || 'Failed to submit feedback');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -204,7 +224,7 @@ const Help = () => {
                   required
                 />
 
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" loading={isSubmitting} disabled={isSubmitting}>
                   <i className="fas fa-paper-plane mr-2"></i>
                   Submit Feedback
                 </Button>

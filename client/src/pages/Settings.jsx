@@ -325,6 +325,7 @@ const Settings = () => {
         isOpen={isDeleteConfirmOpen}
         onClose={() => !isDeleting && setIsDeleteConfirmOpen(false)}
         title="Delete Account"
+        modalClassName="max-w-2xl"
       >
         <div className="space-y-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">

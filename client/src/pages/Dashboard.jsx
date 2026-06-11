@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { getProjects, getTasks, getUsers } from '../utils/api';
 import StatCard from '../components/tasks/StatCard';
 import Button from '../components/ui/Button';
+import Loader from '../components/ui/Loader';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <Loader />
       </div>
     );
   }
@@ -55,7 +56,7 @@ const Dashboard = () => {
   // SUPER ADMIN DASHBOARD
   if (user?.role === 'SUPERADMIN') {
     return (
-      <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="space-y-4 md:space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
@@ -200,7 +201,7 @@ const Dashboard = () => {
   // ADMIN DASHBOARD
   if (user?.role === 'ADMIN') {
     return (
-      <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+      <div className="space-y-4 md:space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -284,7 +285,7 @@ const Dashboard = () => {
 
   // USER DASHBOARD
   return (
-    <div className="space-y-4 md:space-y-6 p-3 md:p-6">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Dashboard</h1>

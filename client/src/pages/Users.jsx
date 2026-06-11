@@ -228,7 +228,7 @@ const Users = () => {
   }
 
   return (
-    <div className="p-3 md:p-6">
+    <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">User Management</h1>
@@ -246,7 +246,7 @@ const Users = () => {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-blue-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   User
@@ -386,6 +386,7 @@ const Users = () => {
           resetForm();
         }}
         title="Create New User"
+        modalClassName="max-w-2xl"
       >
         <form onSubmit={handleCreateUser} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -416,34 +417,39 @@ const Users = () => {
             <i className="fas fa-info-circle mr-2"></i>
             A random password will be generated and sent to the user's email
           </div>
-          <Select
-            label="Role"
-            name="role"
-            value={formData.role}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="USER">User</option>
-            {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') && (
-              <option value="ADMIN">Admin</option>
-            )}
-            {currentUser?.role === 'SUPERADMIN' && <option value="SUPERADMIN">Super Admin</option>}
-          </Select>
-          <Select
-            label="Manager (Optional)"
-            name="managerId"
-            value={formData.managerId}
-            onChange={handleInputChange}
-          >
-            <option value="">No Manager</option>
-            {users
-              .filter((u) => u.role === 'ADMIN' || u.role === 'SUPERADMIN')
-              .map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.firstName} {u.lastName}
-                </option>
-              ))}
-          </Select>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="USER">User</option>
+              {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') && (
+                <option value="ADMIN">Admin</option>
+              )}
+              {currentUser?.role === 'SUPERADMIN' && <option value="SUPERADMIN">Super Admin</option>}
+            </Select>
+
+            <Select
+              label="Manager (Optional)"
+              name="managerId"
+              value={formData.managerId}
+              onChange={handleInputChange}
+            >
+              <option value="">No Manager</option>
+              {users
+                .filter((u) => u.role === 'ADMIN' || u.role === 'SUPERADMIN')
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.firstName} {u.lastName}
+                  </option>
+                ))}
+            </Select>
+          </div>
+         
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Assign Projects (Optional)
@@ -506,6 +512,7 @@ const Users = () => {
           resetForm();
         }}
         title="Edit User"
+        modalClassName="max-w-2xl"
       >
         <form onSubmit={handleEditUser} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -532,35 +539,38 @@ const Users = () => {
             onChange={handleInputChange}
             required
           />
-          <Select
-            label="Role"
-            name="role"
-            value={formData.role}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="USER">User</option>
-            {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') && (
-              <option value="ADMIN">Admin</option>
-            )}
-            {currentUser?.role === 'SUPERADMIN' && <option value="SUPERADMIN">Super Admin</option>}
-          </Select>
-          <Select
-            label="Manager (Optional)"
-            name="managerId"
-            value={formData.managerId}
-            onChange={handleInputChange}
-          >
-            <option value="">No Manager</option>
-            {users
-              .filter((u) => u.role === 'ADMIN' || u.role === 'SUPERADMIN')
-              .filter((u) => u.id !== editingUser?.id)
-              .map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.firstName} {u.lastName}
-                </option>
-              ))}
-          </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="USER">User</option>
+              {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') && (
+                <option value="ADMIN">Admin</option>
+              )}
+              {currentUser?.role === 'SUPERADMIN' && <option value="SUPERADMIN">Super Admin</option>}
+            </Select>
+
+            <Select
+              label="Manager (Optional)"
+              name="managerId"
+              value={formData.managerId}
+              onChange={handleInputChange}
+            >
+              <option value="">No Manager</option>
+              {users
+                .filter((u) => u.role === 'ADMIN' || u.role === 'SUPERADMIN')
+                .filter((u) => u.id !== editingUser?.id)
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.firstName} {u.lastName}
+                  </option>
+                ))}
+            </Select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Assign Projects (Optional)
@@ -623,6 +633,7 @@ const Users = () => {
           setUserToDelete(null);
         }}
         title="Delete User"
+        modalClassName="max-w-2xl"
       >
         <div className="space-y-4">
           <p className="text-gray-700">

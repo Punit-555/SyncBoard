@@ -4,27 +4,31 @@ import Drawer from '../ui/Drawer';
 import ProfileDropdown from '../ui/ProfileDropdown';
 import ProfileEditModal from '../ui/ProfileEditModal';
 import NotificationBell from '../ui/NotificationBell';
-import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
-  const { user } = useAuth();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   return (
     <>
-<header className="bg-white shadow-md sticky top-0 z-100 m-4 rounded-[26px] border border-gray-200">
-        <div className="px-6 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center gap-2 sm:gap-2.5 font-bold text-lg sm:text-2xl text-[#4361ee] no-underline">
-              <div className="bg-linear-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white">
-                <i className="fas fa-tasks text-sm sm:text-base"></i>
-              </div>
-              <span>SyncBoard</span>
-            </Link>
+      <header className="bg-white border-b border-gray-100 shrink-0 z-40">
+        <div className="px-6 py-3 flex justify-between items-center">
+          {/* Logo — visible on mobile only (desktop shows in sidebar area) */}
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 font-bold text-xl text-[#4361ee] no-underline md:hidden"
+          >
+            <div className="bg-linear-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 rounded-lg flex items-center justify-center text-white">
+              <i className="fas fa-tasks text-sm"></i>
+            </div>
+            <span>SyncBoard</span>
+          </Link>
 
-            {/* Desktop User Info */}
+          {/* Spacer on desktop so right-side controls stay right */}
+          <div className="hidden md:block" />
+
+          {/* Right side */}
+          <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-4">
               <NotificationBell />
               <ProfileDropdown onEditProfile={() => setIsProfileModalOpen(true)} />
@@ -40,7 +44,11 @@ const Header = () => {
         </div>
       </header>
 
-      <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      <Drawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onEditProfile={() => { setIsDrawerOpen(false); setIsProfileModalOpen(true); }}
+      />
 
       <ProfileEditModal
         isOpen={isProfileModalOpen}

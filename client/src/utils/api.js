@@ -43,6 +43,8 @@ export const del = (path) => request(path, null, 'DELETE');
 export const signup = (payload) => request('/api/auth/signup', payload, 'POST');
 export const login = (payload) => request('/api/auth/login', payload, 'POST');
 export const forgotPassword = (payload) => request('/api/auth/forgot-password', payload, 'POST');
+export const sendOtp = (payload) => request('/api/auth/send-otp', payload, 'POST');
+export const verifyOtp = (payload) => request('/api/auth/verify-otp', payload, 'POST');
 export const validateResetToken = (token) => request('/api/auth/validate-reset-token', { token }, 'POST');
 export const resetPassword = (payload) => request('/api/auth/reset-password', payload, 'POST');
 export const getCurrentUser = () => request('/api/auth/me', null, 'GET');
@@ -59,6 +61,19 @@ export const deleteTask = (id) => request(`/api/tasks/${id}`, null, 'DELETE');
 // User endpoints
 export const getUsers = () => request('/api/users', null, 'GET');
 export const getAllUsers = () => request('/api/users', null, 'GET');
+
+// Todo note endpoints (private, owner-only)
+export const getTodos = () => request('/api/todos', null, 'GET');
+export const createTodo = (payload) => request('/api/todos', payload, 'POST');
+export const updateTodo = (id, payload) => request(`/api/todos/${id}`, payload, 'PUT');
+export const deleteTodo = (id) => request(`/api/todos/${id}`, null, 'DELETE');
+
+// Contact query endpoints
+export const submitContactQuery = (payload) => request('/api/queries', payload, 'POST');
+export const getContactQueries = () => request('/api/queries', null, 'GET');
+export const updateQueryStatus = (id, status) => request(`/api/queries/${id}/status`, { status }, 'PUT');
+export const replyToQuery = (id, replyMessage) => request(`/api/queries/${id}/reply`, { replyMessage }, 'POST');
+export const deleteContactQuery = (id) => request(`/api/queries/${id}`, null, 'DELETE');
 
 // Profile picture upload (uses FormData, not JSON)
 export const uploadProfilePicture = async (file) => {
@@ -172,4 +187,13 @@ export default {
   sendMessage,
   uploadProfilePicture,
   deleteProfilePicture,
+  getTodos,
+  createTodo,
+  updateTodo,
+  deleteTodo,
+  submitContactQuery,
+  getContactQueries,
+  updateQueryStatus,
+  replyToQuery,
+  deleteContactQuery,
 };

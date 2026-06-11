@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-const Drawer = ({ isOpen, onClose }) => {
+const Drawer = ({ isOpen, onClose, onEditProfile }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -121,7 +121,7 @@ const Drawer = ({ isOpen, onClose }) => {
         {/* Drawer Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-gray-100 bg-gray-50">
           {/* User Info */}
-          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+          <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100 rounded-lg px-2 -mx-2 transition-colors" onClick={onEditProfile}>
             <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden">
               {user?.profilePicture ? (
                 <img

@@ -90,7 +90,6 @@ const ProfileDropdown = ({ onEditProfile }) => {
         onClick={() => !isLoading && setIsOpen(!isOpen)}
         onMouseEnter={() => !isLoading && setIsOpen(true)}
         className="flex items-center gap-3 px-4 py-2 bg-linear-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100 cursor-pointer hover:border-blue-200 transition-all group relative"
-        title={`${getFullName()} (${user?.email || ''})`}
       >
         {isLoading ? (
           <i className="fas fa-spinner fa-spin text-sm"></i>
@@ -123,7 +122,7 @@ const ProfileDropdown = ({ onEditProfile }) => {
                 )}
               </div>
               {/* Tooltip */}
-              <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap shadow-lg">
+              <div className={`absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg transition-all duration-200 whitespace-nowrap shadow-lg ${isOpen ? 'opacity-0 invisible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'}`}>
                 <div className="font-semibold">{getFullName()}</div>
                 <div className="text-gray-300 text-xs">{user?.role || 'User'}</div>
                 {/* Arrow */}

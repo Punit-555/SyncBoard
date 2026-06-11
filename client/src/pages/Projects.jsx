@@ -7,6 +7,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import Input from '../components/ui/Input';
 import Textarea from '../components/ui/Textarea';
 import Select from '../components/ui/Select';
+import Loader from '../components/ui/Loader';
 import { useAuth } from '../hooks/useAuth';
 
 const Projects = () => {
@@ -24,6 +25,8 @@ const Projects = () => {
   const [projectToAssign, setProjectToAssign] = useState(null);
   const [allUsers, setAllUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -223,16 +226,28 @@ const Projects = () => {
     setExpandedProject(expandedProject === projectId ? null : projectId);
   };
 
+  const filteredProjects = projects.filter((p) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matches =
+        p.name?.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q);
+      if (!matches) return false;
+    }
+    if (filterStatus && p.status !== filterStatus) return false;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <Loader />
       </div>
     );
   }
 
   return (
-    <div className="p-2 sm:p-3 md:p-6">
+    <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 sm:mb-4 md:mb-6 gap-2 sm:gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Projects</h1>
@@ -248,10 +263,37 @@ const Projects = () => {
         )}
       </div>
 
-      {projects.length === 0 ? (
+      {/* Search & Filter */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+        <div className="md:col-span-2">
+          <Input
+            label="Search Projects"
+            name="projectSearch"
+            placeholder="Search by name or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <Select
+          label="Status"
+          name="projectStatusFilter"
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          options={[
+            { value: '', label: 'All Statuses' },
+            { value: 'active', label: 'Active' },
+            { value: 'completed', label: 'Completed' },
+            { value: 'on-hold', label: 'On Hold' },
+          ]}
+        />
+      </div>
+
+      {filteredProjects.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-6 sm:p-8 text-center">
-          <p className="text-sm sm:text-base text-gray-500">No projects found</p>
-          {isAdmin && (
+          <p className="text-sm sm:text-base text-gray-500">
+            {projects.length === 0 ? 'No projects found' : 'No projects match your search.'}
+          </p>
+          {isAdmin && projects.length === 0 && (
             <Button className="mt-3 sm:mt-4 text-sm" onClick={() => handleOpenModal()}>
               Create Your First Project
             </Button>
@@ -259,7 +301,7 @@ const Projects = () => {
         </div>
       ) : (
       <div className="grid gap-3 sm:gap-4">
-         {projects.map((project) => (
+         {filteredProjects.map((project) => (
     <div
       key={project.id}
       className="bg-white rounded-lg shadow hover:shadow-md transition-shadow"
@@ -433,6 +475,7 @@ const Projects = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={editingProject ? 'Edit Project' : 'Create New Project'}
+        modalClassName="max-w-2xl"
       >
         <form onSubmit={handleSubmit}>
           <Input
@@ -502,6 +545,7 @@ const Projects = () => {
         isOpen={isAssignMemberModalOpen}
         onClose={handleCloseAssignMemberModal}
         title={`Assign Members to "${projectToAssign?.name}"`}
+        modalClassName="max-w-2xl"
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600">

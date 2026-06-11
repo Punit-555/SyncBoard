@@ -100,11 +100,13 @@ const handleChange = (e) => {
     try {
       if (!formData.title.trim()) {
         showError("Task title is required");
+        setIsLoading(false);
         return;
       }
 
       if (!formData.projectId) {
         showError("Please select a project to create the task");
+        setIsLoading(false);
         return;
       }
 
@@ -147,7 +149,7 @@ console.log("PAYLOAD", payload);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={task ? 'Edit Task' : 'Create New Task'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={task ? 'Edit Task' : 'Create New Task'} modalClassName="max-w-2xl">
       <form onSubmit={handleSubmit}>
 
         <Input
@@ -192,61 +194,66 @@ console.log("PAYLOAD", payload);
           </div>
         )}
 
-        <Select
-          label="Assigned To"
-          name="userId"
-          value={formData.userId || ''}
-          onChange={handleChange}
-          options={[
-            { value: '', label: 'Select a user (optional)' },
-            ...users.map(user => ({
-              value: user.id,
-              label: `${user.firstName} ${user.lastName} (${user.email})`
-            }))
-          ]}
-          disabled={usersLoading}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Select
+            label="Assigned To"
+            name="userId"
+            value={formData.userId || ''}
+            onChange={handleChange}
+            options={[
+              { value: '', label: 'Select a user (optional)' },
+              ...users.map(user => ({
+                value: user.id,
+                label: `${user.firstName} ${user.lastName} (${user.email})`
+              }))
+            ]}
+            disabled={usersLoading}
+          />
 
-        <Select
-          label="Priority"
-          name="priority"
-          value={formData.priority}
-          onChange={handleChange}
-          options={[
-            { value: 'low', label: 'Low' },
-            { value: 'medium', label: 'Medium' },
-            { value: 'high', label: 'High' }
-          ]}
-        />
+          <Select
+            label="Priority"
+            name="priority"
+            value={formData.priority}
+            onChange={handleChange}
+            options={[
+              { value: 'low', label: 'Low' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'high', label: 'High' }
+            ]}
+          />
+        </div>
 
-        <Input
-          label="Due Date"
-          name="dueDate"
-          type="date"
-          value={formData.dueDate}
-          onChange={handleChange}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            label="Due Date"
+            name="dueDate"
+            type="date"
+            value={formData.dueDate}
+            onChange={handleChange}
+          />
 
-        <Select
-          label="Status"
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-          options={[
-            { value: 'todo', label: 'Todo' },
-            { value: 'in-progress', label: 'In Progress' },
-            { value: 'done', label: 'Done' },
-            { value: 'in-qa', label: 'In QA' },
-            { value: 'on-prod', label: 'On Prod' }
-          ]}
-        />
+          <Select
+            label="Status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            options={[
+              { value: 'todo', label: 'Todo' },
+              { value: 'in-progress', label: 'In Progress' },
+              { value: 'done', label: 'Done' },
+              { value: 'in-qa', label: 'In QA' },
+              { value: 'on-prod', label: 'On Prod' }
+            ]}
+          />
+        </div>
 
         <Button
           type="submit"
           className="w-full"
+          loading={isLoading}
           disabled={isLoading || !formData.title.trim()}
         >
-          {isLoading ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
+          {task ? 'Update Task' : 'Create Task'}
         </Button>
 
       </form>

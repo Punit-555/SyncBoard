@@ -1,4 +1,4 @@
-const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmText = 'Delete', cancelText = 'Cancel', type = 'danger' }) => {
+const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmText = 'Delete', cancelText = 'Cancel', type = 'danger', isProcessing = false }) => {
   if (!isOpen) return null;
 
   const handleConfirm = () => {
@@ -35,6 +35,7 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmText
           <button
             onClick={onClose}
             className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            disabled={isProcessing}
           >
             {cancelText}
           </button>
@@ -45,8 +46,9 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, title, message, confirmText
                 ? 'bg-red-600 hover:bg-red-700'
                 : 'bg-blue-600 hover:bg-blue-700'
             }`}
+            disabled={isProcessing}
           >
-            {confirmText}
+            {isProcessing ? (<><i className="fas fa-spinner fa-spin mr-2"></i>{confirmText}</>) : confirmText}
           </button>
         </div>
       </div>

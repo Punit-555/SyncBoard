@@ -5,7 +5,6 @@ import * as api from '../../utils/api';
 import { useSnackbar } from '../../utils/useSnackbar';
 import Snackbar from './Snackbar';
 import Select from './Select';
-import { useAuth } from '../../hooks/useAuth';
 
 const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
   const [formData, setFormData] = useState({
@@ -280,14 +279,16 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
                   )}
                 </div>
               </div>
-
-              <Input
+              
+              <div className='flex justify-between gap-3 '>
+ <Input
                 label="First Name"
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
                 placeholder="Enter your first name"
                 required
+                className='w-[70%]'
               />
 
               <Input
@@ -297,7 +298,11 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
                 onChange={handleChange}
                 placeholder="Enter your last name"
                 required
+                className='w-[70%]'
               />
+
+              </div>
+             
 
               <Input
                 label="Email Address"
@@ -367,7 +372,7 @@ const ProfileEditModal = ({ isOpen, onClose, onProfileUpdated }) => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-310 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm animate-scaleIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-[523px] max-w-sm animate-scaleIn">
             {/* Header */}
             <div className="bg-red-600 p-6 rounded-t-2xl">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">

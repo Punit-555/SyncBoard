@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import TaskBoard from '../components/tasks/TaskBoard';
+import TaskTable from '../components/tasks/TaskTable';
 import TaskModal from '../components/tasks/TaskModal';
 import TaskDetailDrawer from '../components/tasks/TaskDetailDrawer';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
@@ -24,13 +25,32 @@ const Tasks = () => {
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerTask, setDrawerTask] = useState(null);
+  const [viewMode, setViewMode] = useState('table'); // default to 'table'
+  const [isProcessing, setIsProcessing] = useState(false);
   const { showSuccess, showError } = useSnackbar();
+
+  const loadTasks = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await getTasks();
+      if (response.success) {
+        setTasks(response.data || []);
+      } else {
+        showError('Failed to load tasks');
+      }
+    } catch (error) {
+      console.error('Load tasks error:', error);
+      showError(error.message || 'Failed to load tasks');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [showError]);
 
   useEffect(() => {
     loadTasks();
     fetchUsers();
     fetchProjects();
-  }, []);
+  }, [loadTasks]);
 
   const fetchUsers = async () => {
     try {
@@ -56,22 +76,7 @@ const Tasks = () => {
     }
   };
 
-  const loadTasks = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getTasks();
-      if (response.success) {
-        setTasks(response.data || []);
-      } else {
-        showError('Failed to load tasks');
-      }
-    } catch (error) {
-      console.error('Load tasks error:', error);
-      showError(error.message || 'Failed to load tasks');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   const handleCreateTask = () => {
     setSelectedTask(null);
@@ -92,17 +97,22 @@ const Tasks = () => {
     if (!taskToDelete) return;
 
     try {
+      setIsProcessing(true);
       await deleteTask(taskToDelete.id);
       showSuccess('Task deleted successfully');
-      loadTasks();
+      await loadTasks();
     } catch (error) {
       console.error('Delete task error:', error);
       showError(error.message || 'Failed to delete task');
     }
+    finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleTaskSubmit = () => {
-    loadTasks();
+    setIsProcessing(true);
+    loadTasks().finally(() => setIsProcessing(false));
     setIsModalOpen(false);
     setSelectedTask(null);
   };
@@ -129,15 +139,17 @@ const Tasks = () => {
       if ((t.status || '') !== filterStatus) return false;
     }
 
-    if (filterUser) {
-      const assignedId = t.assignedTo ? String(t.assignedTo) : '';
-      if (assignedId !== String(filterUser)) return false;
-    }
+      if (filterUser) {
+        const assignedId = t.userId ? String(t.userId) : '';
+        if (assignedId !== String(filterUser)) return false;
+      }
 
-    if (filterProjects.length > 0) {
-      const taskProjectId = t.projectId ? Number(t.projectId) : null;
-      if (!taskProjectId || !filterProjects.includes(taskProjectId)) return false;
-    }
+      if (filterProjects.length > 0) {
+        // task.projectId may be a number or string; normalize to string comparisons
+        const taskProjectId = t.projectId ? String(t.projectId) : null;
+        const normalizedFilters = filterProjects.map((fp) => String(fp));
+        if (!taskProjectId || !normalizedFilters.includes(taskProjectId)) return false;
+      }
 
     return true;
   });
@@ -180,14 +192,37 @@ const Tasks = () => {
     );
   }
 
+  // Prepare tasks for table (add display fields)
+  const tableTasks = filteredTasks.map((t) => ({
+    ...t,
+    assignedToName: t.user ? `${t.user.firstName || ''} ${t.user.lastName || ''}`.trim() : null,
+    projectName: t.project?.name ?? null,
+  }));
+  
+  const normalizedTasks = tableTasks;
+
   return (
-    <div className="p-6">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Tasks</h1>
-        <Button onClick={handleCreateTask} className="bg-blue-600 hover:bg-blue-700">
+        <div className="flex items-center gap-3">
+          <div className="w-48">
+            <Select
+              label="View"
+              name="viewMode"
+              value={viewMode}
+              onChange={(e) => setViewMode(e.target.value)}
+              options={[
+                { value: 'table', label: 'Table View' },
+                { value: 'kanban', label: 'Kanban Board' },
+              ]}
+            />
+          </div>
+          <Button onClick={handleCreateTask} className="" loading={isProcessing} disabled={isProcessing}>
           <i className="fas fa-plus mr-2"></i>
           Add New Task
-        </Button>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -248,15 +283,24 @@ const Tasks = () => {
           <p className="text-gray-500 text-lg">No tasks match the current filters.</p>
         </div>
       ) : (
-        <TaskBoard
-          tasks={filteredTasks}
-          onAddTask={handleCreateTask}
-          onEdit={handleEditTask}
-          onDelete={handleDeleteTask}
-          onMove={handleMoveTask}
-          onViewDetails={handleViewDetails}
-          onTaskStatusChange={handleTaskStatusChange}
-        />
+        viewMode === 'kanban' ? (
+          <TaskBoard
+            tasks={normalizedTasks}
+            onAddTask={handleCreateTask}
+            onEdit={handleEditTask}
+            onDelete={handleDeleteTask}
+            onMove={handleMoveTask}
+            onViewDetails={handleViewDetails}
+            onTaskStatusChange={handleTaskStatusChange}
+          />
+        ) : (
+          <TaskTable
+            tasks={tableTasks}
+            onEdit={handleEditTask}
+            onDelete={handleDeleteTask}
+            onViewDetails={handleViewDetails}
+          />
+        )
       )}
 
       <TaskModal
@@ -282,6 +326,7 @@ const Tasks = () => {
         confirmText="Delete"
         cancelText="Cancel"
         type="danger"
+        isProcessing={isProcessing}
       />
 
       <TaskDetailDrawer

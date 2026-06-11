@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children, modalClassName = '' }) => {
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -22,11 +22,11 @@ const Modal = ({ isOpen, onClose, title, children }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg w-full max-w-[500px] shadow-2xl p-4 md:p-6 my-auto animate-scaleIn max-h-[95vh] overflow-y-auto"
+        className={`bg-white rounded-lg w-full shadow-2xl animate-scaleIn flex flex-col max-h-[90vh] ${modalClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-4 md:mb-5 sticky top-0 bg-white z-10 pb-2">
-          <h3 className="text-lg md:text-xl font-semibold text-gray-800">{title}</h3>
+        <div className="flex justify-between items-center bg-blue-50 p-4 rounded-t-lg shrink-0">
+          <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
           <button
             onClick={onClose}
             className="bg-transparent border-none text-2xl md:text-3xl cursor-pointer text-gray-500 hover:text-gray-800 transition-colors flex-shrink-0 ml-2"
@@ -35,7 +35,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             &times;
           </button>
         </div>
-        <div className="overflow-y-auto">
+        <div className="p-6 overflow-y-auto">
           {children}
         </div>
       </div>

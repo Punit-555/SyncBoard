@@ -17,7 +17,6 @@ const TaskCard = ({ task, onEdit, onDelete, onMove, onViewDetails, onDragStart, 
 
   const subtaskCount = task.subtasks?.length || 0;
   const completedSubtasks = task.subtasks?.filter((st) => st.status === 'completed').length || 0;
-
   const handleDragStart = (e) => {
     e.stopPropagation();
     if (onDragStart) {
@@ -73,7 +72,7 @@ const TaskCard = ({ task, onEdit, onDelete, onMove, onViewDetails, onDragStart, 
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5">
             <div
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-1.5 rounded-full transition-all duration-300"
+              className="bg-linear-to-r from-blue-500 to-purple-600 h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${subtaskCount > 0 ? (completedSubtasks / subtaskCount) * 100 : 0}%` }}
             />
           </div>

@@ -1916,6 +1916,268 @@ function generateUserDeletedHTML(firstName) {
   `;
 }
 
+// Notify Super Admin(s) that a new support query was submitted
+export const sendQueryNotificationEmail = async (superAdminEmail, query) => {
+  try {
+    console.log(`📧 Attempting to send query notification to ${superAdminEmail}...`);
+    const result = await sendEmailInternal(
+      superAdminEmail,
+      `New Support Query: ${query.subject} 📨`,
+      generateQueryNotificationHTML(query)
+    );
+    console.log(`✅ Query notification sent to ${superAdminEmail}. Message ID: ${result.messageId}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending query notification email:', error.message);
+    throw error;
+  }
+};
+
+function generateQueryNotificationHTML(query) {
+  const currentYear = new Date().getFullYear();
+  const sourceLabels = {
+    'help': 'Help & Support page',
+    'login': 'Login screen',
+    'verify-otp': 'Security Code screen',
+  };
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 30px 20px;
+          text-align: center;
+          color: white;
+        }
+        .content { padding: 30px; }
+        .query-box {
+          background: #f8f9ff;
+          border: 2px solid #667eea;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 20px 0;
+        }
+        .info-item {
+          background: white;
+          padding: 12px 15px;
+          border-radius: 6px;
+          margin-bottom: 10px;
+          border: 1px solid #e0e0e0;
+        }
+        .info-label { font-size: 12px; color: #999; text-transform: uppercase; margin-bottom: 5px; }
+        .info-value { font-size: 15px; color: #333; font-weight: 600; }
+        .message-body {
+          background: white;
+          padding: 15px;
+          border-radius: 6px;
+          border-left: 3px solid #667eea;
+          font-size: 14px;
+          color: #555;
+          line-height: 1.7;
+          white-space: pre-wrap;
+        }
+        .cta-button { text-align: center; margin: 30px 0; }
+        .cta-button a {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 14px 40px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 16px;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          border-top: 1px solid #eee;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">New Support Query Received</p>
+        </div>
+        <div class="content">
+          <h2 style="color: #667eea; font-size: 22px; margin-bottom: 20px;">📨 New Query Submitted</h2>
+          <p style="color: #555; line-height: 1.8; margin-bottom: 20px;">
+            A user has submitted a new support query from the <strong>${sourceLabels[query.source] || query.source}</strong>.
+          </p>
+
+          <div class="query-box">
+            <div class="info-item">
+              <div class="info-label">From</div>
+              <div class="info-value">${query.name}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Email</div>
+              <div class="info-value">${query.email}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Subject</div>
+              <div class="info-value">${query.subject}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Message</div>
+              <div class="message-body">${query.message}</div>
+            </div>
+          </div>
+
+          <div class="cta-button">
+            <a href="${FRONTEND_URL}/queries">View in Queries Dashboard →</a>
+          </div>
+
+          <p style="font-size: 13px; color: #999; text-align: center;">
+            You can also reply directly to this user at <a href="mailto:${query.email}" style="color: #667eea;">${query.email}</a>
+          </p>
+        </div>
+        <div class="footer">
+          <p>© ${currentYear} SyncBoard. All rights reserved.</p>
+          <p style="margin-top: 10px; font-size: 11px;">
+            You're receiving this email because you're a Super Admin on SyncBoard.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+// Send reply from Super Admin to the user who raised a query
+export const sendQueryReplyEmail = async (userEmail, userName, originalQuery, replyMessage) => {
+  try {
+    console.log(`📧 Attempting to send query reply to ${userEmail}...`);
+    const result = await sendEmailInternal(
+      userEmail,
+      `Re: ${originalQuery.subject} - SyncBoard Support`,
+      generateQueryReplyHTML(userName, originalQuery, replyMessage)
+    );
+    console.log(`✅ Query reply sent to ${userEmail}. Message ID: ${result.messageId}`);
+    return true;
+  } catch (error) {
+    console.error('❌ Error sending query reply email:', error.message);
+    throw error;
+  }
+};
+
+function generateQueryReplyHTML(userName, originalQuery, replyMessage) {
+  const currentYear = new Date().getFullYear();
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          padding: 30px 20px;
+          text-align: center;
+          color: white;
+        }
+        .content { padding: 30px; }
+        .reply-box {
+          background: #f0fdf4;
+          border-left: 4px solid #22c55e;
+          padding: 20px;
+          border-radius: 6px;
+          margin: 20px 0;
+          font-size: 14px;
+          color: #333;
+          line-height: 1.8;
+          white-space: pre-wrap;
+        }
+        .original-box {
+          background: #f8f9fa;
+          border-left: 4px solid #adb5bd;
+          padding: 15px;
+          border-radius: 6px;
+          margin: 20px 0;
+          font-size: 13px;
+          color: #6c757d;
+        }
+        .footer {
+          background: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          font-size: 12px;
+          color: #999;
+          border-top: 1px solid #eee;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="color: white;">SyncBoard</h1>
+          <p style="color: white; opacity: 0.9;">Support Team Reply</p>
+        </div>
+        <div class="content">
+          <h2 style="color: #667eea; font-size: 22px; margin-bottom: 20px;">💬 We've Responded to Your Query</h2>
+          <p style="color: #333; font-size: 16px; font-weight: 600; margin-bottom: 15px;">Hi ${userName},</p>
+          <p style="color: #555; line-height: 1.8; margin-bottom: 10px;">
+            Our team has reviewed your query and here is the response:
+          </p>
+
+          <div class="reply-box">${replyMessage}</div>
+
+          <div class="original-box">
+            <strong>Your original query:</strong> "${originalQuery.subject}"<br><br>
+            ${originalQuery.message}
+          </div>
+
+          <p style="color: #555; line-height: 1.8; font-size: 14px;">
+            If you have further questions, simply reply to this email.
+          </p>
+        </div>
+        <div class="footer">
+          <p>© ${currentYear} SyncBoard. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 // Generic sendEmail function
 export const sendEmail = async (to, subject, htmlContent) => {
   try {

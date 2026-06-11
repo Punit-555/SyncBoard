@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React from 'react';
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyOTP from './pages/VerifyOTP';
 import Guide from './pages/Guide';
 import Help from './pages/Help';
 import Settings from './pages/Settings';
@@ -17,6 +18,8 @@ import Users from './pages/Users';
 import Tasks from './pages/Tasks';
 import Projects from './pages/Projects';
 import Messages from './pages/Messages';
+import Queries from './pages/Queries';
+import Todos from './pages/Todos';
 import UnderDevelopment from './pages/UnderDevelopment';
 import Loader from './components/ui/Loader';
 import UpdateNotification from './components/UpdateNotification';
@@ -60,6 +63,14 @@ function App() {
               </PublicRoute>
             }
           />
+          <Route
+            path="/verify-otp"
+            element={
+              <PublicRoute>
+                <VerifyOTP />
+              </PublicRoute>
+            }
+          />
 
           <Route
             path="/"
@@ -74,6 +85,8 @@ function App() {
             <Route path="tasks" element={<Tasks />} />
             <Route path="projects" element={<Projects />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="queries" element={<Queries />} />
+            <Route path="todos" element={<Todos />} />
             <Route path="teams" element={<UnderDevelopment />} />
             <Route path="users" element={<Users />} />
             <Route path="calendar" element={<UnderDevelopment />} />

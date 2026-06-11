@@ -333,21 +333,21 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-80px)] flex bg-gray-50 gap-2 md:gap-4 p-2 md:p-4 overflow-hidden">
+    <div className="h-[calc(100vh-110px)] flex bg-gray-50 gap-2 md:gap-4 overflow-hidden">
       {/* Desktop Sidebar - Collapsible */}
-      <div className={`hidden lg:flex flex-col bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 ${
-        isSidebarOpen ? 'w-80' : 'w-0 p-0'
+      <div className={`hidden lg:flex flex-col bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-300 ${
+        isSidebarOpen ? 'w-80' : 'w-0 p-0 border-0'
       }`}>
-  <div className="p-4 border-b border-gray-200 bg-linear-to-r from-blue-600 to-purple-600 shrink-0">
-          <h2 className="text-xl font-bold text-white mb-3">Messages</h2>
+        <div className="p-4 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-800 mb-3">Messages</h2>
           <div className="relative">
-            <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            <i className="fas fa-search absolute left-3 top-3 text-gray-300 text-sm"></i>
             <input
               type="text"
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4361ee]/20 focus:border-[#4361ee]"
             />
           </div>
         </div>
@@ -358,7 +358,7 @@ const Messages = () => {
             onClick={() => setActiveTab('conversations')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
               activeTab === 'conversations'
-                ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
+                ? 'text-[#4361ee] border-b-2 border-b-[#4361ee] bg-white'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -369,7 +369,7 @@ const Messages = () => {
             onClick={() => setActiveTab('users')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${
               activeTab === 'users'
-                ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
+                ? 'text-[#4361ee] border-b-2 border-b-[#4361ee] bg-white'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -393,12 +393,12 @@ const Messages = () => {
                   key={conv.user.id}
                   onClick={() => handleSelectUser(conv)}
                   className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 ${
-                    selectedUser?.id === conv.user.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                    selectedUser?.id === conv.user.id ? 'bg-[#4361ee]/5 border-l-4 border-l-[#4361ee]' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
                               <div className="relative shrink-0">
-                      <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
+                      <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
                         {conv.user.profilePicture ? (
                           <img
                             src={`${API_BASE}${conv.user.profilePicture}?t=${Date.now()}`}
@@ -432,7 +432,7 @@ const Messages = () => {
                         </h3>
                         {conv.lastMessage && (
                           <span className={`text-xs shrink-0 ml-2 ${
-                            conv.unreadCount > 0 ? 'text-blue-600 font-semibold' : 'text-gray-500'
+                            conv.unreadCount > 0 ? 'text-[#4361ee] font-semibold' : 'text-gray-500'
                           }`}>
                             {formatTime(conv.lastMessage.createdAt)}
                           </span>
@@ -460,12 +460,12 @@ const Messages = () => {
                 <div
                   key={u.id}
                   onClick={() => handleSelectNewUser(u)}
-                  className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-green-50 ${
-                    selectedUser?.id === u.id ? 'bg-green-50 border-l-4 border-l-green-600' : ''
+                  className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 ${
+                    selectedUser?.id === u.id ? 'bg-[#4361ee]/5 border-l-4 border-l-[#4361ee]' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
+                    <div className="relative w-12 h-12 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shadow-md">
                       {u.profilePicture ? (
                         <img
                           src={`${API_BASE}${u.profilePicture}?t=${Date.now()}`}
@@ -509,20 +509,20 @@ const Messages = () => {
       {/* Toggle Sidebar Button - Desktop Only */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="hidden lg:flex mt-4 p-2 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors shrink-0 h-fit"
+        className="hidden lg:flex mt-4 p-2 bg-white rounded-lg border border-gray-100 shadow-sm hover:bg-gray-50 transition-colors shrink-0 h-fit"
         title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
       >
         <i className={`fas ${isSidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'} text-gray-600 text-lg`}></i>
       </button>
 
       {/* Chat Area - Full width on mobile */}
-      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-md overflow-hidden relative min-h-0">
+      <div className="flex-1 flex flex-col bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden relative min-h-0">
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="bg-linear-to-r from-blue-600 to-purple-600 p-3 md:p-4 shadow-md flex items-center justify-between shrink-0">
+            <div className="bg-white border-b border-gray-100 p-3 md:p-4 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center text-gray-900 font-bold overflow-hidden shrink-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
                   {selectedUser.profilePicture ? (
                     <img
                       src={`${API_BASE}${selectedUser.profilePicture}?t=${Date.now()}`}
@@ -536,12 +536,12 @@ const Messages = () => {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold text-white text-sm md:text-base truncate">
+                  <h3 className="font-semibold text-gray-800 text-sm md:text-base truncate">
                     {selectedUser.firstName} {selectedUser.lastName}
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${isUserOnline(selectedUser) ? 'bg-green-400' : 'bg-gray-300'} ring-1 ring-white`} />
-                    <span className="text-white/90 text-xs md:text-sm">{isUserOnline(selectedUser) ? 'Online' : 'Offline'}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${isUserOnline(selectedUser) ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                    <span className="text-gray-400 text-xs">{isUserOnline(selectedUser) ? 'Online' : 'Offline'}</span>
                   </div>
                 </div>
               </div>
@@ -549,7 +549,7 @@ const Messages = () => {
               {/* Mobile Sidebar Toggle Button */}
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden p-2 hover:bg-white/20 rounded-lg transition-colors text-white"
+                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
                 title="Open conversations"
               >
                 <i className="fas fa-bars text-lg"></i>
@@ -582,7 +582,7 @@ const Messages = () => {
                       {/* Sender Avatar - Left side for received messages */}
                       {!isOwnMessage && (
                         <div className="relative">
-                          <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shadow-md shrink-0">
                             {messageSender?.profilePicture ? (
                               <img
                                 src={`${API_BASE}${messageSender.profilePicture}?t=${Date.now()}`}
@@ -607,7 +607,7 @@ const Messages = () => {
                         <div
                           className={`rounded-2xl px-3 py-2 md:px-4 md:py-3 shadow-sm ${
                               isOwnMessage
-                                ? 'bg-linear-to-r from-green-500 to-green-600 text-white rounded-br-md'
+                                ? 'bg-[#4361ee] text-white rounded-br-md'
                                 : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
                             }`}
                         >
@@ -666,7 +666,7 @@ const Messages = () => {
 
                       {/* Sender Avatar - Right side for sent messages */}
                       {isOwnMessage && (
-                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-md shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shadow-md shrink-0">
                           {currentUser?.profilePicture ? (
                             <img
                               src={`${API_BASE}${currentUser.profilePicture}?t=${Date.now()}`}
@@ -722,7 +722,7 @@ const Messages = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-2 md:p-3 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
+                  className="p-2 md:p-3 text-gray-600 hover:text-[#4361ee] hover:bg-gray-100 rounded-lg transition-colors shrink-0"
                   title="Attach file (max 5 files, 5MB each)"
                 >
                   <i className="fas fa-paperclip text-lg md:text-xl"></i>
@@ -731,14 +731,14 @@ const Messages = () => {
                 <textarea
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       handleSendMessage(e);
                     }
                   }}
                   placeholder="Type a message..."
-                  className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 md:px-4 md:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm md:text-base"
+                  className="flex-1 resize-none border border-gray-200 bg-gray-50 focus:bg-white rounded-xl px-3 py-2 md:px-4 md:py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4361ee]/20 focus:border-[#4361ee] text-sm md:text-base transition-colors"
                   rows="1"
                   style={{ maxHeight: '120px' }}
                 />
@@ -746,13 +746,13 @@ const Messages = () => {
                 <button
                   type="submit"
                   disabled={isSending || (!messageText.trim() && selectedFiles.length === 0)}
-                  className="p-2 md:p-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg shrink-0"
+                  className="w-10 h-10 md:w-11 md:h-11 bg-[#4361ee] text-white rounded-xl hover:bg-[#3a53d4] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm shrink-0 flex items-center justify-center"
                   title="Send message"
                 >
                   {isSending ? (
-                    <i className="fas fa-spinner fa-spin text-lg md:text-xl"></i>
+                    <i className="fas fa-spinner fa-spin text-base"></i>
                   ) : (
-                    <i className="fas fa-paper-plane text-lg md:text-xl"></i>
+                    <i className="fas fa-paper-plane text-base"></i>
                   )}
                 </button>
               </form>
@@ -769,7 +769,7 @@ const Messages = () => {
             {/* Mobile Sidebar Open Button */}
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="lg:hidden px-6 py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center gap-2"
+              className="lg:hidden px-6 py-3 bg-[#4361ee] text-white rounded-xl hover:bg-[#3a53d4] transition-colors font-medium flex items-center gap-2 shadow-sm"
             >
               <i className="fas fa-bars"></i>
               Open Chats
@@ -790,11 +790,11 @@ const Messages = () => {
           {/* Drawer */}
           <div className="fixed left-0 top-0 h-full w-[85vw] max-w-[320px] bg-white shadow-2xl z-50 lg:hidden overflow-hidden flex flex-col animate-slideInLeft">
             {/* Close Button */}
-            <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-linear-to-r from-blue-600 to-purple-600 shrink-0">
-              <h2 className="text-lg font-bold text-white">Messages</h2>
+            <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-white shrink-0">
+              <h2 className="text-lg font-bold text-gray-800">Messages</h2>
               <button
                 onClick={() => setIsMobileSidebarOpen(false)}
-                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white"
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
               >
                 <i className="fas fa-times text-base"></i>
               </button>
@@ -809,7 +809,7 @@ const Messages = () => {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4361ee]/20 focus:border-[#4361ee] bg-white"
                 />
               </div>
             </div>
@@ -820,7 +820,7 @@ const Messages = () => {
                 onClick={() => setActiveTab('conversations')}
                 className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
                   activeTab === 'conversations'
-                    ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
+                    ? 'text-[#4361ee] border-b-2 border-b-[#4361ee] bg-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -832,7 +832,7 @@ const Messages = () => {
                 onClick={() => setActiveTab('users')}
                 className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
                   activeTab === 'users'
-                    ? 'text-blue-600 border-b-2 border-b-blue-600 bg-white'
+                    ? 'text-[#4361ee] border-b-2 border-b-[#4361ee] bg-white'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -859,13 +859,13 @@ const Messages = () => {
                         handleSelectUser(conv);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`p-2.5 border-b border-gray-100 cursor-pointer transition-all active:bg-blue-100 ${
-                        selectedUser?.id === conv.user.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : 'hover:bg-gray-50'
+                      className={`p-2.5 border-b border-gray-100 cursor-pointer transition-all active:bg-gray-100 ${
+                        selectedUser?.id === conv.user.id ? 'bg-[#4361ee]/5 border-l-4 border-l-[#4361ee]' : 'hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <div className="relative shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm">
+                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm">
                             {conv.user.profilePicture ? (
                               <img
                                 src={`${API_BASE}${conv.user.profilePicture}?t=${Date.now()}`}
@@ -893,7 +893,7 @@ const Messages = () => {
                             </h3>
                             {conv.lastMessage && (
                               <span className={`text-xs shrink-0 ${
-                                conv.unreadCount > 0 ? 'text-blue-600 font-semibold' : 'text-gray-500'
+                                conv.unreadCount > 0 ? 'text-[#4361ee] font-semibold' : 'text-gray-500'
                               }`}>
                                 {formatTime(conv.lastMessage.createdAt)}
                               </span>
@@ -924,12 +924,12 @@ const Messages = () => {
                         handleSelectNewUser(u);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`p-2.5 border-b border-gray-100 cursor-pointer transition-all active:bg-green-100 ${
-                        selectedUser?.id === u.id ? 'bg-green-50 border-l-4 border-l-green-600' : 'hover:bg-gray-50'
+                      className={`p-2.5 border-b border-gray-100 cursor-pointer transition-all active:bg-gray-100 ${
+                        selectedUser?.id === u.id ? 'bg-[#4361ee]/5 border-l-4 border-l-[#4361ee]' : 'hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <div className="relative w-10 h-10 rounded-full bg-linear-to-br from-green-500 to-teal-600 flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm shrink-0">
+                        <div className="relative w-10 h-10 rounded-full bg-linear-to-br from-[#4361ee] to-[#764ba2] flex items-center justify-center text-white font-bold overflow-hidden shadow-sm text-sm shrink-0">
                           {u.profilePicture ? (
                             <img
                               src={`${API_BASE}${u.profilePicture}?t=${Date.now()}`}

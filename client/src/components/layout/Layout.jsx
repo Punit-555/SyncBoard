@@ -6,24 +6,14 @@ import Sidebar from './Sidebar';
 const Layout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
-  };
-
   return (
-    <div className="h-screen flex flex-col bg-[#f5f7fb] overflow-hidden ">
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
-        <main
-          className={`flex-1 overflow-y-auto transition-all duration-300 ${
-            isSidebarCollapsed ? 'md:ml-30' : 'md:ml-64'
-          } ml-0`}
-        >
-          <div className=" sm:px-6 lg:px-4 max-w-[1600px]  w-full">
-            <div className="animate-fadeIn">
-              <Outlet />
-            </div>
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      <Sidebar isCollapsed={isSidebarCollapsed} onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto">
+          <div className="px-6 py-6 max-w-[1600px] w-full animate-fadeIn">
+            <Outlet />
           </div>
         </main>
       </div>
