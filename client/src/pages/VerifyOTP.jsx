@@ -66,8 +66,8 @@ const VerifyOTP = () => {
   };
 
   return (
-  <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#4361ee] to-[#3f37c9] p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+  <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#eef2ff] via-white to-[#f5f3ff] p-4">
+      <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 w-full max-w-sm p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">Enter verification code</h2>
         <p className="text-sm text-gray-600 mb-4">We sent a 5-digit code to {email}. Enter it below to continue.</p>
 

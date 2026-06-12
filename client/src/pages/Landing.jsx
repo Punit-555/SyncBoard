@@ -13,7 +13,7 @@ const products = [
     description:
       'Smart task management & team collaboration. Kanban boards, role-based dashboards, real-time messaging, email notifications, and project tracking — all in one place.',
     features: ['Kanban & Table views', 'Team messaging', 'Role-based access', 'Email alerts'],
-    gradient: 'from-[#4361ee] to-[#7209b7]',
+    gradient: 'from-[#4361ee] to-[#3f37c9]',
   },
   {
     icon: 'fas fa-chart-line',
@@ -71,6 +71,45 @@ const stats = [
   { value: '150+', label: 'Teams onboard' },
   { value: '10k+', label: 'Tasks completed' },
   { value: '4.8★', label: 'User rating' },
+];
+
+const expertise = [
+  {
+    icon: 'fas fa-code',
+    title: 'Frontend Engineering',
+    text: 'Modern, responsive interfaces built with React, Tailwind and component-driven architecture.',
+    tags: ['React', 'Tailwind CSS', 'Vite'],
+  },
+  {
+    icon: 'fas fa-server',
+    title: 'Backend Engineering',
+    text: 'Robust REST APIs, authentication, role-based access and scalable database design.',
+    tags: ['Node.js', 'Express', 'Prisma', 'MongoDB'],
+  },
+  {
+    icon: 'fas fa-pen-ruler',
+    title: 'UI/UX Design',
+    text: 'Pixel-perfect designs from wireframe to final hand-off — crafted and prototyped in Figma.',
+    tags: ['Figma', 'Prototyping', 'Design Systems'],
+  },
+  {
+    icon: 'fas fa-mobile-screen',
+    title: 'Mobile App Development',
+    text: 'Cross-platform mobile application building experience for iOS and Android.',
+    tags: ['React Native', 'Cross-platform'],
+  },
+  {
+    icon: 'fas fa-vial-circle-check',
+    title: 'Testing & QA',
+    text: 'Quality-first delivery with thorough manual and automated testing across every release.',
+    tags: ['QA Pipelines', 'Automation', 'Bug Tracking'],
+  },
+  {
+    icon: 'fas fa-cloud-arrow-up',
+    title: 'Deployment & Ops',
+    text: 'CI/CD-driven deployments to modern cloud platforms with monitoring and email infrastructure.',
+    tags: ['Vercel', 'Render', 'CI/CD'],
+  },
 ];
 
 const Landing = () => {
@@ -136,6 +175,7 @@ const Landing = () => {
             <button onClick={() => scrollTo('products')} className="hover:text-[#4361ee] transition-colors">Products</button>
             <button onClick={() => scrollTo('usecases')} className="hover:text-[#4361ee] transition-colors">Use Cases</button>
             <button onClick={() => scrollTo('how')} className="hover:text-[#4361ee] transition-colors">How it Works</button>
+            <button onClick={() => scrollTo('team')} className="hover:text-[#4361ee] transition-colors">Expertise</button>
             <button onClick={() => scrollTo('contact')} className="hover:text-[#4361ee] transition-colors">Contact</button>
           </div>
 
@@ -160,7 +200,7 @@ const Landing = () => {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 shadow-xl px-5 py-4 space-y-1 animate-fadeIn">
-            {[['products', 'Products'], ['usecases', 'Use Cases'], ['how', 'How it Works'], ['contact', 'Contact']].map(([id, label]) => (
+            {[['products', 'Products'], ['usecases', 'Use Cases'], ['how', 'How it Works'], ['team', 'Expertise'], ['contact', 'Contact']].map(([id, label]) => (
               <button key={id} onClick={() => scrollTo(id)} className="block w-full text-left px-3 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-50">
                 {label}
               </button>
@@ -353,6 +393,42 @@ const Landing = () => {
               Create Your Free Account
               <i className="fas fa-arrow-right ml-2"></i>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ DEVELOPER & EXPERTISE ============ */}
+      <section id="team" className="py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-5 md:px-8">
+          <div className="text-center mb-14">
+            <p className="text-sm font-bold text-[#4361ee] uppercase tracking-widest mb-3">Who Builds This</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">Full-stack craft, end to end</h2>
+            <p className="max-w-2xl mx-auto text-gray-500">
+              ProinServe is built by an experienced product team that owns the whole lifecycle —
+              from Figma designs and frontend polish to backend architecture, mobile apps, testing and deployment.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {expertise.map((e) => (
+              <div
+                key={e.title}
+                className="group bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-xl hover:border-[#4361ee]/20 hover:-translate-y-1.5 transition-all duration-300"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-[#4361ee] to-[#3f37c9] text-white flex items-center justify-center text-lg mb-5 shadow-lg shadow-[#4361ee]/20 group-hover:scale-110 transition-transform">
+                  <i className={e.icon}></i>
+                </div>
+                <h3 className="font-extrabold text-lg mb-2">{e.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed mb-4">{e.text}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {e.tags.map((t) => (
+                    <span key={t} className="text-[11px] font-semibold text-[#4361ee] bg-[#4361ee]/8 rounded-full px-2.5 py-1">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

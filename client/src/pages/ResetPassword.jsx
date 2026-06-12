@@ -86,8 +86,8 @@ const ResetPassword = () => {
 
   if (isValidating) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#4361ee] to-[#3f37c9] p-4 sm:p-5 md:p-8">
-        <div className="bg-white rounded-2xl sm:rounded-lg md:rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-7 md:p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#eef2ff] via-white to-[#f5f3ff] p-4 sm:p-5 md:p-8">
+        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 w-full max-w-md p-6 sm:p-7 md:p-8 text-center">
           <i className="fas fa-spinner fa-spin text-3xl md:text-4xl text-[#4361ee] mb-3 md:mb-4"></i>
           <p className="text-gray-600 text-sm md:text-base">Validating reset token...</p>
         </div>
@@ -97,8 +97,8 @@ const ResetPassword = () => {
 
   if (!isValidToken) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#4361ee] to-[#3f37c9] p-4 sm:p-5 md:p-8">
-        <div className="bg-white rounded-2xl sm:rounded-lg md:rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-7 md:p-8">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#eef2ff] via-white to-[#f5f3ff] p-4 sm:p-5 md:p-8">
+        <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 w-full max-w-md p-6 sm:p-7 md:p-8">
           <div className="text-center mb-4 md:mb-6">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
               <i className="fas fa-times-circle text-2xl md:text-3xl text-red-500"></i>
@@ -136,8 +136,8 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#4361ee] to-[#3f37c9] p-4 sm:p-5 md:p-8">
-      <div className="bg-white rounded-2xl sm:rounded-lg md:rounded-xl shadow-2xl w-full max-w-md p-6 sm:p-7 md:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#eef2ff] via-white to-[#f5f3ff] p-4 sm:p-5 md:p-8">
+      <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100 border border-gray-100 w-full max-w-md p-6 sm:p-7 md:p-8">
         <div className="text-center mb-6 sm:mb-7 md:mb-8">
           <div className="flex items-center justify-center gap-2.5 mb-3 sm:mb-4 text-2xl sm:text-3xl font-bold text-[#4361ee]">
             <div className="bg-gradient-to-br from-[#4361ee] to-[#3f37c9] w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white">
