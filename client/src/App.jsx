@@ -20,6 +20,7 @@ import Projects from './pages/Projects';
 import Messages from './pages/Messages';
 import Queries from './pages/Queries';
 import Todos from './pages/Todos';
+import Landing from './pages/Landing';
 import UnderDevelopment from './pages/UnderDevelopment';
 import Loader from './components/ui/Loader';
 import UpdateNotification from './components/UpdateNotification';
@@ -72,15 +73,16 @@ function App() {
             }
           />
 
+          {/* Public landing page */}
+          <Route path="/" element={<Landing />} />
+
           <Route
-            path="/"
             element={
               <ProtectedRoute>
                 <Layout />
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="tasks" element={<Tasks />} />
             <Route path="projects" element={<Projects />} />
@@ -98,7 +100,7 @@ function App() {
 
           <Route
             path="*"
-            element={<Navigate to="/login" />}
+            element={<Navigate to="/" />}
           />
         </Routes>
         </Router>

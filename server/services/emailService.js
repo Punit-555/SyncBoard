@@ -2047,6 +2047,7 @@ function generateQueryNotificationHTML(query) {
     'help': 'Help & Support page',
     'login': 'Login screen',
     'verify-otp': 'Security Code screen',
+    'landing': 'Landing page (visitor)',
   };
 
   return `

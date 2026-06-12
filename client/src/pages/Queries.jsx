@@ -24,6 +24,7 @@ const sourceLabels = {
   help: 'Help Page',
   login: 'Login Screen',
   'verify-otp': 'Security Code Screen',
+  landing: 'Landing Page',
 };
 
 const Queries = () => {
