@@ -13,3 +13,6 @@ logs/
 
 # Editor files
 .vscode/
+
+# Claude Code local settings
+.claude/
